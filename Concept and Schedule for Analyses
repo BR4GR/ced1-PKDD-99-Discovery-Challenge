@@ -1,3 +1,70 @@
+Konzept und Zeitplan für Analysen
+
+1. Einleitung
+
+Ziel ist es, eine umfassende Analyse der Kundendaten der Bank zu erstellen, um potenzielle Geschäftsmöglichkeiten und Kundensegmente zu identifizieren. Die Analyse wird eine Bewertung der Datenqualität, eine explorative Datenanalyse, Korrelationsstudien und eine Hypothesenbildung für den Produktverkauf/-einsatz umfassen.
+
+2. Datenbewertung und Qualitätsprüfung, 14. bis 20. Oktober 2023
+
+2.1 Erste Datenexploration: Ein schneller Überblick über den Datensatz, um dessen Struktur, Merkmale und potenziell fehlende oder inkonsistente Werte zu verstehen.
+2.2 Datenbereinigung: Identifizierung und Behandlung von fehlenden Werten, doppelten Datensätzen und Ausreißern.
+2.3 Datenumwandlung: Konvertieren kategorischer Daten in ein numerisches Format, falls erforderlich, und Normalisieren oder Standardisieren des Datensatzes nach Bedarf.
+
+
+
+3. Explorative Datenanalyse (EDA) 21. bis 27. Oktober 2023
+
+3.1 Univariate Analyse: Verstehen Sie die Verteilung einzelner Attribute mithilfe von Histogrammen, Boxplots usw.
+3.2 Bivariate Analyse: Aufdecken von Beziehungen zwischen zwei Variablen mithilfe von Streudiagrammen, Korrelationsmatrizen usw.
+3.3 Zeitliche Analyse: Analyse der Veränderungen von Datenattributen im Laufe der Zeit mit Hilfe von Liniendiagrammen, Zeitreihendekomposition, usw.
+
+
+
+4. Korrelations- und Beziehungsanalyse 28. Oktober - 3. November 2023
+
+4.1 Korrelationsmatrix: Identifizieren Sie die Beziehungen zwischen numerischen Variablen.
+4.2 Pair Plot: Visualisierung von Beziehungen zwischen mehreren Variablen.
+4.3 Chi-Quadrat-Test: Überprüfen Sie Beziehungen zwischen kategorischen Variablen.      ??
+
+
+5. Hypothesenbildung für den Produktverkauf/-einsatz 4. bis 10. November 2023
+
+5.1 Kundensegmentierung: Verwenden Sie Clustering-Algorithmen (z. B. K-Means), um Kunden auf der Grundlage ihrer Datenattribute in verschiedene Segmente einzuteilen.
+5.2 Hypothesentests: Führen Sie Tests durch (z. B. t-Test, ANOVA), um Hypothesen in Bezug auf Produktverkäufe und -nutzung zu überprüfen.
+
+
+
+6. Client Analytical Record 11. bis 17. November 2023
+
+6.1 Konsolidierung: Aggregieren aller relevanten Daten für jeden Kunden in einem einzigen Datensatz.
+6.2 Visualisierung: Erstellung eines Dashboards oder einer visuellen Darstellung für den analytischen Datensatz eines jeden Kunden.
+
+
+
+7. Abschlussbericht und Dokumentation
+
+7.1 Stellen Sie die Ergebnisse in einem umfassenden Bericht zusammen.
+7.2 Strukturieren und dokumentieren Sie die Analysen in einem Rmd-Notebook zur späteren Verwendung innerhalb der Bank.
+7.3 Präsentation: Visualisierungen und Erkenntnisse für den Kunden verständlich aufbereiten.
+
+Übergabe des Analysekonzepts mit Hypothesen, Arbeitspaketen und Zeitplan: 13. Oktober 2023
+Lieferung des Abschlussberichts Rmd Notebook: 12. Januar 2024
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Concept and Schedule for Analyses
 
 1. Introduction
@@ -50,5 +117,7 @@ The aim is to provide a comprehensive analysis of the bank's customer data to id
 
 Delivery of Analysis Concept with Hypotheses, Work Packages, and Time Schedule: October 13, 2023
 Delivery of Final Report Rmd Notebook: January 12, 2024
+
+
 
 
