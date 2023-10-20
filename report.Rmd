@@ -15,9 +15,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
-```{r}
-plot(cars)
-```
+
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
@@ -30,5 +28,39 @@ glimpse(accounts)
 summary(accounts)
 sum(is.na(accounts))
 length(unique(accounts$account_id)) == nrow(accounts)
+```
+
+Im ersten schritt wollen wir die Daten der Tabelle accounts verständlicher machen. Dabei wollen wir die tschechischen Namen in der Kategorie "frequency" auf Deutsch übersetzen und con einem <chr> in einen <fct> umwandeln  und das Datum in das richtige Format bringen.
+```{r}
+#Ändern der tschechischen Namen in der Spalte frequency
+accounts$frequency <- ifelse(accounts$frequency == "POPLATEK MESICNE", "Monatliche Ausgabe", accounts$frequency)
+accounts$frequency <- ifelse(accounts$frequency == "POPLATEK TYDNE", "Wöchentliche Ausgabe", accounts$frequency)
+accounts$frequency <- ifelse(accounts$frequency == "POPLATEK PO OBRATU", "Ausgabe nach Transaktion", accounts$frequency)
+```
+
+```{r}
+#Frequency in Faktor umwandeln
+accounts <- accounts %>% 
+  mutate(frequency = as.factor(frequency))
+```
+
+```{r}
+#Ändern des date in ein Datenformat.
+
+# Jahr extrahieren und vervollständigen
+accounts$year <- ifelse(as.numeric(substring(accounts$date, 1, 2)) < 50,
+                        paste0("20", substring(accounts$date, 1, 2)),
+                        paste0("19", substring(accounts$date, 1, 2)))
+
+# Datum umwandeln
+accounts$date <- as.Date(paste0(accounts$year, substring(accounts$date, 3)), format = "%Y%m%d")
+
+# Entferne die temporäre Spalte für das Jahr
+accounts$year <- NULL
+```
+
+```{r}
+glimpse(accounts)
+summary(accounts)
 ```
 
