@@ -22,6 +22,8 @@ Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by press
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+Laden und betrachten der account Tabelle.
 ```{r}
 accounts <- read.csv("data/account.csv", sep=";")
 glimpse(accounts)
@@ -59,8 +61,99 @@ accounts$date <- as.Date(paste0(accounts$year, substring(accounts$date, 3)), for
 accounts$year <- NULL
 ```
 
+Die Werte sind nun bereinigt und man sieht bei frequency die drei Ausgabedaten, zudem ist das Datum nun auch als Datum erfasst.
 ```{r}
 glimpse(accounts)
 summary(accounts)
+```
+
+
+
+Laden und betrachten der card Tabelle
+```{r}
+card <- read.csv("data/card.csv", sep=";")
+glimpse(card)
+summary(card)
+sum(is.na(card))
+length(unique(card$card_id)) == nrow(card)
+```
+
+Bei diesem Datensatz änern wir zuerst die "type" Spalte wie oben in einen Faktor.
+```{r}
+#Type in Faktor umwandeln
+card <- card %>% 
+  mutate(type = as.factor(type))
+```
+
+Anschliessend wird die spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
+```{r}
+card$year <- ifelse(as.numeric(substring(card$issued, 1, 2)) < 50,
+                        paste0("20", substring(card$issued, 1, 2)),
+                        paste0("19", substring(card$issued, 1, 2)))
+
+# Datum umwandeln
+card$issued <- as.Date(paste0(card$year, substring(card$issued, 3)), format = "%Y%m%d")
+
+# Entferne die temporäre Spalte für das Jahr
+card$year <- NULL
+```
+
+Der Card Datensatz sollte nun korrekt sein.
+```{r}
+glimpse(card)
+summary(card)
+```
+
+Weiter geht es mit dem Client Datensatz.
+```{r}
+client <- read.csv("data/client.csv", sep=";")
+glimpse(client)
+summary(client)
+sum(is.na(client))
+length(unique(client$client_id)) == nrow(client)
+```
+
+Bei diesem Datensatz ist wichtig zu wissen, dass in der birth_number zudem das Geschlecht gespeichert ist. Bei Frauen wurde die angabe des Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen. Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen und die Geburtsdaten dann bereinigt in der birth number wiedergeben.
+```{r}
+
+#Unterscheidung von Mann und Frau anhand vom Geburtsdatum
+sex_in_birth <- function(zahl) {
+  einzelne_zahl <- as.numeric(strsplit(as.character(zahl), '')[[1]])    # <int> in <str> ändern
+  mittlere_zahl <- einzelne_zahl[3]                                     # 3. Zahl aussuchen
+  mittlere_zahl <- as.integer(mittlere_zahl)                            # wieder in <int> ändern
+  geschlecht <- ifelse((mittlere_zahl) > 2, "female", "male")           # Wenn die Zahl grösser als 2 ist (Kein Monat wird mit 20+ angegeben) als Frau ausgeben.
+  return(geschlecht)
+}
+
+#Anwendung der Funktion auf den Datensatz und erstellung der zusätzlichen Reihe
+client$sex <- sapply(client$birth_number, sex_in_birth)
+
+#Ändern des Datentyps der Reihe
+client <- client %>% 
+  mutate(sex = as.factor(sex))
+```
+
+Da wir nun die Kategorie des Geschlechts haben wollen wir noch das Geburtsdatum anpassen und im richtigen Format ausgeben.
+```{r}
+#Geburtsdatum bei den Frauen um 5000 subtrahieren. Damit wieder der normale Monat angezeigt wird.
+client$birth_number[client$sex == "female"] <- client$birth_number[client$sex == "female"]-5000
+
+
+#Der <int> wird in ein Datum umgewandelt.
+client$year <- ifelse(as.numeric(substring(client$birth_number, 1, 2)) < 10,
+                        paste0("20", substring(card$issued, 1, 2)),
+                        paste0("19", substring(client$birth_number, 1, 2)))
+
+# Datum umwandeln
+client$birth_number <- as.Date(paste0(client$year, substring(client$birth_number, 3)), format = "%Y%m%d")
+
+# Entferne die temporäre Spalte für das Jahr
+client$year <- NULL
+```
+
+Der Client Datensatz sollte nun korrekt sein und die Spalte sex enthalten.
+```{r}
+glimpse(client)
+summary(client)
 ```
 

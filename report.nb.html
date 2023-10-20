@@ -1759,14 +1759,39 @@ display: none;
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zdGFsbC5wYWNrYWdlcyhcImRwbHlyXCIpIFxuYGBgIn0= -->
 <pre class="r"><code>install.packages(&quot;dplyr&quot;) </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gaW5zdGFsbC5wYWNrYWdlcyA6IFVwZGF0aW5nIGxvYWRlZCBwYWNrYWdlc1xuIn0= -->
-<pre><code>Error in install.packages : Updating loaded packages</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiV0FSTklORzogUnRvb2xzIGlzIHJlcXVpcmVkIHRvIGJ1aWxkIFIgcGFja2FnZXMgYnV0IGlzIG5vdCBjdXJyZW50bHkgaW5zdGFsbGVkLiBQbGVhc2UgZG93bmxvYWQgYW5kIGluc3RhbGwgdGhlIGFwcHJvcHJpYXRlIHZlcnNpb24gb2YgUnRvb2xzIGJlZm9yZSBwcm9jZWVkaW5nOlxuXG5odHRwczovL2NyYW4ucnN0dWRpby5jb20vYmluL3dpbmRvd3MvUnRvb2xzL1xuSW5zdGFsbGllcmUgUGFrZXQgbmFjaCDigJhDOi9Vc2Vycy9BZHJpYW4gTWVpZXIvQXBwRGF0YS9Mb2NhbC9SL3dpbi1saWJyYXJ5LzQuM+KAmVxuKGRhIOKAmGxpYuKAmSBuaWNodCBzcGV6aWZpemllcnQpXG50cnlpbmcgVVJMICdodHRwczovL2NyYW4ucnN0dWRpby5jb20vYmluL3dpbmRvd3MvY29udHJpYi80LjMvZHBseXJfMS4xLjMuemlwJ1xuQ29udGVudCB0eXBlICdhcHBsaWNhdGlvbi96aXAnIGxlbmd0aCAxNTUyNjM1IGJ5dGVzICgxLjUgTUIpXG5kb3dubG9hZGVkIDEuNSBNQlxuIn0= -->
+<pre><code>WARNING: Rtools is required to build R packages but is not currently installed. Please download and install the appropriate version of Rtools before proceeding:
+
+https://cran.rstudio.com/bin/windows/Rtools/
+Installiere Paket nach ‘C:/Users/Adrian Meier/AppData/Local/R/win-library/4.3’
+(da ‘lib’ nicht spezifiziert)
+trying URL &#39;https://cran.rstudio.com/bin/windows/contrib/4.3/dplyr_1.1.3.zip&#39;
+Content type &#39;application/zip&#39; length 1552635 bytes (1.5 MB)
+downloaded 1.5 MB</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFrZXQg4oCYZHBseXLigJkgZXJmb2xncmVpY2ggYXVzZ2VwYWNrdCB1bmQgTUQ1IFN1bW1lbiBhYmdlZ2xpY2hlblxuXG5EaWUgaGVydW50ZXJnZWxhZGVuZW4gQmluw6RycGFrZXRlIHNpbmQgaW4gXG5cdEM6XFxVc2Vyc1xcQWRyaWFuIE1laWVyXFxBcHBEYXRhXFxMb2NhbFxcVGVtcFxcUnRtcEswY1U2MFxcZG93bmxvYWRlZF9wYWNrYWdlc1xuIn0= -->
+<pre><code>Paket ‘dplyr’ erfolgreich ausgepackt und MD5 Summen abgeglichen
+
+Die heruntergeladenen Binärpakete sind in 
+    C:\Users\Adrian Meier\AppData\Local\Temp\RtmpK0cU60\downloaded_packages</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcbmBgYCJ9 -->
 <pre class="r"><code>library(dplyr)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hlIFBha2V0OiDigJhkcGx5cuKAmVxuXG5EaWUgZm9sZ2VuZGVuIE9iamVrdGUgc2luZCBtYXNraWVydCB2b24g4oCYcGFja2FnZTpzdGF0c+KAmTpcblxuICAgIGZpbHRlciwgbGFnXG5cbkRpZSBmb2xnZW5kZW4gT2JqZWt0ZSBzaW5kIG1hc2tpZXJ0IHZvbiDigJhwYWNrYWdlOmJhc2XigJk6XG5cbiAgICBpbnRlcnNlY3QsIHNldGRpZmYsIHNldGVxdWFsLCB1bmlvblxuIn0= -->
+<pre><code>
+Attache Paket: ‘dplyr’
+
+Die folgenden Objekte sind maskiert von ‘package:stats’:
+
+    filter, lag
+
+Die folgenden Objekte sind maskiert von ‘package:base’:
+
+    intersect, setdiff, setequal, union</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>This is an <a href="http://rmarkdown.rstudio.com">R Markdown</a>
@@ -1784,19 +1809,20 @@ press <em>Ctrl+Shift+K</em> to preview the HTML file).</p>
 editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not
 run any R code chunks. Instead, the output of the chunk when it was last
 run in the editor is displayed.</p>
+<p>Laden und betrachten der account Tabelle.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYWNjb3VudHMgPC0gcmVhZC5jc3YoXCJkYXRhL2FjY291bnQuY3N2XCIsIHNlcD1cIjtcIilcbmdsaW1wc2UoYWNjb3VudHMpXG5gYGAifQ== -->
 <pre class="r"><code>accounts &lt;- read.csv(&quot;data/account.csv&quot;, sep=&quot;;&quot;)
 glimpse(accounts)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNCw1MDBcbkNvbHVtbnM6IDRcbiQgYWNjb3VudF9pZCAgPGludD4gNTc2LCAzODE4LCA3MDQsIDIzNzgsIDI2MzIsIDE5NzIsIDE1MzksIDc5MywgMjQ4NCwgMTY5NSwgMTcyNiwgMjg4MSwgMjM1NywgMjE3NywgNDg1LCA2NTIsIDk2MzUsIDE4NDQsIDE5MjYsIDIzOTMsIDM1MTAsIDEyNzYsIDE2Mzcs4oCmXG4kIGRpc3RyaWN0X2lkIDxpbnQ+IDU1LCA3NCwgNTUsIDE2LCAyNCwgNzcsIDEsIDQ3LCA3NCwgNzYsIDQ4LCA3MCwgMTksIDYyLCA2LCAyMSwgNzAsIDQ0LCAzNywgMTAsIDQxLCAzNiwgMSwgMjYsIDU1LCAxLCA3LCA2OCwgNTQsIDQxLCAzOCwgMSwgNDEsIDM4LCAxLOKAplxuJCBmcmVxdWVuY3kgICA8Y2hyPiBcIlBPUExBVEVLIE1FU0lDTkVcIiwgXCJQT1BMQVRFSyBNRVNJQ05FXCIsIFwiUE9QTEFURUsgTUVTSUNORVwiLCBcIlBPUExBVEVLIE1FU0lDTkVcIiwgXCJQT1BMQVRFSyBNRVNJQ05FXCIsIFwiUE9QTEFURUsgTUVTSUNORVwiLCBcIlBPUExBVEVLIFBP4oCmXG4kIGRhdGUgICAgICAgIDxpbnQ+IDkzMDEwMSwgOTMwMTAxLCA5MzAxMDEsIDkzMDEwMSwgOTMwMTAyLCA5MzAxMDIsIDkzMDEwMywgOTMwMTAzLCA5MzAxMDMsIDkzMDEwMywgOTMwMTAzLCA5MzAxMDQsIDkzMDEwNCwgOTMwMTA0LCA5MzAxMDQsIDkzMDEwNSwgOTMwMeKAplxuIn0= -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNCw1MDBcbkNvbHVtbnM6IDRcbiQgYWNjb3VudF9pZCAgPGludD4gNTc2LCAzODE4LCA3MDQsIDIzNzgsIDI2MzIsIDE5NzIsIDE1MzksIDc5MywgMjQ4NCwgMTY5NSwgMTcyNiwgMjg4MSwgMjM1NywgMjE3NywgNDg1LCA2NTIsIDk2MzUsIDE4NDQsIDE5MjYsIDIzOTMsIDM1MTAsIDEyNzYsIDE2MzcsIDM4NzEsIDE5MiwgNzY0LCAyMDg3LCAy4oCmXG4kIGRpc3RyaWN0X2lkIDxpbnQ+IDU1LCA3NCwgNTUsIDE2LCAyNCwgNzcsIDEsIDQ3LCA3NCwgNzYsIDQ4LCA3MCwgMTksIDYyLCA2LCAyMSwgNzAsIDQ0LCAzNywgMTAsIDQxLCAzNiwgMSwgMjYsIDU1LCAxLCA3LCA2OCwgNTQsIDQxLCAzOCwgMSwgNDEsIDM4LCAxLCA5LCA2MCwgNDQsIDI2LCAzNywgNzQsIOKAplxuJCBmcmVxdWVuY3kgICA8Y2hyPiBcIlBPUExBVEVLIE1FU0lDTkVcIiwgXCJQT1BMQVRFSyBNRVNJQ05FXCIsIFwiUE9QTEFURUsgTUVTSUNORVwiLCBcIlBPUExBVEVLIE1FU0lDTkVcIiwgXCJQT1BMQVRFSyBNRVNJQ05FXCIsIFwiUE9QTEFURUsgTUVTSUNORVwiLCBcIlBPUExBVEVLIFBPIE9CUkFUVVwiLCBcIlBPUExBVEVLIE1FU0nigKZcbiQgZGF0ZSAgICAgICAgPGludD4gOTMwMTAxLCA5MzAxMDEsIDkzMDEwMSwgOTMwMTAxLCA5MzAxMDIsIDkzMDEwMiwgOTMwMTAzLCA5MzAxMDMsIDkzMDEwMywgOTMwMTAzLCA5MzAxMDMsIDkzMDEwNCwgOTMwMTA0LCA5MzAxMDQsIDkzMDEwNCwgOTMwMTA1LCA5MzAxMDUsIDkzMDEwNiwgOTMwMTA2LCA5MzAx4oCmXG4ifQ== -->
 <pre><code>Rows: 4,500
 Columns: 4
-$ account_id  &lt;int&gt; 576, 3818, 704, 2378, 2632, 1972, 1539, 793, 2484, 1695, 1726, 2881, 2357, 2177, 485, 652, 9635, 1844, 1926, 2393, 3510, 1276, 1637,…
-$ district_id &lt;int&gt; 55, 74, 55, 16, 24, 77, 1, 47, 74, 76, 48, 70, 19, 62, 6, 21, 70, 44, 37, 10, 41, 36, 1, 26, 55, 1, 7, 68, 54, 41, 38, 1, 41, 38, 1,…
-$ frequency   &lt;chr&gt; &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK PO…
-$ date        &lt;int&gt; 930101, 930101, 930101, 930101, 930102, 930102, 930103, 930103, 930103, 930103, 930103, 930104, 930104, 930104, 930104, 930105, 9301…</code></pre>
+$ account_id  &lt;int&gt; 576, 3818, 704, 2378, 2632, 1972, 1539, 793, 2484, 1695, 1726, 2881, 2357, 2177, 485, 652, 9635, 1844, 1926, 2393, 3510, 1276, 1637, 3871, 192, 764, 2087, 2…
+$ district_id &lt;int&gt; 55, 74, 55, 16, 24, 77, 1, 47, 74, 76, 48, 70, 19, 62, 6, 21, 70, 44, 37, 10, 41, 36, 1, 26, 55, 1, 7, 68, 54, 41, 38, 1, 41, 38, 1, 9, 60, 44, 26, 37, 74, …
+$ frequency   &lt;chr&gt; &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK MESICNE&quot;, &quot;POPLATEK PO OBRATU&quot;, &quot;POPLATEK MESI…
+$ date        &lt;int&gt; 930101, 930101, 930101, 930101, 930102, 930102, 930103, 930103, 930103, 930103, 930103, 930104, 930104, 930104, 930104, 930105, 930105, 930106, 930106, 9301…</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShhY2NvdW50cylcbmBgYCJ9 -->
 <pre class="r"><code>summary(accounts)</code></pre>
@@ -1865,18 +1891,20 @@ accounts$year &lt;- NULL</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>Die Werte sind nun bereinigt und man sieht bei frequency die drei
+Ausgabedaten, zudem ist das Datum nun auch als Datum erfasst.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2xpbXBzZShhY2NvdW50cylcbmBgYCJ9 -->
 <pre class="r"><code>glimpse(accounts)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNCw1MDBcbkNvbHVtbnM6IDRcbiQgYWNjb3VudF9pZCAgPGludD4gNTc2LCAzODE4LCA3MDQsIDIzNzgsIDI2MzIsIDE5NzIsIDE1MzksIDc5MywgMjQ4NCwgMTY5NSwgMTcyNiwgMjg4MSwgMjM1NywgMjE3NywgNDg1LCA2NTIsIDk2MzUsIDE4NDQsIDE5MjYsIDIzOTMsIDM1MTAsIDEyNzYsIDE2Mzcs4oCmXG4kIGRpc3RyaWN0X2lkIDxpbnQ+IDU1LCA3NCwgNTUsIDE2LCAyNCwgNzcsIDEsIDQ3LCA3NCwgNzYsIDQ4LCA3MCwgMTksIDYyLCA2LCAyMSwgNzAsIDQ0LCAzNywgMTAsIDQxLCAzNiwgMSwgMjYsIDU1LCAxLCA3LCA2OCwgNTQsIDQxLCAzOCwgMSwgNDEsIDM4LCAxLOKAplxuJCBmcmVxdWVuY3kgICA8ZmN0PiBNb25hdGxpY2hlIEF1c2dhYmUsIE1vbmF0bGljaGUgQXVzZ2FiZSwgTW9uYXRsaWNoZSBBdXNnYWJlLCBNb25hdGxpY2hlIEF1c2dhYmUsIE1vbmF0bGljaGUgQXVzZ2FiZSwgTW9uYXRsaWNoZSBBdXNnYWJlLCBBdXNnYWJlIG5hY2jigKZcbiQgZGF0ZSAgICAgICAgPGRhdGU+IDE5OTMtMDEtMDEsIDE5OTMtMDEtMDEsIDE5OTMtMDEtMDEsIDE5OTMtMDEtMDEsIDE5OTMtMDEtMDIsIDE5OTMtMDEtMDIsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDMs4oCmXG4ifQ== -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNCw1MDBcbkNvbHVtbnM6IDRcbiQgYWNjb3VudF9pZCAgPGludD4gNTc2LCAzODE4LCA3MDQsIDIzNzgsIDI2MzIsIDE5NzIsIDE1MzksIDc5MywgMjQ4NCwgMTY5NSwgMTcyNiwgMjg4MSwgMjM1NywgMjE3NywgNDg1LCA2NTIsIDk2MzUsIDE4NDQsIDE5MjYsIDIzOTMsIDM1MTAsIDEyNzYsIDE2MzcsIDM4NzEsIDE5MiwgNzY0LCAyMDg3LCAy4oCmXG4kIGRpc3RyaWN0X2lkIDxpbnQ+IDU1LCA3NCwgNTUsIDE2LCAyNCwgNzcsIDEsIDQ3LCA3NCwgNzYsIDQ4LCA3MCwgMTksIDYyLCA2LCAyMSwgNzAsIDQ0LCAzNywgMTAsIDQxLCAzNiwgMSwgMjYsIDU1LCAxLCA3LCA2OCwgNTQsIDQxLCAzOCwgMSwgNDEsIDM4LCAxLCA5LCA2MCwgNDQsIDI2LCAzNywgNzQsIOKAplxuJCBmcmVxdWVuY3kgICA8ZmN0PiBNb25hdGxpY2hlIEF1c2dhYmUsIE1vbmF0bGljaGUgQXVzZ2FiZSwgTW9uYXRsaWNoZSBBdXNnYWJlLCBNb25hdGxpY2hlIEF1c2dhYmUsIE1vbmF0bGljaGUgQXVzZ2FiZSwgTW9uYXRsaWNoZSBBdXNnYWJlLCBBdXNnYWJlIG5hY2ggVHJhbnNha3Rpb24sIE1vbmF0bGljaGXigKZcbiQgZGF0ZSAgICAgICAgPGRhdGU+IDE5OTMtMDEtMDEsIDE5OTMtMDEtMDEsIDE5OTMtMDEtMDEsIDE5OTMtMDEtMDEsIDE5OTMtMDEtMDIsIDE5OTMtMDEtMDIsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDMsIDE5OTMtMDEtMDQsIDE5OTMtMDEtMDQs4oCmXG4ifQ== -->
 <pre><code>Rows: 4,500
 Columns: 4
-$ account_id  &lt;int&gt; 576, 3818, 704, 2378, 2632, 1972, 1539, 793, 2484, 1695, 1726, 2881, 2357, 2177, 485, 652, 9635, 1844, 1926, 2393, 3510, 1276, 1637,…
-$ district_id &lt;int&gt; 55, 74, 55, 16, 24, 77, 1, 47, 74, 76, 48, 70, 19, 62, 6, 21, 70, 44, 37, 10, 41, 36, 1, 26, 55, 1, 7, 68, 54, 41, 38, 1, 41, 38, 1,…
-$ frequency   &lt;fct&gt; Monatliche Ausgabe, Monatliche Ausgabe, Monatliche Ausgabe, Monatliche Ausgabe, Monatliche Ausgabe, Monatliche Ausgabe, Ausgabe nach…
-$ date        &lt;date&gt; 1993-01-01, 1993-01-01, 1993-01-01, 1993-01-01, 1993-01-02, 1993-01-02, 1993-01-03, 1993-01-03, 1993-01-03, 1993-01-03, 1993-01-03,…</code></pre>
+$ account_id  &lt;int&gt; 576, 3818, 704, 2378, 2632, 1972, 1539, 793, 2484, 1695, 1726, 2881, 2357, 2177, 485, 652, 9635, 1844, 1926, 2393, 3510, 1276, 1637, 3871, 192, 764, 2087, 2…
+$ district_id &lt;int&gt; 55, 74, 55, 16, 24, 77, 1, 47, 74, 76, 48, 70, 19, 62, 6, 21, 70, 44, 37, 10, 41, 36, 1, 26, 55, 1, 7, 68, 54, 41, 38, 1, 41, 38, 1, 9, 60, 44, 26, 37, 74, …
+$ frequency   &lt;fct&gt; Monatliche Ausgabe, Monatliche Ausgabe, Monatliche Ausgabe, Monatliche Ausgabe, Monatliche Ausgabe, Monatliche Ausgabe, Ausgabe nach Transaktion, Monatliche…
+$ date        &lt;date&gt; 1993-01-01, 1993-01-01, 1993-01-01, 1993-01-01, 1993-01-02, 1993-01-02, 1993-01-03, 1993-01-03, 1993-01-03, 1993-01-03, 1993-01-03, 1993-01-04, 1993-01-04,…</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShhY2NvdW50cylcbmBgYCJ9 -->
 <pre class="r"><code>summary(accounts)</code></pre>
@@ -1892,9 +1920,226 @@ $ date        &lt;date&gt; 1993-01-01, 1993-01-01, 1993-01-01, 1993-01-01, 1993-
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>Laden und betrachten der card Tabelle</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2FyZCA8LSByZWFkLmNzdihcImRhdGEvY2FyZC5jc3ZcIiwgc2VwPVwiO1wiKVxuZ2xpbXBzZShjYXJkKVxuYGBgIn0= -->
+<pre class="r"><code>card &lt;- read.csv(&quot;data/card.csv&quot;, sep=&quot;;&quot;)
+glimpse(card)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogODkyXG5Db2x1bW5zOiA0XG4kIGNhcmRfaWQgPGludD4gMTAwNSwgMTA0LCA3NDcsIDcwLCA1NzcsIDM3NywgNzIxLCA0MzcsIDE4OCwgMTMsIDczMiwgMTgxLCAzODQsIDMwOSwgNDc4LCA1NjMsIDM2OSwgMzc2LCA0ODMsIDE3NCwgNjU4LCA3NjMsIDc3OCwgMTAzOSwgNDc3LCAxNjgsIDMxNCwgNDY4LCAyMDgsIDc2NiwgNDY0LCA0OTcsIOKAplxuJCBkaXNwX2lkIDxpbnQ+IDkyODUsIDU4OCwgNDkxNSwgNDM5LCAzNjg3LCAyNDI5LCA0NjgwLCAyNzYyLCAxMTQ2LCA4NywgNDc2MywgMTA2NiwgMjQ3NSwgMTk0NiwgMzA4NCwgMzU4OSwgMjM2MywgMjQyOCwgMzExNSwgMTAzOSwgNDI1MSwgNTEzOCwgNTI3NSwgOTgzNywgMzA4MiwgMTAxOCwgMTk5OSwgMzDigKZcbiQgdHlwZSAgICA8Y2hyPiBcImNsYXNzaWNcIiwgXCJjbGFzc2ljXCIsIFwiY2xhc3NpY1wiLCBcImNsYXNzaWNcIiwgXCJjbGFzc2ljXCIsIFwiY2xhc3NpY1wiLCBcImp1bmlvclwiLCBcImNsYXNzaWNcIiwgXCJjbGFzc2ljXCIsIFwiY2xhc3NpY1wiLCBcImNsYXNzaWNcIiwgXCJjbGFzc2ljXCIsIFwianVuaW9yXCIsIFwiY2xhc3NpY1wiLCBcImNsYXNzaWPigKZcbiQgaXNzdWVkICA8Y2hyPiBcIjkzMTEwNyAwMDowMDowMFwiLCBcIjk0MDExOSAwMDowMDowMFwiLCBcIjk0MDIwNSAwMDowMDowMFwiLCBcIjk0MDIwOCAwMDowMDowMFwiLCBcIjk0MDIxNSAwMDowMDowMFwiLCBcIjk0MDMwMyAwMDowMDowMFwiLCBcIjk0MDQwNSAwMDowMDowMFwiLCBcIjk0MDYwMSAwMDowMDowMFwiLCBcIjk0MDYxOSDigKZcbiJ9 -->
+<pre><code>Rows: 892
+Columns: 4
+$ card_id &lt;int&gt; 1005, 104, 747, 70, 577, 377, 721, 437, 188, 13, 732, 181, 384, 309, 478, 563, 369, 376, 483, 174, 658, 763, 778, 1039, 477, 168, 314, 468, 208, 766, 464, 497, …
+$ disp_id &lt;int&gt; 9285, 588, 4915, 439, 3687, 2429, 4680, 2762, 1146, 87, 4763, 1066, 2475, 1946, 3084, 3589, 2363, 2428, 3115, 1039, 4251, 5138, 5275, 9837, 3082, 1018, 1999, 30…
+$ type    &lt;chr&gt; &quot;classic&quot;, &quot;classic&quot;, &quot;classic&quot;, &quot;classic&quot;, &quot;classic&quot;, &quot;classic&quot;, &quot;junior&quot;, &quot;classic&quot;, &quot;classic&quot;, &quot;classic&quot;, &quot;classic&quot;, &quot;classic&quot;, &quot;junior&quot;, &quot;classic&quot;, &quot;classic…
+$ issued  &lt;chr&gt; &quot;931107 00:00:00&quot;, &quot;940119 00:00:00&quot;, &quot;940205 00:00:00&quot;, &quot;940208 00:00:00&quot;, &quot;940215 00:00:00&quot;, &quot;940303 00:00:00&quot;, &quot;940405 00:00:00&quot;, &quot;940601 00:00:00&quot;, &quot;940619 …</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShjYXJkKVxuYGBgIn0= -->
+<pre class="r"><code>summary(card)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgIGNhcmRfaWQgICAgICAgICAgZGlzcF9pZCAgICAgICAgICB0eXBlICAgICAgICAgICAgICBpc3N1ZWQgICAgICAgICBcbiBNaW4uICAgOiAgIDEuMCAgIE1pbi4gICA6ICAgIDkgICBMZW5ndGg6ODkyICAgICAgICAgTGVuZ3RoOjg5MiAgICAgICAgXG4gMXN0IFF1LjogMjI5LjggICAxc3QgUXUuOiAxMzg3ICAgQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1lZGlhbiA6IDQ1Ni41ICAgTWVkaWFuIDogMjkzOCAgIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICBcbiBNZWFuICAgOiA0ODAuOSAgIE1lYW4gICA6IDM1MTIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gM3JkIFF1LjogNjg0LjIgICAzcmQgUXUuOiA0NDYwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuIE1heC4gICA6MTI0Ny4wICAgTWF4LiAgIDoxMzY2MCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
+<pre><code>    card_id          disp_id          type              issued         
+ Min.   :   1.0   Min.   :    9   Length:892         Length:892        
+ 1st Qu.: 229.8   1st Qu.: 1387   Class :character   Class :character  
+ Median : 456.5   Median : 2938   Mode  :character   Mode  :character  
+ Mean   : 480.9   Mean   : 3512                                        
+ 3rd Qu.: 684.2   3rd Qu.: 4460                                        
+ Max.   :1247.0   Max.   :13660                                        </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtKGlzLm5hKGNhcmQpKVxuYGBgIn0= -->
+<pre class="r"><code>sum(is.na(card))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
+<pre><code>[1] 0</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVuZ3RoKHVuaXF1ZShjYXJkJGNhcmRfaWQpKSA9PSBucm93KGNhcmQpXG5gYGAifQ== -->
+<pre class="r"><code>length(unique(card$card_id)) == nrow(card)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFRSVUVcbiJ9 -->
+<pre><code>[1] TRUE</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Bei diesem Datensatz änern wir zuerst die “type” Spalte wie oben in
+einen Faktor.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI1R5cGUgaW4gRmFrdG9yIHVtd2FuZGVsblxuY2FyZCA8LSBjYXJkICU+JSBcbiAgbXV0YXRlKHR5cGUgPSBhcy5mYWN0b3IodHlwZSkpXG5gYGAifQ== -->
+<pre class="r"><code>#Type in Faktor umwandeln
+card &lt;- card %&gt;% 
+  mutate(type = as.factor(type))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Anschliessend wird die spalte “issued” bearbeitet. Bei dieser sollen
+die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00
+benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran
+stehen.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2FyZCR5ZWFyIDwtIGlmZWxzZShhcy5udW1lcmljKHN1YnN0cmluZyhjYXJkJGlzc3VlZCwgMSwgMikpIDwgNTAsXG4gICAgICAgICAgICAgICAgICAgICAgICBwYXN0ZTAoXCIyMFwiLCBzdWJzdHJpbmcoY2FyZCRpc3N1ZWQsIDEsIDIpKSxcbiAgICAgICAgICAgICAgICAgICAgICAgIHBhc3RlMChcIjE5XCIsIHN1YnN0cmluZyhjYXJkJGlzc3VlZCwgMSwgMikpKVxuXG4jIERhdHVtIHVtd2FuZGVsblxuY2FyZCRpc3N1ZWQgPC0gYXMuRGF0ZShwYXN0ZTAoY2FyZCR5ZWFyLCBzdWJzdHJpbmcoY2FyZCRpc3N1ZWQsIDMpKSwgZm9ybWF0ID0gXCIlWSVtJWRcIilcblxuIyBFbnRmZXJuZSBkaWUgdGVtcG9yw6RyZSBTcGFsdGUgZsO8ciBkYXMgSmFoclxuY2FyZCR5ZWFyIDwtIE5VTExcbmBgYCJ9 -->
+<pre class="r"><code>card$year &lt;- ifelse(as.numeric(substring(card$issued, 1, 2)) &lt; 50,
+                        paste0(&quot;20&quot;, substring(card$issued, 1, 2)),
+                        paste0(&quot;19&quot;, substring(card$issued, 1, 2)))
+
+# Datum umwandeln
+card$issued &lt;- as.Date(paste0(card$year, substring(card$issued, 3)), format = &quot;%Y%m%d&quot;)
+
+# Entferne die temporäre Spalte für das Jahr
+card$year &lt;- NULL</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Der Card Datensatz sollte nun korrekt sein.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2xpbXBzZShjYXJkKVxuYGBgIn0= -->
+<pre class="r"><code>glimpse(card)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogODkyXG5Db2x1bW5zOiA0XG4kIGNhcmRfaWQgPGludD4gMTAwNSwgMTA0LCA3NDcsIDcwLCA1NzcsIDM3NywgNzIxLCA0MzcsIDE4OCwgMTMsIDczMiwgMTgxLCAzODQsIDMwOSwgNDc4LCA1NjMsIDM2OSwgMzc2LCA0ODMsIDE3NCwgNjU4LCA3NjMsIDc3OCwgMTAzOSwgNDc3LCAxNjgsIDMxNCwgNDY4LCAyMDgsIDc2NiwgNDY0LCA0OTcsIOKAplxuJCBkaXNwX2lkIDxpbnQ+IDkyODUsIDU4OCwgNDkxNSwgNDM5LCAzNjg3LCAyNDI5LCA0NjgwLCAyNzYyLCAxMTQ2LCA4NywgNDc2MywgMTA2NiwgMjQ3NSwgMTk0NiwgMzA4NCwgMzU4OSwgMjM2MywgMjQyOCwgMzExNSwgMTAzOSwgNDI1MSwgNTEzOCwgNTI3NSwgOTgzNywgMzA4MiwgMTAxOCwgMTk5OSwgMzDigKZcbiQgdHlwZSAgICA8ZmN0PiBjbGFzc2ljLCBjbGFzc2ljLCBjbGFzc2ljLCBjbGFzc2ljLCBjbGFzc2ljLCBjbGFzc2ljLCBqdW5pb3IsIGNsYXNzaWMsIGNsYXNzaWMsIGNsYXNzaWMsIGNsYXNzaWMsIGNsYXNzaWMsIGp1bmlvciwgY2xhc3NpYywgY2xhc3NpYywgY2xhc3NpYywgY2xhc3NpYywgY2xhc3NpYywg4oCmXG4kIGlzc3VlZCAgPGRhdGU+IDE5OTMtMTEtMDcsIDE5OTQtMDEtMTksIDE5OTQtMDItMDUsIDE5OTQtMDItMDgsIDE5OTQtMDItMTUsIDE5OTQtMDMtMDMsIDE5OTQtMDQtMDUsIDE5OTQtMDYtMDEsIDE5OTQtMDYtMTksIDE5OTQtMDYtMjksIDE5OTQtMDctMjEsIDE5OTQtMDgtMTksIDE5OTQtMDktMTUsIDE5OeKAplxuIn0= -->
+<pre><code>Rows: 892
+Columns: 4
+$ card_id &lt;int&gt; 1005, 104, 747, 70, 577, 377, 721, 437, 188, 13, 732, 181, 384, 309, 478, 563, 369, 376, 483, 174, 658, 763, 778, 1039, 477, 168, 314, 468, 208, 766, 464, 497, …
+$ disp_id &lt;int&gt; 9285, 588, 4915, 439, 3687, 2429, 4680, 2762, 1146, 87, 4763, 1066, 2475, 1946, 3084, 3589, 2363, 2428, 3115, 1039, 4251, 5138, 5275, 9837, 3082, 1018, 1999, 30…
+$ type    &lt;fct&gt; classic, classic, classic, classic, classic, classic, junior, classic, classic, classic, classic, classic, junior, classic, classic, classic, classic, classic, …
+$ issued  &lt;date&gt; 1993-11-07, 1994-01-19, 1994-02-05, 1994-02-08, 1994-02-15, 1994-03-03, 1994-04-05, 1994-06-01, 1994-06-19, 1994-06-29, 1994-07-21, 1994-08-19, 1994-09-15, 199…</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShjYXJkKVxuYGBgIn0= -->
+<pre class="r"><code>summary(card)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgIGNhcmRfaWQgICAgICAgICAgZGlzcF9pZCAgICAgICAgICAgdHlwZSAgICAgICAgIGlzc3VlZCAgICAgICAgICBcbiBNaW4uICAgOiAgIDEuMCAgIE1pbi4gICA6ICAgIDkgICBjbGFzc2ljOjY1OSAgIE1pbi4gICA6MTk5My0xMS0wNyAgXG4gMXN0IFF1LjogMjI5LjggICAxc3QgUXUuOiAxMzg3ICAgZ29sZCAgIDogODggICAxc3QgUXUuOjE5OTctMDEtMjUgIFxuIE1lZGlhbiA6IDQ1Ni41ICAgTWVkaWFuIDogMjkzOCAgIGp1bmlvciA6MTQ1ICAgTWVkaWFuIDoxOTk4LTAxLTA2ICBcbiBNZWFuICAgOiA0ODAuOSAgIE1lYW4gICA6IDM1MTIgICAgICAgICAgICAgICAgIE1lYW4gICA6MTk5Ny0wOS0xOSAgXG4gM3JkIFF1LjogNjg0LjIgICAzcmQgUXUuOiA0NDYwICAgICAgICAgICAgICAgICAzcmQgUXUuOjE5OTgtMDgtMDUgIFxuIE1heC4gICA6MTI0Ny4wICAgTWF4LiAgIDoxMzY2MCAgICAgICAgICAgICAgICAgTWF4LiAgIDoxOTk4LTEyLTI5ICBcbiJ9 -->
+<pre><code>    card_id          disp_id           type         issued          
+ Min.   :   1.0   Min.   :    9   classic:659   Min.   :1993-11-07  
+ 1st Qu.: 229.8   1st Qu.: 1387   gold   : 88   1st Qu.:1997-01-25  
+ Median : 456.5   Median : 2938   junior :145   Median :1998-01-06  
+ Mean   : 480.9   Mean   : 3512                 Mean   :1997-09-19  
+ 3rd Qu.: 684.2   3rd Qu.: 4460                 3rd Qu.:1998-08-05  
+ Max.   :1247.0   Max.   :13660                 Max.   :1998-12-29  </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Weiter geht es mit dem Client Datensatz.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2xpZW50IDwtIHJlYWQuY3N2KFwiZGF0YS9jbGllbnQuY3N2XCIsIHNlcD1cIjtcIilcbmdsaW1wc2UoY2xpZW50KVxuYGBgIn0= -->
+<pre class="r"><code>client &lt;- read.csv(&quot;data/client.csv&quot;, sep=&quot;;&quot;)
+glimpse(client)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNSwzNjlcbkNvbHVtbnM6IDNcbiQgY2xpZW50X2lkICAgIDxpbnQ+IDEsIDIsIDMsIDQsIDUsIDYsIDcsIDgsIDksIDEwLCAxMSwgMTIsIDEzLCAxNCwgMTUsIDE2LCAxNywgMTgsIDE5LCAyMCwgMjEsIDIyLCAyMywgMjQsIDI1LCAyNiwgMjcsIDI4LCAyOSwgMzAsIDMxLCAzMiwgMzMsIDM2LCAzNywgMzgsIDM5LCA0MCwgNDEsIDQyLCA0Mywg4oCmXG4kIGJpcnRoX251bWJlciA8aW50PiA3MDYyMTMsIDQ1MDIwNCwgNDA2MDA5LCA1NjEyMDEsIDYwNTcwMywgMTkwOTIyLCAyOTAxMjUsIDM4NTIyMSwgMzUxMDE2LCA0MzA1MDEsIDUwNTgyMiwgODEwMjIwLCA3NDU1MjksIDQyNTYyMiwgMTg1ODI4LCAxOTAyMjUsIDM0MTAxMywgMzE1NDA1LCA0MjEyMjgsIDc5MOKAplxuJCBkaXN0cmljdF9pZCAgPGludD4gMTgsIDEsIDEsIDUsIDUsIDEyLCAxNSwgNTEsIDYwLCA1NywgNTcsIDQwLCA1NCwgNzYsIDIxLCAyMSwgNzYsIDc2LCA0NywgNDYsIDEyLCAxLCAxLCA0MywgMjEsIDc0LCA1NCwgMSwgMzAsIDc0LCA2OCwgNTIsIDczLCA3LCA3LCAzNiwgNjgsIDUsIDIyLCA2OCwgNzUsIDPigKZcbiJ9 -->
+<pre><code>Rows: 5,369
+Columns: 3
+$ client_id    &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 36, 37, 38, 39, 40, 41, 42, 43, …
+$ birth_number &lt;int&gt; 706213, 450204, 406009, 561201, 605703, 190922, 290125, 385221, 351016, 430501, 505822, 810220, 745529, 425622, 185828, 190225, 341013, 315405, 421228, 790…
+$ district_id  &lt;int&gt; 18, 1, 1, 5, 5, 12, 15, 51, 60, 57, 57, 40, 54, 76, 21, 21, 76, 76, 47, 46, 12, 1, 1, 43, 21, 74, 54, 1, 30, 74, 68, 52, 73, 7, 7, 36, 68, 5, 22, 68, 75, 3…</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShjbGllbnQpXG5gYGAifQ== -->
+<pre class="r"><code>summary(client)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgY2xpZW50X2lkICAgICAgYmlydGhfbnVtYmVyICAgICBkaXN0cmljdF9pZCAgIFxuIE1pbi4gICA6ICAgIDEgICBNaW4uICAgOjExMDgyMCAgIE1pbi4gICA6IDEuMDAgIFxuIDFzdCBRdS46IDE0MTggICAxc3QgUXUuOjQwNjAwOSAgIDFzdCBRdS46MTQuMDAgIFxuIE1lZGlhbiA6IDI4MzkgICBNZWRpYW4gOjU0MDgyOSAgIE1lZGlhbiA6MzguMDAgIFxuIE1lYW4gICA6IDMzNTkgICBNZWFuICAgOjUzNTExNSAgIE1lYW4gICA6MzcuMzEgIFxuIDNyZCBRdS46IDQyNTcgICAzcmQgUXUuOjY4MTAxMyAgIDNyZCBRdS46NjAuMDAgIFxuIE1heC4gICA6MTM5OTggICBNYXguICAgOjg3NTkyNyAgIE1heC4gICA6NzcuMDAgIFxuIn0= -->
+<pre><code>   client_id      birth_number     district_id   
+ Min.   :    1   Min.   :110820   Min.   : 1.00  
+ 1st Qu.: 1418   1st Qu.:406009   1st Qu.:14.00  
+ Median : 2839   Median :540829   Median :38.00  
+ Mean   : 3359   Mean   :535115   Mean   :37.31  
+ 3rd Qu.: 4257   3rd Qu.:681013   3rd Qu.:60.00  
+ Max.   :13998   Max.   :875927   Max.   :77.00  </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtKGlzLm5hKGNsaWVudCkpXG5gYGAifQ== -->
+<pre class="r"><code>sum(is.na(client))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
+<pre><code>[1] 0</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVuZ3RoKHVuaXF1ZShjbGllbnQkY2xpZW50X2lkKSkgPT0gbnJvdyhjbGllbnQpXG5gYGAifQ== -->
+<pre class="r"><code>length(unique(client$client_id)) == nrow(client)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFRSVUVcbiJ9 -->
+<pre><code>[1] TRUE</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Bei diesem Datensatz ist wichtig zu wissen, dass in der birth_number
+zudem das Geschlecht gespeichert ist. Bei Frauen wurde die angabe des
+Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen.
+Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen
+und die Geburtsdaten dann bereinigt in der birth number wiedergeben.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jVW50ZXJzY2hlaWR1bmcgdm9uIE1hbm4gdW5kIEZyYXUgYW5oYW5kIHZvbSBHZWJ1cnRzZGF0dW1cbnNleF9pbl9iaXJ0aCA8LSBmdW5jdGlvbih6YWhsKSB7XG4gIGVpbnplbG5lX3phaGwgPC0gYXMubnVtZXJpYyhzdHJzcGxpdChhcy5jaGFyYWN0ZXIoemFobCksICcnKVtbMV1dKSAgICAjIDxpbnQ+IGluIDxzdHI+IMOkbmRlcm5cbiAgbWl0dGxlcmVfemFobCA8LSBlaW56ZWxuZV96YWhsWzNdICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMgMy4gWmFobCBhdXNzdWNoZW5cbiAgbWl0dGxlcmVfemFobCA8LSBhcy5pbnRlZ2VyKG1pdHRsZXJlX3phaGwpICAgICAgICAgICAgICAgICAgICAgICAgICAgICMgd2llZGVyIGluIDxpbnQ+IMOkbmRlcm5cbiAgZ2VzY2hsZWNodCA8LSBpZmVsc2UoKG1pdHRsZXJlX3phaGwpID4gMiwgXCJmZW1hbGVcIiwgXCJtYWxlXCIpICAgICAgICAgICAjIFdlbm4gZGllIFphaGwgZ3LDtnNzZXIgYWxzIDIgaXN0IChLZWluIE1vbmF0IHdpcmQgbWl0IDIwKyBhbmdlZ2ViZW4pIGFscyBGcmF1IGF1c2dlYmVuLlxuICByZXR1cm4oZ2VzY2hsZWNodClcbn1cblxuI0Fud2VuZHVuZyBkZXIgRnVua3Rpb24gYXVmIGRlbiBEYXRlbnNhdHogdW5kIGVyc3RlbGx1bmcgZGVyIHp1c8OkdHpsaWNoZW4gUmVpaGVcbmNsaWVudCRzZXggPC0gc2FwcGx5KGNsaWVudCRiaXJ0aF9udW1iZXIsIHNleF9pbl9iaXJ0aClcblxuI8OEbmRlcm4gZGVzIERhdGVudHlwcyBkZXIgUmVpaGVcbmNsaWVudCA8LSBjbGllbnQgJT4lIFxuICBtdXRhdGUoc2V4ID0gYXMuZmFjdG9yKHNleCkpXG5gYGAifQ== -->
+<pre class="r"><code>
+#Unterscheidung von Mann und Frau anhand vom Geburtsdatum
+sex_in_birth &lt;- function(zahl) {
+  einzelne_zahl &lt;- as.numeric(strsplit(as.character(zahl), &#39;&#39;)[[1]])    # &lt;int&gt; in &lt;str&gt; ändern
+  mittlere_zahl &lt;- einzelne_zahl[3]                                     # 3. Zahl aussuchen
+  mittlere_zahl &lt;- as.integer(mittlere_zahl)                            # wieder in &lt;int&gt; ändern
+  geschlecht &lt;- ifelse((mittlere_zahl) &gt; 2, &quot;female&quot;, &quot;male&quot;)           # Wenn die Zahl grösser als 2 ist (Kein Monat wird mit 20+ angegeben) als Frau ausgeben.
+  return(geschlecht)
+}
+
+#Anwendung der Funktion auf den Datensatz und erstellung der zusätzlichen Reihe
+client$sex &lt;- sapply(client$birth_number, sex_in_birth)
+
+#Ändern des Datentyps der Reihe
+client &lt;- client %&gt;% 
+  mutate(sex = as.factor(sex))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Da wir nun die Kategorie des Geschlechts haben wollen wir noch das
+Geburtsdatum anpassen und im richtigen Format ausgeben.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI0dlYnVydHNkYXR1bSBiZWkgZGVuIEZyYXVlbiB1bSA1MDAwIHN1YnRyYWhpZXJlbi4gRGFtaXQgd2llZGVyIGRlciBub3JtYWxlIE1vbmF0IGFuZ2V6ZWlndCB3aXJkLlxuY2xpZW50JGJpcnRoX251bWJlcltjbGllbnQkc2V4ID09IFwiZmVtYWxlXCJdIDwtIGNsaWVudCRiaXJ0aF9udW1iZXJbY2xpZW50JHNleCA9PSBcImZlbWFsZVwiXS01MDAwXG5cblxuI0RlciA8aW50PiB3aXJkIGluIGVpbiBEYXR1bSB1bWdld2FuZGVsdC5cbmNsaWVudCR5ZWFyIDwtIGlmZWxzZShhcy5udW1lcmljKHN1YnN0cmluZyhjbGllbnQkYmlydGhfbnVtYmVyLCAxLCAyKSkgPCAxMCxcbiAgICAgICAgICAgICAgICAgICAgICAgIHBhc3RlMChcIjIwXCIsIHN1YnN0cmluZyhjYXJkJGlzc3VlZCwgMSwgMikpLFxuICAgICAgICAgICAgICAgICAgICAgICAgcGFzdGUwKFwiMTlcIiwgc3Vic3RyaW5nKGNsaWVudCRiaXJ0aF9udW1iZXIsIDEsIDIpKSlcblxuIyBEYXR1bSB1bXdhbmRlbG5cbmNsaWVudCRiaXJ0aF9udW1iZXIgPC0gYXMuRGF0ZShwYXN0ZTAoY2xpZW50JHllYXIsIHN1YnN0cmluZyhjbGllbnQkYmlydGhfbnVtYmVyLCAzKSksIGZvcm1hdCA9IFwiJVklbSVkXCIpXG5cbiMgRW50ZmVybmUgZGllIHRlbXBvcsOkcmUgU3BhbHRlIGbDvHIgZGFzIEphaHJcbmNsaWVudCR5ZWFyIDwtIE5VTExcbmBgYCJ9 -->
+<pre class="r"><code>#Geburtsdatum bei den Frauen um 5000 subtrahieren. Damit wieder der normale Monat angezeigt wird.
+client$birth_number[client$sex == &quot;female&quot;] &lt;- client$birth_number[client$sex == &quot;female&quot;]-5000
+
+
+#Der &lt;int&gt; wird in ein Datum umgewandelt.
+client$year &lt;- ifelse(as.numeric(substring(client$birth_number, 1, 2)) &lt; 10,
+                        paste0(&quot;20&quot;, substring(card$issued, 1, 2)),
+                        paste0(&quot;19&quot;, substring(client$birth_number, 1, 2)))
+
+# Datum umwandeln
+client$birth_number &lt;- as.Date(paste0(client$year, substring(client$birth_number, 3)), format = &quot;%Y%m%d&quot;)
+
+# Entferne die temporäre Spalte für das Jahr
+client$year &lt;- NULL</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Der Client Datensatz sollte nun korrekt sein und die Spalte sex
+enthalten.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2xpbXBzZShjbGllbnQpXG5gYGAifQ== -->
+<pre class="r"><code>glimpse(client)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNSwzNjlcbkNvbHVtbnM6IDRcbiQgY2xpZW50X2lkICAgIDxpbnQ+IDEsIDIsIDMsIDQsIDUsIDYsIDcsIDgsIDksIDEwLCAxMSwgMTIsIDEzLCAxNCwgMTUsIDE2LCAxNywgMTgsIDE5LCAyMCwgMjEsIDIyLCAyMywgMjQsIDI1LCAyNiwgMjcsIDI4LCAyOSwgMzAsIDMxLCAzMiwgMzMsIDM2LCAzNywgMzgsIDM5LCA0MCwgNDEsIDQyLCA0Mywg4oCmXG4kIGJpcnRoX251bWJlciA8ZGF0ZT4gMTk3MC0xMi0xMywgMTk0NS0wMi0wNCwgMTk0MC0xMC0wOSwgMTk1Ni0xMi0wMSwgMTk2MC0wNy0wMywgMTkxOS0wOS0yMiwgMTkyOS0wMS0yNSwgMTkzOC0wMi0yMSwgMTkzNS0xMC0xNiwgMTk0My0wNS0wMSwgMTk1MC0wOC0yMiwgMTk4MS0wMi0yMCwgMTk3NC0wNS0yOeKAplxuJCBkaXN0cmljdF9pZCAgPGludD4gMTgsIDEsIDEsIDUsIDUsIDEyLCAxNSwgNTEsIDYwLCA1NywgNTcsIDQwLCA1NCwgNzYsIDIxLCAyMSwgNzYsIDc2LCA0NywgNDYsIDEyLCAxLCAxLCA0MywgMjEsIDc0LCA1NCwgMSwgMzAsIDc0LCA2OCwgNTIsIDczLCA3LCA3LCAzNiwgNjgsIDUsIDIyLCA2OCwgNzUsIDPigKZcbiQgc2V4ICAgICAgICAgIDxmY3Q+IGZlbWFsZSwgbWFsZSwgZmVtYWxlLCBtYWxlLCBmZW1hbGUsIG1hbGUsIG1hbGUsIGZlbWFsZSwgbWFsZSwgbWFsZSwgZmVtYWxlLCBtYWxlLCBmZW1hbGUsIGZlbWFsZSwgZmVtYWxlLCBtYWxlLCBtYWxlLCBmZW1hbGUsIG1hbGUsIG1hbGUsIGZlbWFsZSwgZmVtYWxlLCBt4oCmXG4ifQ== -->
+<pre><code>Rows: 5,369
+Columns: 4
+$ client_id    &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 36, 37, 38, 39, 40, 41, 42, 43, …
+$ birth_number &lt;date&gt; 1970-12-13, 1945-02-04, 1940-10-09, 1956-12-01, 1960-07-03, 1919-09-22, 1929-01-25, 1938-02-21, 1935-10-16, 1943-05-01, 1950-08-22, 1981-02-20, 1974-05-29…
+$ district_id  &lt;int&gt; 18, 1, 1, 5, 5, 12, 15, 51, 60, 57, 57, 40, 54, 76, 21, 21, 76, 76, 47, 46, 12, 1, 1, 43, 21, 74, 54, 1, 30, 74, 68, 52, 73, 7, 7, 36, 68, 5, 22, 68, 75, 3…
+$ sex          &lt;fct&gt; female, male, female, male, female, male, male, female, male, male, female, male, female, female, female, male, male, female, male, male, female, female, m…</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShjbGllbnQpXG5gYGAifQ== -->
+<pre class="r"><code>summary(client)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgY2xpZW50X2lkICAgICAgYmlydGhfbnVtYmVyICAgICAgICAgZGlzdHJpY3RfaWQgICAgICAgIHNleCAgICAgIFxuIE1pbi4gICA6ICAgIDEgICBNaW4uICAgOjE5MTEtMDgtMjAgICBNaW4uICAgOiAxLjAwICAgZmVtYWxlOjI2NDUgIFxuIDFzdCBRdS46IDE0MTggICAxc3QgUXUuOjE5NDAtMTEtMjUgICAxc3QgUXUuOjE0LjAwICAgbWFsZSAgOjI3MjQgIFxuIE1lZGlhbiA6IDI4MzkgICBNZWRpYW4gOjE5NTQtMDUtMDYgICBNZWRpYW4gOjM4LjAwICAgICAgICAgICAgICAgIFxuIE1lYW4gICA6IDMzNTkgICBNZWFuICAgOjE5NTMtMDktMTIgICBNZWFuICAgOjM3LjMxICAgICAgICAgICAgICAgIFxuIDNyZCBRdS46IDQyNTcgICAzcmQgUXUuOjE5NjgtMDYtMDkgICAzcmQgUXUuOjYwLjAwICAgICAgICAgICAgICAgIFxuIE1heC4gICA6MTM5OTggICBNYXguICAgOjE5ODctMDktMjcgICBNYXguICAgOjc3LjAwICAgICAgICAgICAgICAgIFxuIn0= -->
+<pre><code>   client_id      birth_number         district_id        sex      
+ Min.   :    1   Min.   :1911-08-20   Min.   : 1.00   female:2645  
+ 1st Qu.: 1418   1st Qu.:1940-11-25   1st Qu.:14.00   male  :2724  
+ Median : 2839   Median :1954-05-06   Median :38.00                
+ Mean   : 3359   Mean   :1953-09-12   Mean   :37.31                
+ 3rd Qu.: 4257   3rd Qu.:1968-06-09   3rd Qu.:60.00                
+ Max.   :13998   Max.   :1987-09-27   Max.   :77.00                </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNyb3NzLXNlbGxpbmcgaW4gQmFua2luZyINCmF1dGhvcjogQWRyaWFuIE1laWVyLCBCZW5qYW1pbiBXdWVybWxpDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KYGBge3J9DQppbnN0YWxsLnBhY2thZ2VzKCJkcGx5ciIpIA0KYGBgDQpgYGB7cn0NCmxpYnJhcnkoZHBseXIpDQpgYGANCg0KDQpUaGlzIGlzIGFuIFtSIE1hcmtkb3duXShodHRwOi8vcm1hcmtkb3duLnJzdHVkaW8uY29tKSBOb3RlYm9vay4gV2hlbiB5b3UgZXhlY3V0ZSBjb2RlIHdpdGhpbiB0aGUgbm90ZWJvb2ssIHRoZSByZXN1bHRzIGFwcGVhciBiZW5lYXRoIHRoZSBjb2RlLiANCg0KVHJ5IGV4ZWN1dGluZyB0aGlzIGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqUnVuKiBidXR0b24gd2l0aGluIHRoZSBjaHVuayBvciBieSBwbGFjaW5nIHlvdXIgY3Vyc29yIGluc2lkZSBpdCBhbmQgcHJlc3NpbmcgKkN0cmwrU2hpZnQrRW50ZXIqLiANCg0KDQoNCkFkZCBhIG5ldyBjaHVuayBieSBjbGlja2luZyB0aGUgKkluc2VydCBDaHVuayogYnV0dG9uIG9uIHRoZSB0b29sYmFyIG9yIGJ5IHByZXNzaW5nICpDdHJsK0FsdCtJKi4NCg0KV2hlbiB5b3Ugc2F2ZSB0aGUgbm90ZWJvb2ssIGFuIEhUTUwgZmlsZSBjb250YWluaW5nIHRoZSBjb2RlIGFuZCBvdXRwdXQgd2lsbCBiZSBzYXZlZCBhbG9uZ3NpZGUgaXQgKGNsaWNrIHRoZSAqUHJldmlldyogYnV0dG9uIG9yIHByZXNzICpDdHJsK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuDQoNClRoZSBwcmV2aWV3IHNob3dzIHlvdSBhIHJlbmRlcmVkIEhUTUwgY29weSBvZiB0aGUgY29udGVudHMgb2YgdGhlIGVkaXRvci4gQ29uc2VxdWVudGx5LCB1bmxpa2UgKktuaXQqLCAqUHJldmlldyogZG9lcyBub3QgcnVuIGFueSBSIGNvZGUgY2h1bmtzLiBJbnN0ZWFkLCB0aGUgb3V0cHV0IG9mIHRoZSBjaHVuayB3aGVuIGl0IHdhcyBsYXN0IHJ1biBpbiB0aGUgZWRpdG9yIGlzIGRpc3BsYXllZC4NCmBgYHtyfQ0KYWNjb3VudHMgPC0gcmVhZC5jc3YoImRhdGEvYWNjb3VudC5jc3YiLCBzZXA9IjsiKQ0KZ2xpbXBzZShhY2NvdW50cykNCnN1bW1hcnkoYWNjb3VudHMpDQpzdW0oaXMubmEoYWNjb3VudHMpKQ0KbGVuZ3RoKHVuaXF1ZShhY2NvdW50cyRhY2NvdW50X2lkKSkgPT0gbnJvdyhhY2NvdW50cykNCmBgYA0KDQpJbSBlcnN0ZW4gc2Nocml0dCB3b2xsZW4gd2lyIGRpZSBEYXRlbiBkZXIgVGFiZWxsZSBhY2NvdW50cyB2ZXJzdMOkbmRsaWNoZXIgbWFjaGVuLiBEYWJlaSB3b2xsZW4gd2lyIGRpZSB0c2NoZWNoaXNjaGVuIE5hbWVuIGluIGRlciBLYXRlZ29yaWUgImZyZXF1ZW5jeSIgYXVmIERldXRzY2ggw7xiZXJzZXR6ZW4gdW5kIGNvbiBlaW5lbSA8Y2hyPiBpbiBlaW5lbiA8ZmN0PiB1bXdhbmRlbG4gIHVuZCBkYXMgRGF0dW0gaW4gZGFzIHJpY2h0aWdlIEZvcm1hdCBicmluZ2VuLg0KYGBge3J9DQojw4RuZGVybiBkZXIgdHNjaGVjaGlzY2hlbiBOYW1lbiBpbiBkZXIgU3BhbHRlIGZyZXF1ZW5jeQ0KYWNjb3VudHMkZnJlcXVlbmN5IDwtIGlmZWxzZShhY2NvdW50cyRmcmVxdWVuY3kgPT0gIlBPUExBVEVLIE1FU0lDTkUiLCAiTW9uYXRsaWNoZSBBdXNnYWJlIiwgYWNjb3VudHMkZnJlcXVlbmN5KQ0KYWNjb3VudHMkZnJlcXVlbmN5IDwtIGlmZWxzZShhY2NvdW50cyRmcmVxdWVuY3kgPT0gIlBPUExBVEVLIFRZRE5FIiwgIlfDtmNoZW50bGljaGUgQXVzZ2FiZSIsIGFjY291bnRzJGZyZXF1ZW5jeSkNCmFjY291bnRzJGZyZXF1ZW5jeSA8LSBpZmVsc2UoYWNjb3VudHMkZnJlcXVlbmN5ID09ICJQT1BMQVRFSyBQTyBPQlJBVFUiLCAiQXVzZ2FiZSBuYWNoIFRyYW5zYWt0aW9uIiwgYWNjb3VudHMkZnJlcXVlbmN5KQ0KYGBgDQoNCmBgYHtyfQ0KI0ZyZXF1ZW5jeSBpbiBGYWt0b3IgdW13YW5kZWxuDQphY2NvdW50cyA8LSBhY2NvdW50cyAlPiUgDQogIG11dGF0ZShmcmVxdWVuY3kgPSBhcy5mYWN0b3IoZnJlcXVlbmN5KSkNCmBgYA0KDQpgYGB7cn0NCiPDhG5kZXJuIGRlcyBkYXRlIGluIGVpbiBEYXRlbmZvcm1hdC4NCg0KIyBKYWhyIGV4dHJhaGllcmVuIHVuZCB2ZXJ2b2xsc3TDpG5kaWdlbg0KYWNjb3VudHMkeWVhciA8LSBpZmVsc2UoYXMubnVtZXJpYyhzdWJzdHJpbmcoYWNjb3VudHMkZGF0ZSwgMSwgMikpIDwgNTAsDQogICAgICAgICAgICAgICAgICAgICAgICBwYXN0ZTAoIjIwIiwgc3Vic3RyaW5nKGFjY291bnRzJGRhdGUsIDEsIDIpKSwNCiAgICAgICAgICAgICAgICAgICAgICAgIHBhc3RlMCgiMTkiLCBzdWJzdHJpbmcoYWNjb3VudHMkZGF0ZSwgMSwgMikpKQ0KDQojIERhdHVtIHVtd2FuZGVsbg0KYWNjb3VudHMkZGF0ZSA8LSBhcy5EYXRlKHBhc3RlMChhY2NvdW50cyR5ZWFyLCBzdWJzdHJpbmcoYWNjb3VudHMkZGF0ZSwgMykpLCBmb3JtYXQgPSAiJVklbSVkIikNCg0KIyBFbnRmZXJuZSBkaWUgdGVtcG9yw6RyZSBTcGFsdGUgZsO8ciBkYXMgSmFocg0KYWNjb3VudHMkeWVhciA8LSBOVUxMDQpgYGANCg0KYGBge3J9DQpnbGltcHNlKGFjY291bnRzKQ0Kc3VtbWFyeShhY2NvdW50cykNCmBgYA0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNyb3NzLXNlbGxpbmcgaW4gQmFua2luZyINCmF1dGhvcjogQWRyaWFuIE1laWVyLCBCZW5qYW1pbiBXdWVybWxpDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KYGBge3J9DQppbnN0YWxsLnBhY2thZ2VzKCJkcGx5ciIpIA0KYGBgDQpgYGB7cn0NCmxpYnJhcnkoZHBseXIpDQpgYGANCg0KDQpUaGlzIGlzIGFuIFtSIE1hcmtkb3duXShodHRwOi8vcm1hcmtkb3duLnJzdHVkaW8uY29tKSBOb3RlYm9vay4gV2hlbiB5b3UgZXhlY3V0ZSBjb2RlIHdpdGhpbiB0aGUgbm90ZWJvb2ssIHRoZSByZXN1bHRzIGFwcGVhciBiZW5lYXRoIHRoZSBjb2RlLiANCg0KVHJ5IGV4ZWN1dGluZyB0aGlzIGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqUnVuKiBidXR0b24gd2l0aGluIHRoZSBjaHVuayBvciBieSBwbGFjaW5nIHlvdXIgY3Vyc29yIGluc2lkZSBpdCBhbmQgcHJlc3NpbmcgKkN0cmwrU2hpZnQrRW50ZXIqLiANCg0KDQoNCkFkZCBhIG5ldyBjaHVuayBieSBjbGlja2luZyB0aGUgKkluc2VydCBDaHVuayogYnV0dG9uIG9uIHRoZSB0b29sYmFyIG9yIGJ5IHByZXNzaW5nICpDdHJsK0FsdCtJKi4NCg0KV2hlbiB5b3Ugc2F2ZSB0aGUgbm90ZWJvb2ssIGFuIEhUTUwgZmlsZSBjb250YWluaW5nIHRoZSBjb2RlIGFuZCBvdXRwdXQgd2lsbCBiZSBzYXZlZCBhbG9uZ3NpZGUgaXQgKGNsaWNrIHRoZSAqUHJldmlldyogYnV0dG9uIG9yIHByZXNzICpDdHJsK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuDQoNClRoZSBwcmV2aWV3IHNob3dzIHlvdSBhIHJlbmRlcmVkIEhUTUwgY29weSBvZiB0aGUgY29udGVudHMgb2YgdGhlIGVkaXRvci4gQ29uc2VxdWVudGx5LCB1bmxpa2UgKktuaXQqLCAqUHJldmlldyogZG9lcyBub3QgcnVuIGFueSBSIGNvZGUgY2h1bmtzLiBJbnN0ZWFkLCB0aGUgb3V0cHV0IG9mIHRoZSBjaHVuayB3aGVuIGl0IHdhcyBsYXN0IHJ1biBpbiB0aGUgZWRpdG9yIGlzIGRpc3BsYXllZC4NCg0KTGFkZW4gdW5kIGJldHJhY2h0ZW4gZGVyIGFjY291bnQgVGFiZWxsZS4NCmBgYHtyfQ0KYWNjb3VudHMgPC0gcmVhZC5jc3YoImRhdGEvYWNjb3VudC5jc3YiLCBzZXA9IjsiKQ0KZ2xpbXBzZShhY2NvdW50cykNCnN1bW1hcnkoYWNjb3VudHMpDQpzdW0oaXMubmEoYWNjb3VudHMpKQ0KbGVuZ3RoKHVuaXF1ZShhY2NvdW50cyRhY2NvdW50X2lkKSkgPT0gbnJvdyhhY2NvdW50cykNCmBgYA0KDQpJbSBlcnN0ZW4gc2Nocml0dCB3b2xsZW4gd2lyIGRpZSBEYXRlbiBkZXIgVGFiZWxsZSBhY2NvdW50cyB2ZXJzdMOkbmRsaWNoZXIgbWFjaGVuLiBEYWJlaSB3b2xsZW4gd2lyIGRpZSB0c2NoZWNoaXNjaGVuIE5hbWVuIGluIGRlciBLYXRlZ29yaWUgImZyZXF1ZW5jeSIgYXVmIERldXRzY2ggw7xiZXJzZXR6ZW4gdW5kIGNvbiBlaW5lbSA8Y2hyPiBpbiBlaW5lbiA8ZmN0PiB1bXdhbmRlbG4gIHVuZCBkYXMgRGF0dW0gaW4gZGFzIHJpY2h0aWdlIEZvcm1hdCBicmluZ2VuLg0KYGBge3J9DQojw4RuZGVybiBkZXIgdHNjaGVjaGlzY2hlbiBOYW1lbiBpbiBkZXIgU3BhbHRlIGZyZXF1ZW5jeQ0KYWNjb3VudHMkZnJlcXVlbmN5IDwtIGlmZWxzZShhY2NvdW50cyRmcmVxdWVuY3kgPT0gIlBPUExBVEVLIE1FU0lDTkUiLCAiTW9uYXRsaWNoZSBBdXNnYWJlIiwgYWNjb3VudHMkZnJlcXVlbmN5KQ0KYWNjb3VudHMkZnJlcXVlbmN5IDwtIGlmZWxzZShhY2NvdW50cyRmcmVxdWVuY3kgPT0gIlBPUExBVEVLIFRZRE5FIiwgIlfDtmNoZW50bGljaGUgQXVzZ2FiZSIsIGFjY291bnRzJGZyZXF1ZW5jeSkNCmFjY291bnRzJGZyZXF1ZW5jeSA8LSBpZmVsc2UoYWNjb3VudHMkZnJlcXVlbmN5ID09ICJQT1BMQVRFSyBQTyBPQlJBVFUiLCAiQXVzZ2FiZSBuYWNoIFRyYW5zYWt0aW9uIiwgYWNjb3VudHMkZnJlcXVlbmN5KQ0KYGBgDQoNCmBgYHtyfQ0KI0ZyZXF1ZW5jeSBpbiBGYWt0b3IgdW13YW5kZWxuDQphY2NvdW50cyA8LSBhY2NvdW50cyAlPiUgDQogIG11dGF0ZShmcmVxdWVuY3kgPSBhcy5mYWN0b3IoZnJlcXVlbmN5KSkNCmBgYA0KDQpgYGB7cn0NCiPDhG5kZXJuIGRlcyBkYXRlIGluIGVpbiBEYXRlbmZvcm1hdC4NCg0KIyBKYWhyIGV4dHJhaGllcmVuIHVuZCB2ZXJ2b2xsc3TDpG5kaWdlbg0KYWNjb3VudHMkeWVhciA8LSBpZmVsc2UoYXMubnVtZXJpYyhzdWJzdHJpbmcoYWNjb3VudHMkZGF0ZSwgMSwgMikpIDwgNTAsDQogICAgICAgICAgICAgICAgICAgICAgICBwYXN0ZTAoIjIwIiwgc3Vic3RyaW5nKGFjY291bnRzJGRhdGUsIDEsIDIpKSwNCiAgICAgICAgICAgICAgICAgICAgICAgIHBhc3RlMCgiMTkiLCBzdWJzdHJpbmcoYWNjb3VudHMkZGF0ZSwgMSwgMikpKQ0KDQojIERhdHVtIHVtd2FuZGVsbg0KYWNjb3VudHMkZGF0ZSA8LSBhcy5EYXRlKHBhc3RlMChhY2NvdW50cyR5ZWFyLCBzdWJzdHJpbmcoYWNjb3VudHMkZGF0ZSwgMykpLCBmb3JtYXQgPSAiJVklbSVkIikNCg0KIyBFbnRmZXJuZSBkaWUgdGVtcG9yw6RyZSBTcGFsdGUgZsO8ciBkYXMgSmFocg0KYWNjb3VudHMkeWVhciA8LSBOVUxMDQpgYGANCg0KRGllIFdlcnRlIHNpbmQgbnVuIGJlcmVpbmlndCB1bmQgbWFuIHNpZWh0IGJlaSBmcmVxdWVuY3kgZGllIGRyZWkgQXVzZ2FiZWRhdGVuLCB6dWRlbSBpc3QgZGFzIERhdHVtIG51biBhdWNoIGFscyBEYXR1bSBlcmZhc3N0Lg0KYGBge3J9DQpnbGltcHNlKGFjY291bnRzKQ0Kc3VtbWFyeShhY2NvdW50cykNCmBgYA0KDQoNCg0KTGFkZW4gdW5kIGJldHJhY2h0ZW4gZGVyIGNhcmQgVGFiZWxsZQ0KYGBge3J9DQpjYXJkIDwtIHJlYWQuY3N2KCJkYXRhL2NhcmQuY3N2Iiwgc2VwPSI7IikNCmdsaW1wc2UoY2FyZCkNCnN1bW1hcnkoY2FyZCkNCnN1bShpcy5uYShjYXJkKSkNCmxlbmd0aCh1bmlxdWUoY2FyZCRjYXJkX2lkKSkgPT0gbnJvdyhjYXJkKQ0KYGBgDQoNCkJlaSBkaWVzZW0gRGF0ZW5zYXR6IMOkbmVybiB3aXIgenVlcnN0IGRpZSAidHlwZSIgU3BhbHRlIHdpZSBvYmVuIGluIGVpbmVuIEZha3Rvci4NCmBgYHtyfQ0KI1R5cGUgaW4gRmFrdG9yIHVtd2FuZGVsbg0KY2FyZCA8LSBjYXJkICU+JSANCiAgbXV0YXRlKHR5cGUgPSBhcy5mYWN0b3IodHlwZSkpDQpgYGANCg0KQW5zY2hsaWVzc2VuZCB3aXJkIGRpZSBzcGFsdGUgImlzc3VlZCIgYmVhcmJlaXRldC4gQmVpIGRpZXNlciBzb2xsZW4gZGllIGVyc3RlbiBzZWNocyBaZWljaGVuIGFscyBEYXR1bSBnZXdlcnRldCB3ZXJkZW4uIERpZSAwMDowMDowMCBiZW7DtnRpZ2VuIHdpciBkYWJlaSBuaWNodCBtZWhyLCBkYSBkaWVzZSBiZWkgYWxsZW4gRGF0ZW4gaGludGVuZHJhbiBzdGVoZW4uDQpgYGB7cn0NCmNhcmQkeWVhciA8LSBpZmVsc2UoYXMubnVtZXJpYyhzdWJzdHJpbmcoY2FyZCRpc3N1ZWQsIDEsIDIpKSA8IDUwLA0KICAgICAgICAgICAgICAgICAgICAgICAgcGFzdGUwKCIyMCIsIHN1YnN0cmluZyhjYXJkJGlzc3VlZCwgMSwgMikpLA0KICAgICAgICAgICAgICAgICAgICAgICAgcGFzdGUwKCIxOSIsIHN1YnN0cmluZyhjYXJkJGlzc3VlZCwgMSwgMikpKQ0KDQojIERhdHVtIHVtd2FuZGVsbg0KY2FyZCRpc3N1ZWQgPC0gYXMuRGF0ZShwYXN0ZTAoY2FyZCR5ZWFyLCBzdWJzdHJpbmcoY2FyZCRpc3N1ZWQsIDMpKSwgZm9ybWF0ID0gIiVZJW0lZCIpDQoNCiMgRW50ZmVybmUgZGllIHRlbXBvcsOkcmUgU3BhbHRlIGbDvHIgZGFzIEphaHINCmNhcmQkeWVhciA8LSBOVUxMDQpgYGANCg0KRGVyIENhcmQgRGF0ZW5zYXR6IHNvbGx0ZSBudW4ga29ycmVrdCBzZWluLg0KYGBge3J9DQpnbGltcHNlKGNhcmQpDQpzdW1tYXJ5KGNhcmQpDQpgYGANCg0KV2VpdGVyIGdlaHQgZXMgbWl0IGRlbSBDbGllbnQgRGF0ZW5zYXR6Lg0KYGBge3J9DQpjbGllbnQgPC0gcmVhZC5jc3YoImRhdGEvY2xpZW50LmNzdiIsIHNlcD0iOyIpDQpnbGltcHNlKGNsaWVudCkNCnN1bW1hcnkoY2xpZW50KQ0Kc3VtKGlzLm5hKGNsaWVudCkpDQpsZW5ndGgodW5pcXVlKGNsaWVudCRjbGllbnRfaWQpKSA9PSBucm93KGNsaWVudCkNCmBgYA0KDQpCZWkgZGllc2VtIERhdGVuc2F0eiBpc3Qgd2ljaHRpZyB6dSB3aXNzZW4sIGRhc3MgaW4gZGVyIGJpcnRoX251bWJlciB6dWRlbSBkYXMgR2VzY2hsZWNodCBnZXNwZWljaGVydCBpc3QuIEJlaSBGcmF1ZW4gd3VyZGUgZGllIGFuZ2FiZSBkZXMgTW9uYXRzIHVtIDUwIGVyaMO2aHQuIEQuaCBZWU1NREQgZsO8ciBNw6RubmVyIHVuZCBZWU1NKzUwREQgZsO8ciBGcmF1ZW4uIERlc2hhbGIgd29sbGVuIHdpciBlaW5lIHp1c8OkdHpsaWNoZSBTcGFsdGUgZsO8ciBkYXMgR2VzY2hsZWNodCBlcnpldWdlbiB1bmQgZGllIEdlYnVydHNkYXRlbiBkYW5uIGJlcmVpbmlndCBpbiBkZXIgYmlydGggbnVtYmVyIHdpZWRlcmdlYmVuLg0KYGBge3J9DQoNCiNVbnRlcnNjaGVpZHVuZyB2b24gTWFubiB1bmQgRnJhdSBhbmhhbmQgdm9tIEdlYnVydHNkYXR1bQ0Kc2V4X2luX2JpcnRoIDwtIGZ1bmN0aW9uKHphaGwpIHsNCiAgZWluemVsbmVfemFobCA8LSBhcy5udW1lcmljKHN0cnNwbGl0KGFzLmNoYXJhY3Rlcih6YWhsKSwgJycpW1sxXV0pICAgICMgPGludD4gaW4gPHN0cj4gw6RuZGVybg0KICBtaXR0bGVyZV96YWhsIDwtIGVpbnplbG5lX3phaGxbM10gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyAzLiBaYWhsIGF1c3N1Y2hlbg0KICBtaXR0bGVyZV96YWhsIDwtIGFzLmludGVnZXIobWl0dGxlcmVfemFobCkgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyB3aWVkZXIgaW4gPGludD4gw6RuZGVybg0KICBnZXNjaGxlY2h0IDwtIGlmZWxzZSgobWl0dGxlcmVfemFobCkgPiAyLCAiZmVtYWxlIiwgIm1hbGUiKSAgICAgICAgICAgIyBXZW5uIGRpZSBaYWhsIGdyw7Zzc2VyIGFscyAyIGlzdCAoS2VpbiBNb25hdCB3aXJkIG1pdCAyMCsgYW5nZWdlYmVuKSBhbHMgRnJhdSBhdXNnZWJlbi4NCiAgcmV0dXJuKGdlc2NobGVjaHQpDQp9DQoNCiNBbndlbmR1bmcgZGVyIEZ1bmt0aW9uIGF1ZiBkZW4gRGF0ZW5zYXR6IHVuZCBlcnN0ZWxsdW5nIGRlciB6dXPDpHR6bGljaGVuIFJlaWhlDQpjbGllbnQkc2V4IDwtIHNhcHBseShjbGllbnQkYmlydGhfbnVtYmVyLCBzZXhfaW5fYmlydGgpDQoNCiPDhG5kZXJuIGRlcyBEYXRlbnR5cHMgZGVyIFJlaWhlDQpjbGllbnQgPC0gY2xpZW50ICU+JSANCiAgbXV0YXRlKHNleCA9IGFzLmZhY3RvcihzZXgpKQ0KYGBgDQoNCkRhIHdpciBudW4gZGllIEthdGVnb3JpZSBkZXMgR2VzY2hsZWNodHMgaGFiZW4gd29sbGVuIHdpciBub2NoIGRhcyBHZWJ1cnRzZGF0dW0gYW5wYXNzZW4gdW5kIGltIHJpY2h0aWdlbiBGb3JtYXQgYXVzZ2ViZW4uDQpgYGB7cn0NCiNHZWJ1cnRzZGF0dW0gYmVpIGRlbiBGcmF1ZW4gdW0gNTAwMCBzdWJ0cmFoaWVyZW4uIERhbWl0IHdpZWRlciBkZXIgbm9ybWFsZSBNb25hdCBhbmdlemVpZ3Qgd2lyZC4NCmNsaWVudCRiaXJ0aF9udW1iZXJbY2xpZW50JHNleCA9PSAiZmVtYWxlIl0gPC0gY2xpZW50JGJpcnRoX251bWJlcltjbGllbnQkc2V4ID09ICJmZW1hbGUiXS01MDAwDQoNCg0KI0RlciA8aW50PiB3aXJkIGluIGVpbiBEYXR1bSB1bWdld2FuZGVsdC4NCmNsaWVudCR5ZWFyIDwtIGlmZWxzZShhcy5udW1lcmljKHN1YnN0cmluZyhjbGllbnQkYmlydGhfbnVtYmVyLCAxLCAyKSkgPCAxMCwNCiAgICAgICAgICAgICAgICAgICAgICAgIHBhc3RlMCgiMjAiLCBzdWJzdHJpbmcoY2FyZCRpc3N1ZWQsIDEsIDIpKSwNCiAgICAgICAgICAgICAgICAgICAgICAgIHBhc3RlMCgiMTkiLCBzdWJzdHJpbmcoY2xpZW50JGJpcnRoX251bWJlciwgMSwgMikpKQ0KDQojIERhdHVtIHVtd2FuZGVsbg0KY2xpZW50JGJpcnRoX251bWJlciA8LSBhcy5EYXRlKHBhc3RlMChjbGllbnQkeWVhciwgc3Vic3RyaW5nKGNsaWVudCRiaXJ0aF9udW1iZXIsIDMpKSwgZm9ybWF0ID0gIiVZJW0lZCIpDQoNCiMgRW50ZmVybmUgZGllIHRlbXBvcsOkcmUgU3BhbHRlIGbDvHIgZGFzIEphaHINCmNsaWVudCR5ZWFyIDwtIE5VTEwNCmBgYA0KDQpEZXIgQ2xpZW50IERhdGVuc2F0eiBzb2xsdGUgbnVuIGtvcnJla3Qgc2VpbiB1bmQgZGllIFNwYWx0ZSBzZXggZW50aGFsdGVuLg0KYGBge3J9DQpnbGltcHNlKGNsaWVudCkNCnN1bW1hcnkoY2xpZW50KQ0KYGBgDQoNCg==</div>
 
 
 
