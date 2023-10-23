@@ -157,3 +157,170 @@ glimpse(client)
 summary(client)
 ```
 
+Als nächstes soll der disp Datensatz eingelesen werden.
+```{r}
+disp <- read.csv("data/disp.csv", sep=";")
+glimpse(disp)
+summary(disp)
+sum(is.na(disp))
+length(unique(disp$disp_id)) == nrow(disp)
+```
+
+Hier wollen wir nur den type von <chr> in <fct> ändern und anschliessend kontrollieren.
+```{r}
+#Type in Faktor umwandeln
+disp <- disp %>% 
+  mutate(type = as.factor(type))
+
+#Ausgabe von disp zur Kontrolle
+glimpse(disp)
+summary(disp)
+```
+
+Nun wird der District Datensatz geladen.
+```{r}
+district <- read.csv("data/district.csv", sep=";")
+glimpse(district)
+summary(district)
+sum(is.na(district))
+length(unique(district$A1)) == nrow(district)
+```
+
+Hier werden alle Spalten mit A angegeben, dies sollen aussagekräftigere Namen werden.
+```{r}
+#Spaltennamen ändern
+colnames(district) <- c("district_id", "district_name", "region", "inhabitants", "municipalities<499", "municipalities500-1999", "municipalities2000-9999", "municipalities>10000", "cities", "urban_inhabitants", "average_salary", "unemploymant_rate_95", "unemploymant_rate_96", "enterpreneurs_per_1000", "commited_crimes_95", "commited_crimes_96")
+```
+
+Nun sollen noch alle <chr> in andere Formate geändert werden. Die Warnung nach ausführung des Codes ist auf den District Jesenik bezogen. Dort ist in der Spalte unemploymant_rate_95 und commited_crimes_95 ein "?" eigetragen, dieser Wert wird mit NA ersetzt.
+```{r}
+district <- district %>% 
+  mutate(district_name = as.factor(district_name),
+        region = as.factor(region),
+        unemploymant_rate_95 = as.double(unemploymant_rate_95),
+        commited_crimes_95 = as.integer(commited_crimes_95))
+
+```
+
+Kontrolle der geänderten Tabelle.
+```{r}
+glimpse(district)
+summary(district)
+```
+
+Laden des loan Datensatzes.
+```{r}
+loan <- read.csv("data/loan.csv", sep=";")
+glimpse(loan)
+summary(loan)
+sum(is.na(loan))
+length(unique(loan$loan_id)) == nrow(loan)
+```
+
+Ändern der Spalte status, A, B, C,D soll mit aussagekräftigeren Namen ersetzt werden, anschiessend soll sie noch zu <fct> geändert werden.
+```{r}
+#Ändern der Namen in Status
+loan$status <- ifelse(loan$status == "A", "finished_ok", loan$status)
+loan$status <- ifelse(loan$status == "B", "finished_not_payed", loan$status)
+loan$status <- ifelse(loan$status == "C", "running_ok", loan$status)
+loan$status <- ifelse(loan$status == "D", "running_client_in_dept", loan$status)
+
+#Status in Faktor ändern
+loan <- loan %>%
+  mutate(status = as.factor(status))
+```
+
+Kontrolle der Änderungen.
+```{r}
+glimpse(loan)
+summary(loan)
+```
+
+Laden der order Datei.
+```{r}
+order <- read.csv("data/order.csv", sep=";")
+glimpse(order)
+summary(order)
+sum(is.na(order))
+length(unique(order$order_id)) == nrow(order)
+```
+
+Hier sollen die beiden <chr> in <fct> geändert werden. Auch sollen die Werte in k_symbol verständlich werden.
+```{r}
+#K_symbol Werte verständlich machen
+order$k_symbol <- ifelse(order$k_symbol == "POJISTNE", "insurrance payment", order$k_symbol)
+order$k_symbol <- ifelse(order$k_symbol == "SIPO", "household", order$k_symbol)
+order$k_symbol <- ifelse(order$k_symbol == "LEASING", "leasing", order$k_symbol)
+order$k_symbol <- ifelse(order$k_symbol == "UVER", "loan payment", order$k_symbol)
+order$k_symbol <- ifelse(order$k_symbol == " ", NA, order$k_symbol)
+
+
+#Umwandlung in Faktor
+order <- order %>%
+  mutate(bank_to = as.factor(bank_to),
+         k_symbol = as.factor(k_symbol))
+```
+
+Kontrolle der Daten.
+```{r}
+glimpse(order)
+summary(order)
+```
+
+Laden der trans Datei.
+```{r}
+trans <- read.csv("data/trans.csv", sep=";")
+glimpse(trans)
+summary(trans)
+sum(is.na(trans))
+length(unique(trans$trans_id)) == nrow(trans)
+```
+
+Ändern der Tschechischen Namen, date in Datum formatieren und umwandlungen in Faktoren. Bei der spalte type werden in der Datenbeschreibung nur "PRIJEM" und "VYDAJ" beschrieben zudem kommt aber auch noch "VYBER" vor, dieser wird aber ansonsten als "withdrawal in cash" beschrieben, deshalb übernehmen wir dies auch hier.
+```{r}
+# Type Werte verständlich machen
+trans$type <- ifelse(trans$type == "PRIJEM", "credit", trans$type)
+trans$type <- ifelse(trans$type == "VYDAJ", "withdrawal", trans$type)
+trans$type <- ifelse(trans$type == "VYBER", "withdrawal in cash", trans$type)
+
+# Operation Werte verständlich machen
+trans$operation <- ifelse(trans$operation == "VYBER KARTOU", "creditcard withdrawal", trans$operation)
+trans$operation <- ifelse(trans$operation == "VKLAD", "credit in cash", trans$operation)
+trans$operation <- ifelse(trans$operation == "PREVOD Z UCTU", "collection from another bank", trans$operation)
+trans$operation <- ifelse(trans$operation == "VYBER", "withdrawal in cash", trans$operation)
+trans$operation <- ifelse(trans$operation == "PREVOD NA UCET", "remittance to another bank", trans$operation)
+
+# K_symbol Werte verständlich machen
+trans$k_symbol <- ifelse(trans$k_symbol == "POJISTNE", "insurrance payment", trans$k_symbol)
+trans$k_symbol <- ifelse(trans$k_symbol == "SLUZBY", "paymant for statement", trans$k_symbol)
+trans$k_symbol <- ifelse(trans$k_symbol == "UROK", "interest credited", trans$k_symbol)
+trans$k_symbol <- ifelse(trans$k_symbol == "SANKC. UROK", "sanction interest if negative balance", trans$k_symbol)
+trans$k_symbol <- ifelse(trans$k_symbol == "SIPO", "household", trans$k_symbol)
+trans$k_symbol <- ifelse(trans$k_symbol == "DUCHOD", "oldage pension", trans$k_symbol)
+trans$k_symbol <- ifelse(trans$k_symbol == "UVER", "loan payment", trans$k_symbol)
+
+# Der <int> wird in ein Datum umgewandelt.
+trans$year <- ifelse(as.numeric(substring(trans$date, 1, 2)) < 10,
+                        paste0("20", substring(trans$date, 1, 2)),
+                        paste0("19", substring(trans$date, 1, 2)))
+
+# Datum umwandeln
+trans$date <- as.Date(paste0(trans$year, substring(trans$date, 3)), format = "%Y%m%d")
+
+# Entferne die temporäre Spalte für das Jahr
+trans$year <- NULL
+
+# Ändern in <fct>
+trans <- trans %>%
+  mutate(type = as.factor(type),
+         operation = as.factor(operation),
+         k_symbol = as.factor(k_symbol),
+         bank = as.factor(bank))
+```
+
+Kontrolle der Änderungen
+```{r}
+glimpse(trans)
+summary(trans)
+```
+
