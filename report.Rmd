@@ -35,9 +35,10 @@ length(unique(accounts$account_id)) == nrow(accounts)
 Im ersten schritt wollen wir die Daten der Tabelle accounts verständlicher machen. Dabei wollen wir die tschechischen Namen in der Kategorie "frequency" auf Deutsch übersetzen und con einem <chr> in einen <fct> umwandeln  und das Datum in das richtige Format bringen.
 ```{r}
 #Ändern der tschechischen Namen in der Spalte frequency
-accounts$frequency <- ifelse(accounts$frequency == "POPLATEK MESICNE", "Monatliche Ausgabe", accounts$frequency)
-accounts$frequency <- ifelse(accounts$frequency == "POPLATEK TYDNE", "Wöchentliche Ausgabe", accounts$frequency)
-accounts$frequency <- ifelse(accounts$frequency == "POPLATEK PO OBRATU", "Ausgabe nach Transaktion", accounts$frequency)
+accounts <- accounts %>%
+  mutate(frequency = case_when(frequency == "POPLATEK MESICNE" ~ "Monatliche Ausgabe",
+                               frequency == "POPLATEK TYDNE" ~ "Wöchentliche Ausgabe",
+                               frequency == "POPLATEK PO OBRATU" ~ "Ausgabe nach Transaktion"))
 ```
 
 ```{r}
@@ -220,10 +221,11 @@ length(unique(loan$loan_id)) == nrow(loan)
 Ändern der Spalte status, A, B, C,D soll mit aussagekräftigeren Namen ersetzt werden, anschiessend soll sie noch zu <fct> geändert werden.
 ```{r}
 #Ändern der Namen in Status
-loan$status <- ifelse(loan$status == "A", "finished_ok", loan$status)
-loan$status <- ifelse(loan$status == "B", "finished_not_payed", loan$status)
-loan$status <- ifelse(loan$status == "C", "running_ok", loan$status)
-loan$status <- ifelse(loan$status == "D", "running_client_in_dept", loan$status)
+loan <- loan %>%
+  mutate(status = case_when(status == "A" ~ "finished_ok",
+                   status == "B" ~ "finished_not_payed",
+                   status == "C" ~ "running_ok",
+                   status == "D" ~ "running_client_in_dept"))
 
 #Status in Faktor ändern
 loan <- loan %>%
@@ -248,12 +250,12 @@ length(unique(order$order_id)) == nrow(order)
 Hier sollen die beiden <chr> in <fct> geändert werden. Auch sollen die Werte in k_symbol verständlich werden.
 ```{r}
 #K_symbol Werte verständlich machen
-order$k_symbol <- ifelse(order$k_symbol == "POJISTNE", "insurrance payment", order$k_symbol)
-order$k_symbol <- ifelse(order$k_symbol == "SIPO", "household", order$k_symbol)
-order$k_symbol <- ifelse(order$k_symbol == "LEASING", "leasing", order$k_symbol)
-order$k_symbol <- ifelse(order$k_symbol == "UVER", "loan payment", order$k_symbol)
-order$k_symbol <- ifelse(order$k_symbol == " ", NA, order$k_symbol)
-
+order <- order %>%
+  mutate(k_symbol = case_when(k_symbol == "POJISTNE" ~ "insurrance payment",
+                           k_symbol == "SIPO" ~ "household",
+                           k_symbol == "LEASING" ~ "leasing",
+                           k_symbol == "UVER" ~ "loan payment",
+                           k_symbol == " " ~ NA,))
 
 #Umwandlung in Faktor
 order <- order %>%
@@ -273,31 +275,36 @@ trans <- read.csv("data/trans.csv", sep=";")
 glimpse(trans)
 summary(trans)
 sum(is.na(trans))
+sum(is.na(trans$trans_id))
 length(unique(trans$trans_id)) == nrow(trans)
 ```
 
 Ändern der Tschechischen Namen, date in Datum formatieren und umwandlungen in Faktoren. Bei der spalte type werden in der Datenbeschreibung nur "PRIJEM" und "VYDAJ" beschrieben zudem kommt aber auch noch "VYBER" vor, dieser wird aber ansonsten als "withdrawal in cash" beschrieben, deshalb übernehmen wir dies auch hier.
 ```{r}
 # Type Werte verständlich machen
-trans$type <- ifelse(trans$type == "PRIJEM", "credit", trans$type)
-trans$type <- ifelse(trans$type == "VYDAJ", "withdrawal", trans$type)
-trans$type <- ifelse(trans$type == "VYBER", "withdrawal in cash", trans$type)
+trans <- trans %>%
+  mutate(type = case_when(type == "PRIJEM" ~ "credit",
+                          type == "VYDAJ" ~ "withdrawal",
+                          type == "VYBER" ~ "withdrawal in cash"))
 
 # Operation Werte verständlich machen
-trans$operation <- ifelse(trans$operation == "VYBER KARTOU", "creditcard withdrawal", trans$operation)
-trans$operation <- ifelse(trans$operation == "VKLAD", "credit in cash", trans$operation)
-trans$operation <- ifelse(trans$operation == "PREVOD Z UCTU", "collection from another bank", trans$operation)
-trans$operation <- ifelse(trans$operation == "VYBER", "withdrawal in cash", trans$operation)
-trans$operation <- ifelse(trans$operation == "PREVOD NA UCET", "remittance to another bank", trans$operation)
+trans <- trans %>%
+  mutate(operation = case_when(operation == "VYBER KARTOU" ~ "creditcard withdrawal",
+                               operation == "VKLAD" ~ "credit in cash",
+                               operation == "PREVOD Z UCTU" ~ "collection from another bank",
+                               operation == "VYBER" ~ "withdrawal in cash",
+                               operation == "PREVOD NA UCET" ~ "remittance to another bank"))
+
 
 # K_symbol Werte verständlich machen
-trans$k_symbol <- ifelse(trans$k_symbol == "POJISTNE", "insurrance payment", trans$k_symbol)
-trans$k_symbol <- ifelse(trans$k_symbol == "SLUZBY", "paymant for statement", trans$k_symbol)
-trans$k_symbol <- ifelse(trans$k_symbol == "UROK", "interest credited", trans$k_symbol)
-trans$k_symbol <- ifelse(trans$k_symbol == "SANKC. UROK", "sanction interest if negative balance", trans$k_symbol)
-trans$k_symbol <- ifelse(trans$k_symbol == "SIPO", "household", trans$k_symbol)
-trans$k_symbol <- ifelse(trans$k_symbol == "DUCHOD", "oldage pension", trans$k_symbol)
-trans$k_symbol <- ifelse(trans$k_symbol == "UVER", "loan payment", trans$k_symbol)
+trans <- trans %>%
+  mutate(k_symbol = case_when(k_symbol == "POJISTNE" ~ "insurrance payment",
+                              k_symbol == "SLUZBY" ~ "paymant for statement",
+                              k_symbol == "UROK" ~ "interest credited",
+                              k_symbol == "SANKC. UROK" ~ "sanction interest if negative balance",
+                              k_symbol == "SIPO" ~ "household",
+                              k_symbol == "DUCHOD" ~ "oldage pension",
+                              k_symbol == "UVER" ~ "loan payment"))
 
 # Der <int> wird in ein Datum umgewandelt.
 trans$year <- ifelse(as.numeric(substring(trans$date, 1, 2)) < 10,
