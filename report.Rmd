@@ -66,11 +66,6 @@ barplot(table(accounts$district_id), main = "Distribution of Accounts by Distric
 ```
 
 ```{r}
-library(TTR)
-account_dates <- as.Date(accounts$date)
-account_counts <- table(account_dates)
-decomposed <- decompose(ts(account_counts, frequency = 12))
-plot(decomposed)
 
 ```
 
@@ -101,6 +96,11 @@ Der Card Datensatz sollte nun korrekt sein.
 ```{r}
 glimpse(card)
 summary(card)
+```
+```{r}
+card %>%
+  group_by(type) %>%
+  summarise(count = n())
 ```
 
 ## client Datensatz
@@ -140,6 +140,9 @@ client$birth_number[client$sex == "female"] <- client$birth_number[client$sex ==
 client <- client %>%
   mutate(birth_number = birth_number + 19000000)
 client$birth_number <- ymd(client$birth_number)
+
+client <- client %>%
+  rename(birthday = birth_number)
 ```
 
 Der Client Datensatz sollte nun korrekt sein und die Spalte sex enthalten.
