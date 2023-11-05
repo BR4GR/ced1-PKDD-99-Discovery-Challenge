@@ -54,6 +54,12 @@ accounts <- accounts %>%
 ```{r}
 # Datum umwandeln
 accounts$date <- ymd(accounts$date)
+
+# spalten umbenennen
+accounts <- accounts %>%
+  rename(opening_date = date,
+         frequency_of_statements = frequency,
+         district_id_account = district_id)
 ```
 
 Die Werte sind nun bereinigt und man sieht bei frequency die drei Ausgabedaten, zudem ist das Datum nun auch als Datum erfasst.
@@ -82,8 +88,11 @@ length(unique(card$card_id)) == nrow(card)
 Bei diesem Datensatz änern wir zuerst die "type" Spalte wie oben in einen Faktor.
 ```{r}
 #Type in Faktor umwandeln
+card <- card %>%
+  rename(card_type = type)
+
 card <- card %>% 
-  mutate(type = as.factor(type))
+  mutate(card_type = as.factor(card_type))
 ```
 
 Anschliessend wird die spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
@@ -99,7 +108,7 @@ summary(card)
 ```
 ```{r}
 card %>%
-  group_by(type) %>%
+  group_by(card_type) %>%
   summarise(count = n())
 ```
 
@@ -142,7 +151,8 @@ client <- client %>%
 client$birth_number <- ymd(client$birth_number)
 
 client <- client %>%
-  rename(birthday = birth_number)
+  rename(birthday = birth_number,
+         district_id_client = district_id)
 ```
 
 Der Client Datensatz sollte nun korrekt sein und die Spalte sex enthalten.
@@ -200,6 +210,40 @@ Kontrolle der geänderten Tabelle.
 glimpse(district)
 summary(district)
 ```
+```{r}
+ggplot(district, aes(x = unemploymant_rate_95, y = commited_crimes_95)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Scatter Plot of Unemployment Rate and Committed Crimes in 1995",
+       x = "Unemployment Rate in 1995",
+       y = "Committed Crimes in 1995")
+```
+```{r}
+ggplot(district, aes(x = unemploymant_rate_96, y = commited_crimes_96)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Scatter Plot of Unemployment Rate and Committed Crimes in 1996",
+       x = "Unemployment Rate in 1996",
+       y = "Committed Crimes in 1996")
+```
+```{r}
+district %>%
+  filter(commited_crimes_95 == 85677)
+
+district %>%
+  filter(commited_crimes_96 == 99107)
+```
+```{r}
+ggplot(district, aes(x = inhabitants, y = commited_crimes_95)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Scatter Plot of Inhabitants vs Crimes in 95",
+       x = "Number of Inhabitants",
+       y = "Number of Crimes")
+
+ggplot(district, aes(x = inhabitants, y = commited_crimes_96)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Scatter Plot of Inhabitants vs Crimes in 96",
+       x = "Number of Inhabitants",
+       y = "Number of Crimes")
+```
 
 ## loan Datensatz
 ```{r}
@@ -222,6 +266,11 @@ loan <- loan %>%
 #Status in Faktor ändern
 loan <- loan %>%
   mutate(status = as.factor(status))
+
+loan <- loan %>%
+  rename(date_loan = date,
+         loan_date = date)
+
 ```
 
 Kontrolle der Änderungen.
@@ -295,7 +344,7 @@ trans <- trans %>%
                               k_symbol == "UROK" ~ "interest credited",
                               k_symbol == "SANKC. UROK" ~ "sanction interest if negative balance",
                               k_symbol == "SIPO" ~ "household",
-                              k_symbol == "DUCHOD" ~ "oldage pension",
+                              k_symbol == "DUCHOD" ~ "old age pension",
                               k_symbol == "UVER" ~ "loan payment"))
 
 # Datum umwandeln
@@ -307,6 +356,13 @@ trans <- trans %>%
          operation = as.factor(operation),
          k_symbol = as.factor(k_symbol),
          bank = as.factor(bank))
+
+trans <- trans %>%
+  rename(
+    balance_after_transaction = balance,
+    account_receiver = account,
+    bank_receiver = bank,
+  )
 ```
 
 Kontrolle der Änderungen
@@ -314,4 +370,34 @@ Kontrolle der Änderungen
 glimpse(trans)
 summary(trans)
 ```
+# Merge
+## card Datensatz
+```{r}
+full_card <- card %>%
+  left_join(disp, by = "disp_id") %>%
+  left_join(client, by = "client_id") %>%
+  left_join(accounts, by = "account_id") %>%
+  left_join(district, by = c("district_id_account" = "district_id")) %>%
+  left_join(loan, by = "account_id") %>%
+  left_join(order, by = "account_id") %>%
+  left_join(trans, by = "account_id")
+  
 
+glimpse(full_card)
+```
+
+
+
+```{r}
+# merged_data <- accounts %>%
+#   left_join(disp, by = "account_id") %>%
+#   left_join(client, by = "client_id") %>%
+#   left_join(card, by = "disp_id") %>%
+#   left_join(district, by = c("district_id_account" = "district_id")) %>%
+#   left_join(loan, by = "account_id") %>%
+#   left_join(order, by = "account_id") %>%
+#   left_join(trans, by = "account_id")
+#   
+# 
+# glimpse(merged_data)
+```
