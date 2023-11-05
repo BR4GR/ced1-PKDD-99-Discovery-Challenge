@@ -16,7 +16,7 @@ output:
       smooth_scroll: yes
     theme: united
     highlight: tango
-    code_folding: hide
+    code_folding: show
 ---
 
 ### Imports
@@ -61,6 +61,9 @@ Die Werte sind nun bereinigt und man sieht bei frequency die drei Ausgabedaten, 
 ```{r}
 glimpse(accounts)
 summary(accounts)
+```
+```{r}
+barplot(table(accounts$district_id), main = "Distribution of Accounts by District", xlab = "District ID", ylab = "Number of Accounts")
 ```
 
 
@@ -137,8 +140,7 @@ Der Client Datensatz sollte nun korrekt sein und die Spalte sex enthalten.
 glimpse(client)
 summary(client)
 ```
-
-Als nächstes soll der disp Datensatz eingelesen werden.
+## disp Datensatz
 ```{r}
 disp <- read.csv("data/disp.csv", sep=";")
 glimpse(disp)
