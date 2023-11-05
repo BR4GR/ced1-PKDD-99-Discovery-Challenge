@@ -22,8 +22,7 @@ output:
 ### Imports
 ```{r}
 # install.packages("tidyverse") 
-```
-```{r}
+
 library(tidyverse)
 ```
 # Verfügbare Tabellen untersuchen
@@ -66,6 +65,14 @@ summary(accounts)
 barplot(table(accounts$district_id), main = "Distribution of Accounts by District", xlab = "District ID", ylab = "Number of Accounts")
 ```
 
+```{r}
+library(TTR)
+account_dates <- as.Date(accounts$date)
+account_counts <- table(account_dates)
+decomposed <- decompose(ts(account_counts, frequency = 12))
+plot(decomposed)
+
+```
 
 
 ## card Datensatz
@@ -87,7 +94,7 @@ card <- card %>%
 Anschliessend wird die spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
 ```{r}
 # Datum umwandeln
-card$issued <- ymd(card$issued)
+card$issued <- ymd(substr(card$issued, 1, 6))
 ```
 
 Der Card Datensatz sollte nun korrekt sein.
