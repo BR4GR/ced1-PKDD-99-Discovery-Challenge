@@ -1,29 +1,34 @@
 ---
 title: "Cross-selling in Banking"
 author: Adrian Meier, Benjamin Wuermli
-output: html_notebook
+output:
+  html_document:
+    toc: yes
+    toc_depth: '4'
+    df_print: paged
+    toc_float: true
+  html_notebook:
+    toc: yes
+    toc_depth: 4
+    df_print: paged
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+    theme: united
+    highlight: tango
+    code_folding: hide
 ---
+
+### Imports
 ```{r}
-install.packages("tidyverse") 
+# install.packages("tidyverse") 
 ```
 ```{r}
 library(tidyverse)
 ```
+# Verfügbare Tabellen untersuchen
 
-
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
-
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
-
-Laden und betrachten der account Tabelle.
+## account Datensatz
 ```{r}
 accounts <- read.csv("data/account.csv", sep=";")
 glimpse(accounts)
@@ -60,7 +65,7 @@ summary(accounts)
 
 
 
-Laden und betrachten der card Tabelle
+## card Datensatz
 ```{r}
 card <- read.csv("data/card.csv", sep=";")
 glimpse(card)
@@ -88,7 +93,7 @@ glimpse(card)
 summary(card)
 ```
 
-Weiter geht es mit dem Client Datensatz.
+## client Datensatz
 ```{r}
 client <- read.csv("data/client.csv", sep=";")
 glimpse(client)
@@ -153,7 +158,7 @@ glimpse(disp)
 summary(disp)
 ```
 
-Nun wird der District Datensatz geladen.
+## district Datensatz
 ```{r}
 district <- read.csv("data/district.csv", sep=";")
 glimpse(district)
@@ -184,7 +189,7 @@ glimpse(district)
 summary(district)
 ```
 
-Laden des loan Datensatzes.
+## loan Datensatz
 ```{r}
 loan <- read.csv("data/loan.csv", sep=";")
 glimpse(loan)
@@ -213,7 +218,7 @@ glimpse(loan)
 summary(loan)
 ```
 
-Laden der order Datei.
+## order Datensatz
 ```{r}
 order <- read.csv("data/order.csv", sep=";")
 glimpse(order)
@@ -244,7 +249,7 @@ glimpse(order)
 summary(order)
 ```
 
-Laden der trans Datei.
+## trans Datensatz
 ```{r}
 trans <- read.csv("data/trans.csv", sep=";")
 glimpse(trans)
