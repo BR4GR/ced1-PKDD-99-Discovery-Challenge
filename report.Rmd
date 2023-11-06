@@ -370,34 +370,41 @@ Kontrolle der Änderungen
 glimpse(trans)
 summary(trans)
 ```
-# Merge
-## card Datensatz
-```{r}
-# full_card <- card %>%
-#   left_join(disp, by = "disp_id") %>%
-#   left_join(client, by = "client_id") %>%
-#   left_join(accounts, by = "account_id") %>%
-#   left_join(district, by = c("district_id_account" = "district_id")) %>%
-#   left_join(loan, by = "account_id") %>%
-#   left_join(order, by = "account_id") %>%
-#   left_join(trans, by = "account_id")
-#   
-# 
-# glimpse(full_card)
-```
+# CAR
+
 
 
 
 ```{r}
-# merged_data <- accounts %>%
+client_analytical_record <- accounts %>%
+  left_join(disp %>% filter(type == "OWNER") %>%
+              rename_with(~paste0("owner_", .), -account_id), by = "account_id") %>%
+  left_join(disp %>% filter(type == "DISPONENT") %>%
+              rename_with(~paste0("user_", .), -account_id), by = "account_id")
+
+
+
+
+client_analytical_record <- client_analytical_record %>%
+  select(-owner_type, -user_type) %>%
+  replace_na(list(
+    user_disp_id = -1, 
+    user_client_id = -1
+  ))
+
+
+
+client_analytical_record <- client_analytical_record %>%
+  left_join(client %>% rename_with(~paste0("owner_", .)), by = c("owner_client_id" = "client_id"))
+
+
+# client_analytical_record <- accounts %>%
 #   left_join(disp, by = "account_id") %>%
 #   left_join(client, by = "client_id") %>%
-#   left_join(card, by = "disp_id") %>%
 #   left_join(district, by = c("district_id_account" = "district_id")) %>%
-#   left_join(loan, by = "account_id") %>%
 #   left_join(order, by = "account_id") %>%
 #   left_join(trans, by = "account_id")
-#   
-# 
-# glimpse(merged_data)
+
+
+glimpse(client_analytical_record)
 ```
