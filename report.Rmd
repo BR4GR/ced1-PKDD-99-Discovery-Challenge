@@ -436,7 +436,7 @@ trans_per_month <- trans %>%
   group_by(account_id, year_month) %>%
   summarise(
     einnahmen = sum(amount[type == "credit"]),
-    ausgaben = sum(amount[type == "withdrawal in cash"])
+    ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"])
   )
 
 ```
