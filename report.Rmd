@@ -373,17 +373,17 @@ summary(trans)
 # Merge
 ## card Datensatz
 ```{r}
-full_card <- card %>%
-  left_join(disp, by = "disp_id") %>%
-  left_join(client, by = "client_id") %>%
-  left_join(accounts, by = "account_id") %>%
-  left_join(district, by = c("district_id_account" = "district_id")) %>%
-  left_join(loan, by = "account_id") %>%
-  left_join(order, by = "account_id") %>%
-  left_join(trans, by = "account_id")
-  
-
-glimpse(full_card)
+# full_card <- card %>%
+#   left_join(disp, by = "disp_id") %>%
+#   left_join(client, by = "client_id") %>%
+#   left_join(accounts, by = "account_id") %>%
+#   left_join(district, by = c("district_id_account" = "district_id")) %>%
+#   left_join(loan, by = "account_id") %>%
+#   left_join(order, by = "account_id") %>%
+#   left_join(trans, by = "account_id")
+#   
+# 
+# glimpse(full_card)
 ```
 
 
