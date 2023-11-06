@@ -416,6 +416,19 @@ glimpse(client_analytical_record)
 Neues Dataframe erstellen mit account ID zum Joinen und monatliche ausgaben und einnahmen einzelner accounts ende Monat erstellen.
 
 ```{r}
-trans_per_month <- trans %>% ym(date)
+#trans_per_month <- trans %>%
+ # mutate(year_month = floor_date(date, unit = "month")) %>%
+  #group_by(account_id, year_month) %>%
+  #summarise(einnahmen = sum(amount[type == "credit"]),
+  #(ausgaben = sum(amount[type == "withdrawal in cash"]))
+
+trans_per_month <- trans %>%
+  mutate(year_month = floor_date(date, unit = "month")) %>%
+  group_by(account_id, year_month) %>%
+  summarise(
+    einnahmen = sum(amount[type == "credit"]),
+    ausgaben = sum(amount[type == "withdrawal in cash"])
+  )
+
 ```
 
