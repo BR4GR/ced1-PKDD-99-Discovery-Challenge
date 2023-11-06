@@ -211,18 +211,24 @@ glimpse(district)
 summary(district)
 ```
 ```{r}
-ggplot(district, aes(x = unemploymant_rate_95, y = commited_crimes_95)) +
+district <- district %>%
+  mutate(crimes_per_1000_1995 = commited_crimes_95/inhabitants*1000)
+
+ggplot(district, aes(x = unemploymant_rate_96, y = crimes_per_1000_1995)) +
   geom_point(alpha = 0.5) +
   labs(title = "Scatter Plot of Unemployment Rate and Committed Crimes in 1995",
        x = "Unemployment Rate in 1995",
-       y = "Committed Crimes in 1995")
+       y = "Committed Crimes per 1000 in 1995")
 ```
 ```{r}
-ggplot(district, aes(x = unemploymant_rate_96, y = commited_crimes_96)) +
+district <- district %>%
+  mutate(crimes_per_1000_1996 = (commited_crimes_96/inhabitants)*1000)
+
+ggplot(district, aes(x = unemploymant_rate_96, y = crimes_per_1000_1996)) +
   geom_point(alpha = 0.5) +
   labs(title = "Scatter Plot of Unemployment Rate and Committed Crimes in 1996",
        x = "Unemployment Rate in 1996",
-       y = "Committed Crimes in 1996")
+       y = "Committed Crimes per 1000 in 1996")
 ```
 ```{r}
 district %>%
@@ -394,8 +400,7 @@ client_analytical_record <- client_analytical_record %>%
 
 
 
-client_analytical_record <- client_analytical_record %>%
-  left_join(client %>% rename_with(~paste0("owner_", .)), by = c("owner_client_id" = "client_id"))
+client_analytical_record <- left_join(client_analytical_record, client, by = join_by(owner_client_id == client_id))
 
 
 # client_analytical_record <- accounts %>%
@@ -408,3 +413,9 @@ client_analytical_record <- client_analytical_record %>%
 
 glimpse(client_analytical_record)
 ```
+Neues Dataframe erstellen mit account ID zum Joinen und monatliche ausgaben und einnahmen einzelner accounts ende Monat erstellen.
+
+```{r}
+trans_per_month <- trans %>% ym(date)
+```
+
