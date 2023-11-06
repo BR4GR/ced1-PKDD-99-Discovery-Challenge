@@ -389,8 +389,6 @@ client_analytical_record <- accounts %>%
               rename_with(~paste0("user_", .), -account_id), by = "account_id")
 
 
-
-
 client_analytical_record <- client_analytical_record %>%
   select(-owner_type, -user_type) %>%
   replace_na(list(
@@ -398,21 +396,32 @@ client_analytical_record <- client_analytical_record %>%
     user_client_id = -1
   ))
 
+client_analytical_record <- client_analytical_record %>%
+  left_join(client, by = c("owner_client_id" = "client_id"))
 
+client_analytical_record <- client_analytical_record %>%
+  rename(
+    owner_birthday = birthday,
+    owner_district_id = district_id_client,
+    owner_sex = sex
+  )
 
-client_analytical_record <- left_join(client_analytical_record, client, by = join_by(owner_client_id == client_id))
+client_analytical_record <- client_analytical_record %>%
+  left_join(client, by = c("user_client_id" = "client_id"))
 
+client_analytical_record <- client_analytical_record %>%
+  rename(
+    user_birthday = birthday,
+    user_district_id = district_id_client,
+    user_sex = sex
+  )
 
-# client_analytical_record <- accounts %>%
-#   left_join(disp, by = "account_id") %>%
-#   left_join(client, by = "client_id") %>%
-#   left_join(district, by = c("district_id_account" = "district_id")) %>%
-#   left_join(order, by = "account_id") %>%
-#   left_join(trans, by = "account_id")
-
+client_analytical_record <- client_analytical_record %>%
+  left_join(district, by = c("user_district_id" = "district_id"))
 
 glimpse(client_analytical_record)
 ```
+
 Neues Dataframe erstellen mit account ID zum Joinen und monatliche ausgaben und einnahmen einzelner accounts ende Monat erstellen.
 
 ```{r}
