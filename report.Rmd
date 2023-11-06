@@ -417,7 +417,7 @@ client_analytical_record <- client_analytical_record %>%
   )
 
 client_analytical_record <- client_analytical_record %>%
-  left_join(district, by = c("user_district_id" = "district_id"))
+  left_join(district, by = c("owner_district_id" = "district_id"))
 
 glimpse(client_analytical_record)
 ```
