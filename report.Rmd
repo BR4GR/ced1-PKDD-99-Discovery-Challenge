@@ -21,9 +21,12 @@ output:
 
 ### Imports
 ```{r}
-# install.packages("tidyverse") 
+# install.packages("tidyverse")
+# install.packages("ggmosaic")
+
 
 library(tidyverse)
+library(ggmosaic)
 ```
 # Verfügbare Tabellen untersuchen
 
@@ -78,7 +81,6 @@ ggplot(accounts, aes(x = frequency_of_statements, fill = frequency_of_statements
   coord_flip() +
   labs(x = "Frequenz", y = "Anzahl Konten", title = "Frequenz der Kontoauszüge", fill = "Ausgabe")
 ```
-
 
 ## card Datensatz
 ```{r}
@@ -157,6 +159,8 @@ client$birth_number <- ymd(client$birth_number)
 client <- client %>%
   rename(birthday = birth_number,
          district_id_client = district_id)
+
+client$year <- year(client$birthday)
 ```
 
 Der Client Datensatz sollte nun korrekt sein und die Spalte sex enthalten.
@@ -164,6 +168,70 @@ Der Client Datensatz sollte nun korrekt sein und die Spalte sex enthalten.
 glimpse(client)
 summary(client)
 ```
+```{r}
+# install.packages("ggridges")
+# library(ggridges)
+
+ggplot(client, aes(x = year, y = sex, fill = sex)) +
+  geom_density_ridges() +
+  theme_ridges() +  # This is a theme provided by ggridges
+  labs(title = "Ridge Line Plot of Year by Sex",
+       x = "Year",
+       y = "Sex")
+
+ggplot(client, aes(x = year, y = district_id_client)) +
+  geom_point() +  # Adds the data points
+  geom_smooth(method = "lm",   # lm for linear model
+              se = TRUE,       # se = TRUE to show confidence interval
+              color = "blue", 
+              fill = "lightblue") +
+  theme_minimal() +
+  labs(title = "Regression of District ID on Year with Confidence Interval",
+       x = "Year",
+       y = "District ID")
+
+ggplot(client, aes(x = year, y = district_id_client, color = sex)) + 
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Scatter Plot by Year and District ID",
+       x = "Year",
+       y = "District ID",
+       color = "Sex") +
+  theme(legend.position = "bottom")
+
+ggplot(client, aes(x = district_id_client, y = year, color = sex, size = year)) + 
+  geom_point(alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Bubble Chart by Year and District ID",
+       x = "Year",
+       y = "District ID",
+       color = "Sex",
+       size = "Year") +
+  theme(legend.position = "bottom")
+
+ggplot(client, aes(x = sex, y = year, color = sex)) + 
+  geom_violin(trim = FALSE) + 
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Violin and Scatter Plot by Year and Sex",
+       x = "Sex",
+       y = "Year")
+
+ggplot(client, aes(x = sex, y = year, color = sex)) +
+  geom_jitter(width = 0.2, height = 0, alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Categorical Strip Plot with Jitter",
+       x = "Sex",
+       y = "Year")
+
+ggplot(client, aes(x = year, fill = sex)) +
+  geom_density(alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Conditional Density Plot of Year by Sex",
+       x = "Year",
+       y = "Density")
+```
+
 ## disp Datensatz
 ```{r}
 disp <- read.csv("data/disp.csv", sep=";")
