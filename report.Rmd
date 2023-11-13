@@ -130,15 +130,10 @@ length(unique(client$client_id)) == nrow(client)
 Bei diesem Datensatz ist wichtig zu wissen, dass in der birth_number zudem das Geschlecht gespeichert ist. Bei Frauen wurde die angabe des Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen. Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen und die Geburtsdaten dann bereinigt in der birth number wiedergeben.
 ```{r}
 #Unterscheidung von Mann und Frau anhand vom Geburtsdatum
-sex_in_birth <- function(zahl) {
-  einzelne_zahl <- as.numeric(strsplit(as.character(zahl), '')[[1]])    # <int> in <str> ändern
-  mittlere_zahl <- as.integer(einzelne_zahl[3])                                    # 3. Zahl aussuchen
-  geschlecht <- ifelse((mittlere_zahl) > 2, "female", "male")           # Wenn die Zahl grösser als 2 ist (Kein Monat wird mit 20+ angegeben) als Frau ausgeben.
-  return(geschlecht)
-}
-
-#Anwendung der Funktion auf den Datensatz und erstellung der zusätzlichen Reihe
-client$sex <- sapply(client$birth_number, sex_in_birth)
+client <- client %>%
+  mutate(
+    sex = ifelse((birth_number %% 10000) > 2000, "female", "male")
+  )
 
 #Ändern des Datentyps der Reihe
 client <- client %>% 
@@ -169,8 +164,8 @@ glimpse(client)
 summary(client)
 ```
 ```{r}
-# install.packages("ggridges")
-# library(ggridges)
+ install.packages("ggridges")
+ library(ggridges)
 
 ggplot(client, aes(x = year, y = sex, fill = sex)) +
   geom_density_ridges() +
