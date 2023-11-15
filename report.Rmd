@@ -77,9 +77,16 @@ barplot(table(accounts$district_id), main = "Distribution of Accounts by Distric
 ```{r}
 ggplot(accounts, aes(x = frequency_of_statements, fill = frequency_of_statements)) +
   geom_bar() +
-  geom_text(stat = 'count', aes(label = ..count..), position = position_stack(vjust = 0.5)) +
-  coord_flip() +
-  labs(x = "Frequenz", y = "Anzahl Konten", title = "Frequenz der Kontoauszüge", fill = "Ausgabe")
+  geom_text(stat = 'count',
+            aes(label = ..count..), 
+            position = position_stack(vjust = 0.5)
+            ) +
+  labs(title = "Frequenz der Kontoauszüge",
+       x = "Frequenz",
+       y = "Anzahl Konten",
+       fill = "Ausgabe"
+       ) +
+  coord_flip()
 ```
 
 ## card Datensatz
