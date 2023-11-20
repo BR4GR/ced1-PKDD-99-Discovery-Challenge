@@ -506,5 +506,45 @@ trans_per_month <- trans %>%
     einnahmen = sum(amount[type == "credit"]),
     ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
     )
+
+trans_per_month <- trans_per_month %>%
+   mutate(year_month = (format(year_month, "%Y-%m")))
+```
+
+Es soll nun noch eine Spalte erstellt werden, um zu schauen, wieviel die verschiedenen Accounts jeweils am ende des Monats haben. Da wir die Vermutung haben dass alle zu beginn mit 0 auf dem Konto gestartet haben überprüfen wir dies im ersten Schritt kurz.
+```{r}
+#Dataframe erstellen um zu überprüfen, bei welchen accounts der amount und die balance nach der Transaktion gleich sind beim erst möglichen Datum.
+kontostand_erster_Zeitpunkt <- trans %>%
+  group_by(account_id) %>%
+  filter(balance_after_transaction == amount) %>%
+  slice_min(date) %>%
+  ungroup()
+
+# Überprüfen, ob jede account_id im Datensatz enthalten ist
+all(unique(trans$account_id) %in% unique(kontostand_erster_Zeitpunkt$account_id))
+```
+
+Da wir nun Wissen, dass alle Accounts mit 0 begonnen haben, können wir in der trans_per_month liste die Balances min den Weren der vorherigen Monaten berechnen.
+```{r}
+trans_per_month <- trans_per_month %>%
+  group_by(account_id) %>%
+  mutate(kontostand_ende_monat = cumsum(einnahmen - ausgaben)) %>%
+  ungroup()
+```
+
+Trans_per_month ändern, dass jeder monat ein Attribut wird und der Accout nur eine Zeile hat.
+```{r}
+trans_per_month_new <- trans_per_month %>%
+  pivot_wider(
+    id_cols = account_id,
+    names_from = year_month,
+    values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
+    names_sort = TRUE,
+    values_fill = list(einnahmen = 0, ausgaben = 0)
+  ) 
+
+trans_per_month_new <- trans_per_month_new %>%
+  mutate(`kontostand_ende_monat_1993-01` = ifelse(is.na(`kontostand_ende_monat_1993-01`), 0, `kontostand_ende_monat_1993-01`))
+
 ```
 
