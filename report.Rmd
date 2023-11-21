@@ -507,8 +507,8 @@ trans_per_month <- trans %>%
     ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
     )
 
-trans_per_month <- trans_per_month %>%
-   mutate(year_month = (format(year_month, "%Y-%m")))
+#trans_per_month <- trans_per_month %>%
+   #mutate(year_month = (format(year_month, "%Y-%m")))
 ```
 
 Es soll nun noch eine Spalte erstellt werden, um zu schauen, wieviel die verschiedenen Accounts jeweils am ende des Monats haben. Da wir die Vermutung haben dass alle zu beginn mit 0 auf dem Konto gestartet haben überprüfen wir dies im ersten Schritt kurz.
@@ -531,6 +531,15 @@ trans_per_month <- trans_per_month %>%
   mutate(kontostand_ende_monat = cumsum(einnahmen - ausgaben)) %>%
   ungroup()
 ```
+
+Es sollen nun alle Daten für jedes Konto erstellt werden, auch wenn zu diesem Zeitpunkt keine Transaktionen über dieses Konto gelaufen sind.
+```{r}
+trans_per_month <- trans_per_month %>%
+  complete(year_month = seq.Date(min(year_month), max(year_month), by="month"), account_id) %>%
+  mutate(einnahmen = ifelse(is.na(einnahmen), 0, einnahmen)) %>%
+  mutate(ausgaben = ifelse(is.na(ausgaben), 0, ausgaben))
+```
+
 
 Trans_per_month ändern, dass jeder monat ein Attribut wird und der Accout nur eine Zeile hat.
 ```{r}
