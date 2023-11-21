@@ -332,6 +332,7 @@ glimpse(loan)
 summary(loan)
 sum(is.na(loan))
 length(unique(loan$loan_id)) == nrow(loan)
+length(unique(loan$account_id)) == nrow(loan)
 ```
 
 Ändern der Spalte status, A, B, C,D soll mit aussagekräftigeren Namen ersetzt werden, anschiessend soll sie noch zu <fct> geändert werden.
@@ -555,5 +556,23 @@ trans_per_month_new <- trans_per_month %>%
 trans_per_month_new <- trans_per_month_new %>%
   mutate(`kontostand_ende_monat_1993-01` = ifelse(is.na(`kontostand_ende_monat_1993-01`), 0, `kontostand_ende_monat_1993-01`))
 
+```
+
+```{r}
+accounts_with_loan <- loan$account_id
+
+transactions_accounts_with_loan <- trans %>%
+  filter(account_id %in% accounts_with_loan) %>%
+  group_by(account_id, date) %>%
+  summarise(
+    einnahmen = sum(amount[type == "credit"]),
+    ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
+    ) %>%
+  complete(date = seq.Date(min(date), max(date), by = "day"), account_id, fill = list(einnahmen = 0, ausgaben = 0)) %>%
+  group_by(account_id) %>%
+  arrange(date) %>%
+  mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
+  fill(saldo, .direction = "downup") %>%
+  ungroup()
 ```
 
