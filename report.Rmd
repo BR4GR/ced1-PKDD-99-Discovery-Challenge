@@ -535,10 +535,23 @@ trans_per_month <- trans_per_month %>%
 
 Es sollen nun alle Daten für jedes Konto erstellt werden, auch wenn zu diesem Zeitpunkt keine Transaktionen über dieses Konto gelaufen sind.
 ```{r}
+#Alle Transaktionen für alle zeiträume erstellen.
 trans_per_month <- trans_per_month %>%
   complete(year_month = seq.Date(min(year_month), max(year_month), by="month"), account_id) %>%
   mutate(einnahmen = ifelse(is.na(einnahmen), 0, einnahmen)) %>%
-  mutate(ausgaben = ifelse(is.na(ausgaben), 0, ausgaben))
+  mutate(ausgaben = ifelse(is.na(ausgaben), 0, ausgaben)) %>%
+  group_by(account_id) %>%
+  fill(kontostand_ende_monat) %>%
+  ungroup()
+
+#Vor der ersten transktion soll das konto 0 betragen
+trans_per_month <- trans_per_month %>%
+  mutate(kontostand_ende_monat = ifelse(is.na(kontostand_ende_monat), 0, kontostand_ende_monat))
+
+#ändern der Monatsanzeige
+trans_per_month <- trans_per_month %>%
+  mutate(year_month = (format(year_month, "%Y-%m")))
+  
 ```
 
 
@@ -549,13 +562,8 @@ trans_per_month_new <- trans_per_month %>%
     id_cols = account_id,
     names_from = year_month,
     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
-    names_sort = TRUE,
-    values_fill = list(einnahmen = 0, ausgaben = 0)
+    names_sort = TRUE
   ) 
-
-trans_per_month_new <- trans_per_month_new %>%
-  mutate(`kontostand_ende_monat_1993-01` = ifelse(is.na(`kontostand_ende_monat_1993-01`), 0, `kontostand_ende_monat_1993-01`))
-
 ```
 
 ```{r}
