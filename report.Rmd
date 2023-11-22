@@ -566,6 +566,13 @@ trans_per_month_new <- trans_per_month %>%
   ) 
 ```
 
+Die neue Trans_per_month_new liste wird nun an das CAR angehängt.
+```{r}
+client_analytical_record <- client_analytical_record %>%
+  left_join(trans_per_month_new, by = c("account_id" = "account_id"))
+```
+
+
 ```{r}
 accounts_with_loan <- loan$account_id
 
