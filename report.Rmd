@@ -23,10 +23,13 @@ output:
 ```{r}
 # install.packages("tidyverse")
 # install.packages("ggmosaic")
+install.packages("GGally")
 
 
 library(tidyverse)
 library(ggmosaic)
+library(GGally)
+library(lubridate)
 ```
 # Verfügbare Tabellen untersuchen
 
@@ -349,9 +352,8 @@ loan <- loan %>%
   mutate(status = as.factor(status))
 
 loan <- loan %>%
-  rename(date_loan = date,
-         loan_date = date)
-
+  rename(loan_date = date)%>%
+  mutate(loan_date = ymd(loan_date + 19000000))
 ```
 
 Kontrolle der Änderungen.
@@ -575,6 +577,7 @@ client_analytical_record <- client_analytical_record %>%
 
 ```{r}
 accounts_with_loan <- loan$account_id
+loan_dates <- loan$loan_date
 
 transactions_accounts_with_loan <- trans %>%
   filter(account_id %in% accounts_with_loan) %>%
@@ -588,6 +591,78 @@ transactions_accounts_with_loan <- trans %>%
   arrange(date) %>%
   mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
   fill(saldo, .direction = "downup") %>%
-  ungroup()
+  ungroup() %>%
+  left_join(loan, by = "account_id") %>%
+  mutate(days_before_loan = as.numeric(loan_date - date),
+         week_before_loan = ceiling(days_before_loan / 7)
+         ) %>%
+  filter(days_before_loan >= 0 & days_before_loan <= 183)
+
+glimpse(transactions_accounts_with_loan)
+summary(transactions_accounts_with_loan)
+```
+
+```{r}
+wide_183_days_before_loan <- transactions_accounts_with_loan %>%
+  pivot_wider(
+    id_cols = account_id,
+    names_from = days_before_loan,
+    values_from = c(einnahmen, ausgaben, saldo),
+    names_glue = "{.value}_{183 - days_before_loan}_days_before_loan"
+  )
+```
+
+```{r}
+mean_values_per_duration <- transactions_accounts_with_loan %>%
+  group_by(duration, days_before_loan) %>%
+  summarise(
+    mean_einnahmen = mean(einnahmen, na.rm = TRUE),
+    mean_ausgaben = mean(ausgaben, na.rm = TRUE),
+    mean_saldo = mean(saldo, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Then perform your aggregations by 'week_before_loan'
+mean_values_per_week <- transactions_accounts_with_loan %>%
+  group_by(duration, week_before_loan) %>%
+  summarise(
+    mean_einnahmen = mean(einnahmen, na.rm = TRUE),
+    mean_ausgaben = mean(ausgaben, na.rm = TRUE),
+    mean_saldo = mean(saldo, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Create three separate plots for weekly data
+# Plot for einnahmen
+p_einnahmen_weekly <- ggplot(mean_values_per_week, aes(x = week_before_loan, y = mean_einnahmen, color = as.factor(duration))) +
+  geom_line(size = 1.2) +
+  scale_x_reverse(breaks = seq(0, max(week_before_loan), by = 4), limits = c(max(week_before_loan), 0)) +
+  labs(x = "Weeks Before Loan", y = "Average Einnahmen", color = "Loan Duration", title = "Weekly Average Einnahmen Trend by Loan Duration") +
+  theme_minimal()
+
+# Plot for ausgaben
+p_ausgaben_weekly <- ggplot(mean_values_per_week, aes(x = week_before_loan, y = mean_ausgaben, color = as.factor(duration))) +
+  geom_line(size = 1.2) +
+  scale_x_reverse(breaks = seq(0, max(week_before_loan), by = 4), limits = c(max(week_before_loan), 0)) +
+  labs(x = "Weeks Before Loan", y = "Average Ausgaben", color = "Loan Duration", title = "Weekly Average Ausgaben Trend by Loan Duration") +
+  theme_minimal()
+
+# Plot for saldo
+p_saldo_weekly <- ggplot(mean_values_per_week, aes(x = week_before_loan, y = mean_saldo, color = as.factor(duration))) +
+  geom_line(size = 1.2) +
+  scale_x_reverse(breaks = seq(0, max(week_before_loan), by = 4), limits = c(max(week_before_loan), 0)) +
+  labs(x = "Weeks Before Loan", y = "Average Saldo", color = "Loan Duration", title = "Weekly Average Saldo Trend by Loan Duration") +
+  theme_minimal()
+
+# Display the plots
+p_einnahmen_weekly
+p_ausgaben_weekly
+p_saldo_weekly
+```
+```{r}
+ggplot(transactions_accounts_with_loan, aes(x = days_before_loan, y = saldo)) +
+  geom_smooth(method = "loess", span = 0.2) +  # 'span' controls the smoothness
+  labs(x = "Days Before Loan", y = "Saldo", title = "Smoothed Trend of Saldo Before Loan") +
+  theme_minimal()
 ```
 
