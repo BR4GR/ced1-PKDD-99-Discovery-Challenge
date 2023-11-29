@@ -91,6 +91,11 @@ ggplot(accounts, aes(x = frequency_of_statements, fill = frequency_of_statements
        ) +
   coord_flip()
 ```
+```{r}
+ggplot(accounts, aes(x = opening_date)) +
+  geom_histogram(binwidth = 7) +
+  ggtitle("Accounteröffnungen pro Woche")
+```
 
 ## card Datensatz
 ```{r}
@@ -361,6 +366,22 @@ Kontrolle der Änderungen.
 glimpse(loan)
 summary(loan)
 ```
+```{r}
+ggplot(loan, aes(x = amount)) +
+  geom_histogram(binwidth = 10000, color = "blue") +
+  scale_x_continuous(breaks = seq(0, max(loan$amount), by = 50000)) +
+  ggtitle("Vergebene loans in 10000 Schritten")
+```
+Gibt es Accounts, welche zwei mal einen Loan bekommen haben?
+```{r}
+sum(duplicated(loan$account_id))
+```
+```{r}
+ggplot(loan, aes(x = duration, y = ..count.., fill = as.factor(duration))) +
+  geom_bar() +
+  labs(fill = "dauer") +
+  theme(axis.text.x = element_blank(), axis.title.x = element_blank())
+```
 
 ## order Datensatz
 ```{r}
@@ -568,7 +589,7 @@ trans_per_month_new <- trans_per_month %>%
   ) 
 ```
 
-Die neue Trans_per_month_new liste wird nun an das CAR angehängt.
+Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
 ```{r}
 client_analytical_record <- client_analytical_record %>%
   left_join(trans_per_month_new, by = c("account_id" = "account_id"))
