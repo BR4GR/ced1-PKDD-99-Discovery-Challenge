@@ -382,6 +382,24 @@ ggplot(loan, aes(x = duration, y = ..count.., fill = as.factor(duration))) +
   labs(fill = "dauer") +
   theme(axis.text.x = element_blank(), axis.title.x = element_blank())
 ```
+Im Plot sehen wir 5 linien, diese ergeben sich aus der Duration. Im facet wrapet scatter plot sehen wir, dass vorallem die kleineren Beträge den Status finished_ok haben und die grösseren running_ok. Dieses bild zeigt sich auch be denen, welche nicht ok sind, die kleineren Beträge sind finished_not_payed und die grösseren running_in_dept
+```{r}
+ggplot(loan, aes(x = amount, y = payments, color = status)) +
+  geom_point(size = 2, alpha = 0.5) +
+  scale_x_continuous(labels = scales::comma_format(scale = 1e-3), breaks = seq(0, max(loan$amount), by = 100000)) +
+  labs(x = "Amount in thousend")
+
+ggplot(loan, aes(x = amount, y = payments, color = status)) +
+  geom_point(size = 2, alpha = 0.5) +
+  scale_x_continuous(labels = scales::comma_format(scale = 1e-3), breaks = seq(0, max(loan$amount), by = 100000)) +
+  facet_wrap(vars(status)) +
+  labs(x = "Amount in thousend")
+
+ggplot(loan, aes(x = amount, y = payments, color = duration)) +
+  geom_point(size = 2, alpha = 0.5) +
+  scale_x_continuous(labels = scales::comma_format(scale = 1e-3), breaks = seq(0, max(loan$amount), by = 100000)) +
+  labs(x = "Amount in thousend")
+```
 
 ## order Datensatz
 ```{r}
