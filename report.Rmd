@@ -705,3 +705,55 @@ ggplot(transactions_accounts_with_loan, aes(x = days_before_loan, y = saldo)) +
   theme_minimal()
 ```
 
+Kontrolle ob es ein muster in den Statusen gibt.
+```{r}
+transactions_accounts_with_loan %>%
+  group_by(account_id) %>%
+  filter(days_before_loan == 0) %>%
+  ggplot(aes(x = amount, y = saldo, color = status)) +
+  geom_point(size = 1) +
+  scale_x_continuous(labels = scales::number_format(scale = 1e+0)) +
+  ggtitle("Saldo und Amount verglichen")
+
+transactions_accounts_with_loan %>%
+  group_by(account_id) %>%
+  filter(days_before_loan == 0) %>%
+  ggplot(aes(x = amount, y = saldo, color = status)) +
+  geom_point(size = 1) +
+  facet_wrap(~status) +
+  scale_x_continuous(labels = scales::number_format(scale = 1e+0)) +
+  ggtitle("Saldo und Amount vergleichen, nach Status aufgeteilt")
+
+transactions_accounts_with_loan %>%
+  group_by(days_before_loan, status) %>%
+  summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
+  ggplot(aes(x = days_before_loan, y = gemitteltes_saldo, group = status, color = status)) +
+  geom_line() +
+  scale_x_reverse() +
+  ggtitle("Mittelwert des Saldos vor beginn des Kredits")
+
+transactions_accounts_with_loan %>%
+  group_by(days_before_loan, status) %>%
+  summarize(median_saldo = median(saldo), .groups = "drop") %>%
+  ggplot(aes(x = days_before_loan, y = median_saldo, group = status, color = status)) +
+  geom_line() +
+  scale_x_reverse() +
+  ggtitle("Median des Saldos vor beginn des Kredits")
+
+transactions_accounts_with_loan %>%
+  group_by(days_before_loan, status) %>%
+  summarize(min_saldo = min(saldo), .groups = "drop") %>%
+  ggplot(aes(x = days_before_loan, y = min_saldo, group = status, color = status)) +
+  geom_line() +
+  scale_x_reverse() +
+  ggtitle("Minimales Saldo vor beginn des Kredits")
+
+transactions_accounts_with_loan %>%
+  group_by(days_before_loan, status) %>%
+  summarize(max_saldo = max(saldo), .groups = "drop") %>%
+  ggplot(aes(x = days_before_loan, y = max_saldo, group = status, color = status)) +
+  geom_line() +
+  scale_x_reverse() +
+  ggtitle("Maximales Saldo vor beginn des Kredits")
+```
+
