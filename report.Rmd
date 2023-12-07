@@ -723,7 +723,10 @@ transactions_accounts_with_loan %>%
   facet_wrap(~status) +
   scale_x_continuous(labels = scales::number_format(scale = 1e+0)) +
   ggtitle("Saldo und Amount vergleichen, nach Status aufgeteilt")
+```
 
+
+```{r}
 transactions_accounts_with_loan %>%
   group_by(days_before_loan, status) %>%
   summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
@@ -755,5 +758,14 @@ transactions_accounts_with_loan %>%
   geom_line() +
   scale_x_reverse() +
   ggtitle("Maximales Saldo vor beginn des Kredits")
+```
+
+```{r}
+transactions_accounts_with_loan %>%
+  distinct(loan_id, .keep_all = TRUE) %>%
+  ggplot(aes(x = as.factor(duration), fill = factor(status, levels = c("running_client_in_dept", "finished_not_payed", "running_ok", "finished_ok")))) +
+  geom_bar() +
+  labs(title = "Dauer des Loans zu Status", fill = "Status", x ="Dauer in Monaten")
+
 ```
 
