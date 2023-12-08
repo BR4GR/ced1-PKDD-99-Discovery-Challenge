@@ -769,3 +769,59 @@ transactions_accounts_with_loan %>%
 
 ```
 
+```{r}
+transactions_accounts_with_loan %>%
+  filter(status %in% c("running_ok", "finished_ok")) %>%
+  group_by(account_id) %>%
+  summarize(total_income = sum(einnahmen),
+            total_expenses = sum(ausgaben),
+            total_difference = total_income - total_expenses,
+            amount = first(amount)) %>%
+  ggplot(aes(x = total_difference, y = amount)) +
+  geom_point(alpha = 0.5) +
+  scale_y_continuous(labels = scales::number_format(scale = 1e+0)) +
+  labs(title = "Amount zu Differenzfür Status OK")
+
+transactions_accounts_with_loan %>%
+  filter(status %in% c("running_client_in_dept", "finished_not_payed")) %>%
+  group_by(account_id) %>%
+  summarize(total_income = sum(einnahmen),
+            total_expenses = sum(ausgaben),
+            total_difference = total_income - total_expenses,
+            amount = first(amount)) %>%
+  ggplot(aes(x = total_difference, y = amount)) +
+  geom_point(alpha = 0.5) +
+  scale_y_continuous(labels = scales::number_format(scale = 1e+0)) +
+  labs(title = "Amount zu Differenz für Status not_OK und in_dept")
+```
+
+```{r}
+# Plot für alle Accounts
+transactions_accounts_with_loan %>%
+  filter(status %in% c("running_ok", "finished_ok")) %>%
+  ggplot(aes(x = days_before_loan, y = saldo, group = account_id, color = account_id)) +
+  geom_line(alpha = 0.2, size = 0.7) +
+  scale_x_reverse() +
+  scale_color_viridis_c() +
+  labs(title = "Accounts", color = "Account")
+
+# Sequenzen von Accounts
+account_sequences <- list(c(0:999), c(1000:1999), c(2000:2999), c(3000:3999), c(4000:4999))
+
+for (seq in account_sequences) {
+  print(
+    transactions_accounts_with_loan %>%
+      filter(status %in% c("running_ok", "finished_ok")) %>%
+      filter(account_id %in% seq) %>%
+      ggplot(aes(x = days_before_loan, y = saldo, group = account_id, color = as.factor(account_id))) +
+      geom_line(alpha = 0.5, size = 0.7) +
+      scale_x_reverse() +  
+      scale_color_discrete() +
+      ggtitle(paste("Accounts", min(seq), "to", max(seq))) +
+      labs(color = "Account") +
+      theme(legend.title = element_text(size = 8),
+            legend.key.size = unit(0.5, "cm"))
+  )
+}
+```
+
