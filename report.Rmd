@@ -860,14 +860,10 @@ car_one_hot <- client_analytical_record_no_district %>%
          has_card = ifelse(!is.na(card_id), 1, 0),
          ) %>% 
   select(-starts_with("user_")) %>%
-  select(-year.x, -year.y, -card_issued, -loan_id, -loan_date, -card_id) %>%
+  select(-year.x, -year.y, -card_issued, -loan_id, -loan_date, -card_id, -owner_client_id) %>%
   pivot_wider(names_from = owner_sex, values_from = owner_sex,
               values_fill = list(owner_sex = 0),
               values_fn = list(owner_sex = length)) %>%
-  rename(
-    owner_female = female,
-    owner_male = male
-  ) %>%
   pivot_wider(names_from = loan_status, values_from = loan_status,
               values_fill = list(loan_status = 0),
               values_fn = list(loan_status = length)) %>%
@@ -876,18 +872,29 @@ car_one_hot <- client_analytical_record_no_district %>%
               values_fill = list(card_type = 0),
               values_fn = list(card_type = length)) %>%
   select(-'NA') %>%
-  mutate(across(starts_with("loan_"), ~ replace_na(., -1)))
-
-# categorical_columns <- c("owner_sex", "user_sex", "loan_status")
-# car_one_hot <- client_analytical_record_no_district %>%
-#   mutate(across(all_of(categorical_columns), ~factor(., exclude = NULL))) %>%
-#   pivot_longer(cols = all_of(categorical_columns), values_drop_na = TRUE) %>% # Dropping NA values directly
-#   mutate(value = 1) %>%
-#   pivot_wider(names_from = name, values_from = value, values_fill = list(value = 0)) %>%
-#   select(-all_of(categorical_columns))
-
-
+  mutate(across(starts_with("loan_"), ~ replace_na(., -1))) %>%
+  rename(
+    loan_finished_ok = finished_ok,
+    loan_finished_not_payed = finished_not_payed,
+    loan_running_in_dept = running_client_in_dept,
+    loan_running_ok = running_ok,
+    gold_card = gold,
+    junior_card = junior,
+    classic_card = classic
+  )
   
+glimpse(car_one_hot)
+```
+
+```{r}
+# Identify columns that start with 'kontostand_ende'
+columns_to_normalize <- grep("^(ausgaben_|einnahmen_|kontostand_ende)", names(car_one_hot), value = TRUE)
+
+
+# Apply Z-Score Normalization
+for(col in columns_to_normalize) {
+    car_one_hot[[col]] <- scale(car_one_hot[[col]])
+}
 glimpse(car_one_hot)
 ```
 
