@@ -856,28 +856,27 @@ for (seq in account_sequences) {
 
 ```{r}
 car_one_hot <- client_analytical_record_no_district %>%
+  mutate(has_user = ifelse(!is.na(user_sex), 1, 0),
+         has_card = ifelse(!is.na(card_id), 1, 0),
+         ) %>% 
+  select(-starts_with("user_")) %>%
+  select(-year.x, -year.y, -card_issued, -loan_id, -loan_date, -card_id) %>%
   pivot_wider(names_from = owner_sex, values_from = owner_sex,
               values_fill = list(owner_sex = 0),
               values_fn = list(owner_sex = length)) %>%
   rename(
     owner_female = female,
     owner_male = male
-  )
-
-car_one_hot <- car_one_hot %>%
-  filter(!is.na(user_sex)) %>%
-  pivot_wider(names_from = user_sex, values_from = user_sex,
-              values_fill = list(user_sex = 0),
-              values_fn = list(user_sex = length)) %>%
-  rename(
-    user_female = female,
-    user_male = male
-  ) 
-
-car_one_hot <- car_one_hot %>%
+  ) %>%
   pivot_wider(names_from = loan_status, values_from = loan_status,
               values_fill = list(loan_status = 0),
-              values_fn = list(loan_status = length))
+              values_fn = list(loan_status = length)) %>%
+  select(-'NA')  %>%
+  pivot_wider(names_from = card_type, values_from = card_type,
+              values_fill = list(card_type = 0),
+              values_fn = list(card_type = length)) %>%
+  select(-'NA') %>%
+  mutate(across(starts_with("loan_"), ~ replace_na(., -1)))
 
 # categorical_columns <- c("owner_sex", "user_sex", "loan_status")
 # car_one_hot <- client_analytical_record_no_district %>%
