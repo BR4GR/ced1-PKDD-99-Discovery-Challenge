@@ -860,7 +860,7 @@ car_one_hot <- client_analytical_record_no_district %>%
          has_card = ifelse(!is.na(card_id), 1, 0),
          ) %>% 
   select(-starts_with("user_")) %>%
-  select(-year.x, -year.y, -card_issued, -loan_id, -loan_date, -card_id, -owner_client_id) %>%
+  select(-year.x, -year.y, -card_issued, -loan_id, -loan_date, -card_id, -owner_client_id, -owner_disp_id) %>%
   pivot_wider(names_from = owner_sex, values_from = owner_sex,
               values_fill = list(owner_sex = 0),
               values_fn = list(owner_sex = length)) %>%
@@ -871,8 +871,11 @@ car_one_hot <- client_analytical_record_no_district %>%
   pivot_wider(names_from = card_type, values_from = card_type,
               values_fill = list(card_type = 0),
               values_fn = list(card_type = length)) %>%
+    pivot_wider(names_from = frequency_of_statements, values_from = frequency_of_statements,
+              values_fill = list(frequency_of_statements = 0),
+              values_fn = list(frequency_of_statements = length)) %>%
   select(-'NA') %>%
-  mutate(across(starts_with("loan_"), ~ replace_na(., -1))) %>%
+  mutate(across(starts_with("loan_"), ~ replace_na(., 0))) %>%
   rename(
     loan_finished_ok = finished_ok,
     loan_finished_not_payed = finished_not_payed,
@@ -882,20 +885,31 @@ car_one_hot <- client_analytical_record_no_district %>%
     junior_card = junior,
     classic_card = classic
   )
-  
-glimpse(car_one_hot)
-```
 
-```{r}
 # Identify columns that start with 'kontostand_ende'
-columns_to_normalize <- grep("^(ausgaben_|einnahmen_|kontostand_ende)", names(car_one_hot), value = TRUE)
-
+columns_to_normalize <- grep("^(ausgaben_|einnahmen_|kontostand_ende|loan_)", names(car_one_hot), value = TRUE)
 
 # Apply Z-Score Normalization
 for(col in columns_to_normalize) {
     car_one_hot[[col]] <- scale(car_one_hot[[col]])
 }
+
+# 
+car_one_hot$account_age <- as.numeric(difftime(Sys.Date(), car_one_hot$opening_date, units = "days"))
+car_one_hot$normalized_account_age <- scale(car_one_hot$account_age)
+
+car_one_hot$owner_age <- as.numeric(difftime(Sys.Date(), car_one_hot$owner_birthday, units = "days"))
+car_one_hot$normalized_owner_age <- scale(car_one_hot$owner_age)
+
+
+car_one_hot <- car_one_hot %>%
+  select(-account_age, -opening_date, -owner_birthday, -owner_age)
+
 glimpse(car_one_hot)
+```
+
+```{r}
+
 ```
 
 
