@@ -533,7 +533,31 @@ client_analytical_record <- client_analytical_record %>%
   )
 
 client_analytical_record <- client_analytical_record %>%
+  left_join(loan, by = "account_id") %>%
+  rename(
+    loan_amount = amount,
+    loan_duration = duration,
+    loan_payments = payments,
+    loan_status = status
+  )
+
+client_analytical_record <- client_analytical_record %>%
+  left_join(card, by = c("owner_disp_id" = "disp_id"))%>%
+  rename(
+    card_issued = issued,
+  )
+
+client_analytical_record_no_district <- client_analytical_record
+
+client_analytical_record <- client_analytical_record %>%
   left_join(district, by = c("owner_district_id" = "district_id"))
+
+client_analytical_record <- client_analytical_record %>%
+  select(-year.x, -year.y)
+
+# Replace NA in columns starting with 'user_'
+client_analytical_record <- client_analytical_record %>%
+  mutate(across(starts_with("user_"), ~replace(., is.na(.), -1)))
 
 glimpse(client_analytical_record)
 ```
@@ -611,6 +635,9 @@ Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
 ```{r}
 client_analytical_record <- client_analytical_record %>%
   left_join(trans_per_month_new, by = c("account_id" = "account_id"))
+
+client_analytical_record_no_district <- client_analytical_record_no_district %>%
+  left_join(trans_per_month_new, by = c("account_id" = "account_id"))
 ```
 
 
@@ -652,6 +679,11 @@ wide_183_days_before_loan <- transactions_accounts_with_loan %>%
 ```
 
 ```{r}
+names(transactions_accounts_with_loan)
+```
+
+
+```{r}
 mean_values_per_duration <- transactions_accounts_with_loan %>%
   group_by(duration, days_before_loan) %>%
   summarise(
@@ -673,11 +705,11 @@ mean_values_per_week <- transactions_accounts_with_loan %>%
 
 # Create three separate plots for weekly data
 # Plot for einnahmen
-ggplot(mean_values_per_week, aes(x = weeks_before_loan, y = mean_einnahmen, color = as.factor(duration))) +
-  geom_line(size = 1.2) +
-  scale_x_reverse(breaks = seq(0, max(weeks_before_loan), by = 4), limits = c(max(weeks_before_loan), 0)) +
-  labs(x = "Weeks Before Loan", y = "Average Einnahmen", color = "Loan Duration", title = "Weekly Average Einnahmen Trend by Loan Duration") +
-  theme_minimal()
+# ggplot(mean_values_per_week, aes(x = weeks_before_loan, y = mean_einnahmen, color = as.factor(duration))) +
+#   geom_line(size = 1.2) +
+#   scale_x_reverse(breaks = seq(0, max(weeks_before_loan), by = 4), limits = c(max(weeks_before_loan), 0)) +
+#   labs(x = "Weeks Before Loan", y = "Average Einnahmen", color = "Loan Duration", title = "Weekly Average Einnahmen Trend by Loan Duration") +
+#   theme_minimal()
 
 # # Plot for ausgaben
 # ggplot(mean_values_per_week, aes(x = week_before_loan, y = mean_ausgaben, color = as.factor(duration))) +
@@ -821,4 +853,44 @@ for (seq in account_sequences) {
   )
 }
 ```
+
+```{r}
+car_one_hot <- client_analytical_record_no_district %>%
+  pivot_wider(names_from = owner_sex, values_from = owner_sex,
+              values_fill = list(owner_sex = 0),
+              values_fn = list(owner_sex = length)) %>%
+  rename(
+    owner_female = female,
+    owner_male = male
+  )
+
+car_one_hot <- car_one_hot %>%
+  filter(!is.na(user_sex)) %>%
+  pivot_wider(names_from = user_sex, values_from = user_sex,
+              values_fill = list(user_sex = 0),
+              values_fn = list(user_sex = length)) %>%
+  rename(
+    user_female = female,
+    user_male = male
+  ) 
+
+car_one_hot <- car_one_hot %>%
+  pivot_wider(names_from = loan_status, values_from = loan_status,
+              values_fill = list(loan_status = 0),
+              values_fn = list(loan_status = length))
+
+# categorical_columns <- c("owner_sex", "user_sex", "loan_status")
+# car_one_hot <- client_analytical_record_no_district %>%
+#   mutate(across(all_of(categorical_columns), ~factor(., exclude = NULL))) %>%
+#   pivot_longer(cols = all_of(categorical_columns), values_drop_na = TRUE) %>% # Dropping NA values directly
+#   mutate(value = 1) %>%
+#   pivot_wider(names_from = name, values_from = value, values_fill = list(value = 0)) %>%
+#   select(-all_of(categorical_columns))
+
+
+  
+glimpse(car_one_hot)
+```
+
+
 
