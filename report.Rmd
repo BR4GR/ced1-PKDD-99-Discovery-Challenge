@@ -24,12 +24,24 @@ output:
 # install.packages("tidyverse")
 # install.packages("ggmosaic")
 # install.packages("GGally")
+# install.packages("randomForest")
+# install.packages("caret")
 
+required_packages <- c("tidyverse", "ggmosaic", "GGally", "randomForest", "caret") # add more as needed
 
-library(tidyverse)
-library(ggmosaic)
-library(GGally)
-library(lubridate)
+for (pkg in required_packages) {
+    if (!require(pkg, character.only = TRUE)) {
+        install.packages(pkg)
+        library(pkg, character.only = TRUE)
+    }
+}
+
+# library(tidyverse)
+# library(ggmosaic)
+# library(GGally)
+# library(lubridate)
+# library(randomForest)
+# library(caret)
 ```
 # Verfügbare Tabellen untersuchen
 
@@ -728,10 +740,10 @@ mean_values_per_week <- transactions_accounts_with_loan %>%
 ```
 
 ```{r}
-ggplot(transactions_accounts_with_loan, aes(x = days_before_loan, y = saldo)) +
-  geom_smooth(method = "loess", span = 0.2) +  # 'span' controls the smoothness
-  labs(x = "Days Before Loan", y = "Saldo", title = "Smoothed Trend of Saldo Before Loan") +
-  theme_minimal()
+# ggplot(transactions_accounts_with_loan, aes(x = days_before_loan, y = saldo)) +
+#   geom_smooth(method = "loess", span = 0.2) +  # 'span' controls the smoothness
+#   labs(x = "Days Before Loan", y = "Saldo", title = "Smoothed Trend of Saldo Before Loan") +
+#   theme_minimal()
 ```
 
 Kontrolle ob es ein muster in den Statusen gibt.
@@ -887,7 +899,7 @@ car_one_hot <- client_analytical_record_no_district %>%
   )
 
 # Identify columns that start with 'kontostand_ende'
-columns_to_normalize <- grep("^(ausgaben_|einnahmen_|kontostand_ende|loan_)", names(car_one_hot), value = TRUE)
+columns_to_normalize <- grep("^(ausgaben_|einnahmen_|kontostand_ende)", names(car_one_hot), value = TRUE)
 
 # Apply Z-Score Normalization
 for(col in columns_to_normalize) {
@@ -909,8 +921,34 @@ glimpse(car_one_hot)
 ```
 
 ```{r}
+one_hot_loans <- car_one_hot %>%
+  filter(account_id %in% accounts_with_loan) %>%
+  mutate(is_good_loan = ifelse(loan_finished_ok == 1 | loan_running_ok == 1, 1, 0))
 
 ```
 
+```{r}
+
+sum(is.na(one_hot_loans))
+print('einnahmen_1993-01' %in% names(one_hot_loans))
+head(one_hot_loans$`einnahmen_1993-01`)
+
+```
+
+
+```{r}
+# Plot für alle A# Splitting the data into training and test sets
+set.seed(123) # for reproducibility
+split <- createDataPartition(one_hot_loans$is_good_loan, p = .8, list = FALSE)
+train_set <- one_hot_loans[split,]
+test_set <- one_hot_loans[-split,]
+
+# Training the model
+model <- randomForest(is_good_loan ~ ., data = train_set)
+
+# Evaluating the model on the test set
+predictions <- predict(model, test_set)
+confusionMatrix(predictions, test_set$is_good_loan)ccounts
+```
 
 
