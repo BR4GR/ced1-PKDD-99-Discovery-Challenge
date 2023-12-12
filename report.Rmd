@@ -917,38 +917,73 @@ car_one_hot$normalized_owner_age <- scale(car_one_hot$owner_age)
 car_one_hot <- car_one_hot %>%
   select(-account_age, -opening_date, -owner_birthday, -owner_age)
 
-glimpse(car_one_hot)
+names(car_one_hot) <- gsub("-", "_", names(car_one_hot))
+names(car_one_hot) <- gsub(" ", "_", names(car_one_hot))
+
+summarise(car_one_hot)
 ```
 
 ```{r}
+# create is_good_loan and make it a factor
 one_hot_loans <- car_one_hot %>%
   filter(account_id %in% accounts_with_loan) %>%
-  mutate(is_good_loan = ifelse(loan_finished_ok == 1 | loan_running_ok == 1, 1, 0))
+  mutate(is_good_loan = ifelse(loan_finished_ok == 1 | loan_running_ok == 1, 1, 0)) %>%
+  select(-loan_finished_ok, -loan_running_ok, -loan_finished_not_payed, -loan_running_in_dept) %>%
+  mutate(is_good_loan = as.factor(is_good_loan))
+
+one_hot_no_loan <- car_one_hot %>%
+  filter(!account_id %in% accounts_with_loan) %>%
+  select(-loan_finished_ok, -loan_running_ok, -loan_finished_not_payed, -loan_running_in_dept)
 
 ```
 
 ```{r}
+# names(train_set)
 
-sum(is.na(one_hot_loans))
-print('einnahmen_1993-01' %in% names(one_hot_loans))
-head(one_hot_loans$`einnahmen_1993-01`)
 
 ```
 
 
 ```{r}
-# Plot für alle A# Splitting the data into training and test sets
+# Splitting the data into training and test sets
 set.seed(123) # for reproducibility
 split <- createDataPartition(one_hot_loans$is_good_loan, p = .8, list = FALSE)
 train_set <- one_hot_loans[split,]
 test_set <- one_hot_loans[-split,]
+
 
 # Training the model
 model <- randomForest(is_good_loan ~ ., data = train_set)
 
 # Evaluating the model on the test set
 predictions <- predict(model, test_set)
-confusionMatrix(predictions, test_set$is_good_loan)ccounts
+confusionMatrix(predictions, test_set$is_good_loan)
+```
+```{r}
+# Extracting variable importance
+importance_scores <- importance(model)
+# Sorting the importance scores in descending order
+sorted_importance <- sort(importance_scores[, "MeanDecreaseGini"], decreasing = TRUE)
+# Printing the sorted importance scores
+head(sorted_importance, 10)
 ```
 
+```{r}
+# Configure Cross-Validation
+# Setting up 10-fold cross-validation
+train_control <- trainControl(method = "cv", number = 10)
+
+# Train the model with cross-validation
+model_cv <- train(is_good_loan ~ ., data = train_set, method = "rf", trControl = train_control)
+
+# Print the results
+print(model_cv)
+
+# Detailed performance metrics
+confusionMatrix(model_cv)
+```
+
+```{r}
+
+```
 
