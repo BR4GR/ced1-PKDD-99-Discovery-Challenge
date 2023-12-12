@@ -681,13 +681,7 @@ summary(transactions_accounts_with_loan)
 ```
 
 ```{r}
-wide_183_days_before_loan <- transactions_accounts_with_loan %>%
-  pivot_wider(
-    id_cols = account_id,
-    names_from = days_before_loan,
-    values_from = c(einnahmen, ausgaben, saldo),
-    names_glue = "{.value}_{183 - days_before_loan}_days_before_loan"
-  )
+
 ```
 
 ```{r}
@@ -931,6 +925,10 @@ one_hot_loans <- car_one_hot %>%
   select(-loan_finished_ok, -loan_running_ok, -loan_finished_not_payed, -loan_running_in_dept) %>%
   mutate(is_good_loan = as.factor(is_good_loan))
 
+accounts_is_good_loan <- one_hot_loans %>%
+  filter(is_good_loan == 1) %>%
+  select(account_id)
+
 one_hot_no_loan <- car_one_hot %>%
   filter(!account_id %in% accounts_with_loan) %>%
   select(-loan_finished_ok, -loan_running_ok, -loan_finished_not_payed, -loan_running_in_dept)
@@ -984,6 +982,80 @@ confusionMatrix(model_cv)
 ```
 
 ```{r}
+# Getting column names that start with specified prefixes
+transaction_cols <- grep("^(einnahmen_|ausgaben_|kontostand_)", names(one_hot_loans), value = TRUE)
+loan_cols <- grep("^(loan_)", names(one_hot_loans), value = TRUE)
 
+# Selecting columns that don't start with the specified prefixes
+selected_cols <- setdiff(names(one_hot_loans), c(transaction_cols, loan_cols, "account_id"))
+
+# Creating a new dataframe with only the selected columns
+train_data_subset <- one_hot_loans[selected_cols]
+
+split <- createDataPartition(train_data_subset$is_good_loan, p = .8, list = FALSE)
+train_set <- train_data_subset[split,]
+test_set <- train_data_subset[-split,]
+
+
+# Training the model
+model <- randomForest(is_good_loan ~ ., data = train_set)
+
+# Evaluating the model on the test set
+predictions <- predict(model, test_set)
+confusionMatrix(predictions, test_set$is_good_loan)
+
+# Extracting variable importance
+importance_scores <- importance(model)
+# Sorting the importance scores in descending order
+sorted_importance <- sort(importance_scores[, "MeanDecreaseGini"], decreasing = TRUE)
+# Printing the sorted importance scores
+print(sorted_importance)
+```
+### train on 183 days bevore loan
+```{r}
+wide_183_days_before_loan <- transactions_accounts_with_loan %>%
+  pivot_wider(
+    id_cols = account_id,
+    names_from = days_before_loan,
+    values_from = c(einnahmen, ausgaben, saldo),
+    names_glue = "{.value}_{183 - days_before_loan}_dbf"
+  )
+# accounts_is_good_loan
+wide_183_days_before_loan <- wide_183_days_before_loan %>% 
+  mutate(good_for_loan = ifelse(account_id %in% accounts_is_good_loan$account_id, 1, 0),
+         good_for_loan = as.factor(good_for_loan))
+
+# Selecting balance columns (excluding account_id)
+balance_cols <- setdiff(names(wide_183_days_before_loan), c("account_id", "good_for_loan"))
+
+# Applying Z-score normalization
+wide_183_days_before_loan[balance_cols] <- scale(wide_183_days_before_loan[balance_cols])
+
+# Setting up the train-test split
+set.seed(123) # For reproducibility
+splitIndex <- createDataPartition(wide_183_days_before_loan$good_for_loan, p = .8, list = FALSE)
+train_set <- wide_183_days_before_loan[splitIndex, ]
+test_set <- wide_183_days_before_loan[-splitIndex, ]
+
+# Training a Random Forest model
+model <- randomForest(good_for_loan ~ ., data = train_set, method = "rf")
+
+# Predictions
+predictions <- predict(model, test_set)
+
+# Evaluation
+confusionMatrix(predictions, test_set$good_for_loan)
+
+```
+
+```{r}
+colSums(is.na(transactions_accounts_with_loan)) %>%
+  sort(decreasing = TRUE)
+```
+
+```{r}
+```
+
+```{r}
 ```
 
