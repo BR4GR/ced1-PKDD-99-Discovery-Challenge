@@ -1020,6 +1020,10 @@ wide_183_days_before_loan <- transactions_accounts_with_loan %>%
     values_from = c(einnahmen, ausgaben, saldo),
     names_glue = "{.value}_{183 - days_before_loan}_dbf"
   )
+
+#NAs durch 0 ersetzen. Bei den NAs handelt es sich um Werte vor beginn der Datenaufzeichnung es sind also keine Transaktionen möglich gewesen bei den NAs.
+wide_183_days_before_loan <- wide_183_days_before_loan %>%
+  mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
 # accounts_is_good_loan
 wide_183_days_before_loan <- wide_183_days_before_loan %>% 
   mutate(good_for_loan = ifelse(account_id %in% accounts_is_good_loan$account_id, 1, 0),
