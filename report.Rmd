@@ -1058,8 +1058,27 @@ colSums(is.na(transactions_accounts_with_loan)) %>%
 ```
 
 ```{r}
+#Dataframe für training random Forest erstellen bis ende 1997
+
+CAR_random_forest <- client_analytical_record %>%
+  filter(!loan_status %in% c("finished_not_payed", "running_client_in dept") | is.na(loan_status)) %>%
+  filter(loan_date < "1998-01-01" | is.na(loan_date)) %>%
+  select(-user_disp_id, -user_client_id, -user_district_id, -user_sex, 
+         -loan_id, -loan_date, -loan_amount, -loan_duration, -loan_payments, -loan_status, 
+         -card_id, -card_issued, 
+         -contains("1998")) %>%
+  mutate(get_loan = ifelse(account_id %in% loan$account_id | is.na(account_id), "yes", "no")) %>%
+  mutate(card_type = coalesce(card_type, "noCard"))
+
 ```
 
 ```{r}
+# Setting up the train-test split
+set.seed(123) # For reproducibility
+splitIndex <- createDataPartition(CAR_random_forest$get_loan, p = .8, list = FALSE)
+train_set <- CAR_random_forest[splitIndex, ]
+test_set <- CAR_random_forest[-splitIndex, ]
+
+new_model <- randomForest(CAR_random_forest ~ ., data = train_set, method = "rf")
 ```
 
