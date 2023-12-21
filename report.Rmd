@@ -1060,25 +1060,31 @@ colSums(is.na(transactions_accounts_with_loan)) %>%
 ```{r}
 #Dataframe für training random Forest erstellen bis ende 1997
 
-CAR_random_forest <- client_analytical_record %>%
+CAR_random_forest <- client_analytical_record_no_district %>%
   filter(!loan_status %in% c("finished_not_payed", "running_client_in dept") | is.na(loan_status)) %>%
   filter(loan_date < "1998-01-01" | is.na(loan_date)) %>%
   select(-user_disp_id, -user_client_id, -user_district_id, -user_sex, 
          -loan_id, -loan_date, -loan_amount, -loan_duration, -loan_payments, -loan_status, 
          -card_id, -card_issued, 
-         -contains("1998")) %>%
-  mutate(get_loan = ifelse(account_id %in% loan$account_id | is.na(account_id), "yes", "no")) %>%
-  mutate(card_type = coalesce(card_type, "noCard"))
+         -contains("1998"), -year.x, -year.y, -user_birthday) %>%
+  mutate(get_loan = as.factor(ifelse(account_id %in% loan$account_id | is.na(account_id), 1, 0))) %>%
+  mutate(card_type = as.factor(coalesce(card_type, "noCard")))
+
+# Ersetze <, >, =, - durch Unterstrich im gesamten Dataframe
+colnames(CAR_random_forest) <- gsub("[<>=-]", "_", colnames(CAR_random_forest))
 
 ```
 
 ```{r}
-# Setting up the train-test split
-set.seed(123) # For reproducibility
-splitIndex <- createDataPartition(CAR_random_forest$get_loan, p = .8, list = FALSE)
-train_set <- CAR_random_forest[splitIndex, ]
-test_set <- CAR_random_forest[-splitIndex, ]
+set.seed(123)
+splitIndex_new <- createDataPartition(CAR_random_forest$get_loan, p = .8, list = FALSE)
+train_set_new <- CAR_random_forest[splitIndex, ]
+test_set_new <- CAR_random_forest[-splitIndex, ]
 
-new_model <- randomForest(CAR_random_forest ~ ., data = train_set, method = "rf")
+new_model <- randomForest(get_loan ~ . - get_loan, data = train_set_new, method = "rf")
+
+predictions_new <- predict(new_model, test_set_new)
+
+confusionMatrix(predictions_new, test_set_new$get_loan)
 ```
 
