@@ -1120,4 +1120,16 @@ predictions_new_dist <- predict(new_model_dist, test_set_new_dist)
 confusionMatrix(predictions_new_dist, test_set_new_dist$get_loan, mode = "everything", positive = "1")
 
 ```
+Erstellen eines Dataframes für alle mit Loan 13 Monate vor Beginn des Loans
+```{r}
+df_loan_13_month <- trans_per_month %>%
+  filter(account_id %in% loan$account_id) %>%
+  left_join(loan, by = "account_id") %>%
+  mutate(loan_date = format(floor_date(loan_date, unit = "month"), "%Y-%m")) %>%
+  mutate(year_month = as.Date(year_month), format = "%Y-%m") %>%
+  mutate(loan_date = as.Date(loan_date), format = "%Y-%m") %>%
+  #mutate(months_before_loan = (year_month)-(loan_date)) %>%
+  filter(status %in% c("finished_ok", "running_ok"))
+
+```
 
