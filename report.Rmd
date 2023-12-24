@@ -584,9 +584,6 @@ trans_per_month <- trans %>%
     einnahmen = sum(amount[type == "credit"]),
     ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
     )
-
-#trans_per_month <- trans_per_month %>%
-   #mutate(year_month = (format(year_month, "%Y-%m")))
 ```
 
 Es soll nun noch eine Spalte erstellt werden, um zu schauen, wieviel die verschiedenen Accounts jeweils am ende des Monats haben. Da wir die Vermutung haben dass alle zu beginn mit 0 auf dem Konto gestartet haben überprüfen wir dies im ersten Schritt kurz.
@@ -1125,11 +1122,49 @@ Erstellen eines Dataframes für alle mit Loan 13 Monate vor Beginn des Loans
 df_loan_13_month <- trans_per_month %>%
   filter(account_id %in% loan$account_id) %>%
   left_join(loan, by = "account_id") %>%
-  mutate(loan_date = format(floor_date(loan_date, unit = "month"), "%Y-%m")) %>%
-  mutate(year_month = as.Date(year_month), format = "%Y-%m") %>%
-  mutate(loan_date = as.Date(loan_date), format = "%Y-%m") %>%
-  #mutate(months_before_loan = (year_month)-(loan_date)) %>%
-  filter(status %in% c("finished_ok", "running_ok"))
+  mutate(loan_date = floor_date(loan_date, unit = "month")) %>%
+  mutate(year_month = ym(year_month)) %>%
+  mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
+  mutate(months_before_loan = (year_month)-(loan_date)) %>%
+  filter(status %in% c("finished_ok", "running_ok")) %>%
+  
+  mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
+  filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
+  
+  pivot_wider(
+    id_cols = account_id,
+    names_from = months_before_loan,
+    values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
+    names_sort = TRUE) %>%
+  mutate(get_loan = "yes") %>%
+  #NAs sind für Zeiten vor der Aufzeichnung der Daten und daher 0
+  mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
+```
 
+Erstellen eines Dataframes für alle ohne Loan im Jahr 1997
+```{r}
+df_no_loan_13_month <- trans_per_month %>%
+  filter(!(account_id %in% loan$account_id)) %>%
+  mutate(loan_date = "1997-11") %>%
+  mutate(loan_date = ym(loan_date)) %>%
+  mutate(year_month = ym(year_month)) %>%
+  mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
+  mutate(months_before_loan = (year_month)-(loan_date)) %>%
+
+  mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
+  filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
+  
+  pivot_wider(
+    id_cols = account_id,
+    names_from = months_before_loan,
+    values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
+    names_sort = TRUE) %>%
+    
+  mutate(get_loan = "no")
+```
+
+Tabellen zusammenfügen
+```{r}
+df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
 ```
 
