@@ -1136,7 +1136,7 @@ df_loan_13_month <- trans_per_month %>%
     names_from = months_before_loan,
     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
     names_sort = TRUE) %>%
-  mutate(get_loan = "yes") %>%
+  mutate(get_loan = 1) %>%
   #NAs sind für Zeiten vor der Aufzeichnung der Daten und daher 0
   mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
 ```
@@ -1160,11 +1160,25 @@ df_no_loan_13_month <- trans_per_month %>%
     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
     names_sort = TRUE) %>%
     
-  mutate(get_loan = "no")
+  mutate(get_loan = 0)
 ```
 
 Tabellen zusammenfügen
 ```{r}
 df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
+```
+
+Random Forest erstellen
+```{r}
+set.seed(123)
+splitIndex_13 <- createDataPartition(df_complete_loan_13_month$get_loan, p = .8, list = FALSE)
+train_set_13 <- df_complete_loan_13_month[splitIndex_13, ]
+test_set_13 <- df_complete_loan_13_month[-splitIndex_13, ]
+
+model_13 <- randomForest(get_loan ~ ., data = train_set_13, method = "rf")
+
+predictions_13 <- predict(model_13, test_set_13)
+
+confusionMatrix(predictions_13, test_set_13$get_loan, mode = "everything", positive = 1)
 ```
 
