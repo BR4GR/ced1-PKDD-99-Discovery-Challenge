@@ -1161,11 +1161,21 @@ df_no_loan_13_month <- trans_per_month %>%
     names_sort = TRUE) %>%
     
   mutate(get_loan = 0)
+
 ```
 
 Tabellen zusammenfügen
 ```{r}
 df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
+
+# Selecting balance columns (excluding account_id)
+balance_cols_13 <- setdiff(names(df_complete_loan_13_month), c("account_id", "get_loan"))
+
+# Applying Z-score normalization
+df_complete_loan_13_month[balance_cols_13] <- scale(df_complete_loan_13_month[balance_cols_13])
+
+df_complete_loan_13_month$get_loan <- as.factor(df_complete_loan_13_month$get_loan)
+
 ```
 
 Random Forest erstellen
@@ -1179,6 +1189,6 @@ model_13 <- randomForest(get_loan ~ ., data = train_set_13, method = "rf")
 
 predictions_13 <- predict(model_13, test_set_13)
 
-confusionMatrix(predictions_13, test_set_13$get_loan, mode = "everything", positive = 1)
+confusionMatrix(predictions_13, test_set_13$get_loan, mode = "everything", positive = "1")
 ```
 
