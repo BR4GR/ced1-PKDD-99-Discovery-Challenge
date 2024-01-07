@@ -21,7 +21,7 @@ output:
 
 ### Imports
 ```{r}
-required_packages <- c("tidyverse", "ggmosaic", "GGally", "randomForest", "caret", "ggridges") # add more as needed
+required_packages <- c("tidyverse", "ggmosaic", "GGally", "randomForest", "caret", "ggridges", "cluster", "factoextra") # add more as needed
 
 for (pkg in required_packages) {
     if (!require(pkg, character.only = TRUE)) {
@@ -1284,8 +1284,7 @@ df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
     max_drawdown = min(diff(saldo)),
     .groups = "drop"
   ) %>%
-  select(-start_saldo, -end_saldo) %>%
-  mutate(loan = 0)
+  select(-start_saldo, -end_saldo) 
 
 # Predict using the Random Forest model on the new data
 predictions_no_loan_today <- predict(model_13, df_grouped_metrics_no_loan_today)
@@ -1299,6 +1298,29 @@ head(df_grouped_metrics_no_loan_today)
 ```{r}
 varImpPlot(model_13)
 table(predictions_no_loan_today)
+```
+```{r}
+df_grouped_metrics_plus <- df_grouped_metrics %>%
+  left_join(client_analytical_record_no_district, by = "account_id")
+
+df_grouped_metrics_no_loan_today_plus <- df_grouped_metrics_no_loan_today %>%
+  left_join(client_analytical_record_no_district, by = "account_id")
+
+glimpse(df_grouped_metrics_plus)
+```
+
+```{r}
+
+# You might want to scale/normalize your data before clustering
+# df_grouped_metrics_plus <- scale(df_grouped_metrics_plus)
+
+# Perform k-means clustering
+set.seed(123) # Setting a seed for reproducibility
+km_res <- kmeans(df_grouped_metrics_plus, centers = 3, nstart = 25)
+
+# Visualize the clusters
+fviz_cluster(km_res, data = df_grouped_metrics_plus)
+
 ```
 
 
