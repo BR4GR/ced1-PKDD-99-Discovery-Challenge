@@ -564,8 +564,8 @@ Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
 client_analytical_record <- client_analytical_record %>%
   left_join(trans_per_month_new, by = c("account_id" = "account_id"))
 
-client_analytical_record_no_district <- client_analytical_record_no_district %>%
-  left_join(trans_per_month_new, by = c("account_id" = "account_id"))
+# client_analytical_record_no_district <- client_analytical_record_no_district %>%
+#   left_join(trans_per_month_new, by = c("account_id" = "account_id"))
 ```
 
 ## Transaktionen für Accounts mit Kredit für 6 Monate vor Kreditaufname
@@ -654,22 +654,6 @@ transactions_accounts_with_loan %>%
   geom_smooth(method = "loess", se = TRUE, aes(fill = status)) +
   scale_x_reverse() +
   ggtitle("Median des Saldos vor beginn des Kredits")
-
-# transactions_accounts_with_loan %>%
-#   group_by(days_before_loan, status) %>%
-#   summarize(min_saldo = min(saldo), .groups = "drop") %>%
-#   ggplot(aes(x = days_before_loan, y = min_saldo, group = status, color = status)) +
-#   geom_line() +
-#   scale_x_reverse() +
-#   ggtitle("Minimales Saldo vor beginn des Kredits")
-# 
-# transactions_accounts_with_loan %>%
-#   group_by(days_before_loan, status) %>%
-#   summarize(max_saldo = max(saldo), .groups = "drop") %>%
-#   ggplot(aes(x = days_before_loan, y = max_saldo, group = status, color = status)) +
-#   geom_line() +
-#   scale_x_reverse() +
-#   ggtitle("Maximales Saldo vor beginn des Kredits")
 ```
 
 ```{r}
@@ -1053,10 +1037,10 @@ Tabellen zusammenfügen und normalisieren
 df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
 
 # Selecting balance columns (excluding account_id)
-balance_cols_13 <- setdiff(names(df_complete_loan_13_month), c("account_id", "get_loan"))
+# balance_cols_13 <- setdiff(names(df_complete_loan_13_month), c("account_id", "get_loan"))
 
 # Applying Z-score normalization
-df_complete_loan_13_month[balance_cols_13] <- scale(df_complete_loan_13_month[balance_cols_13])
+# df_complete_loan_13_month[balance_cols_13] <- scale(df_complete_loan_13_month[balance_cols_13])
 
 df_complete_loan_13_month$get_loan <- as.factor(df_complete_loan_13_month$get_loan)
 
@@ -1101,10 +1085,10 @@ df_no_loan_today <- trans_per_month %>%
     names_sort = TRUE)
 
 # Selecting balance columns (excluding account_id)
-balance_cols_df_no_loan_today <- setdiff(names(df_no_loan_today), "account_id")
+# balance_cols_df_no_loan_today <- setdiff(names(df_no_loan_today), "account_id")
 
 # Applying Z-score normalization
-df_no_loan_today[balance_cols_df_no_loan_today] <- scale(df_no_loan_today[balance_cols_df_no_loan_today])
+# df_no_loan_today[balance_cols_df_no_loan_today] <- scale(df_no_loan_today[balance_cols_df_no_loan_today])
 ```
 
 ```{r}
@@ -1118,13 +1102,209 @@ df_no_loan_today$predictions <- predictions_no_loan_today
 head(df_no_loan_today)
 
 ```
-```{r}
-# Feature Importance Plot
-importance <- randomForest::importance(model_13)
-varImpPlot(model_13)
-```
+
 ```{r}
 # count predictions
 table(predictions_no_loan_today)
+varImpPlot(model_13)
 ```
+
+```{r}
+ids_predicted_yes <- df_no_loan_today %>%
+  filter(predictions == 1) %>%
+  select(account_id)
+
+ids_predicted_no <- df_no_loan_today %>%
+  filter(predictions == 0) %>%
+  select(account_id)
+
+transactions_accounts_no_loan <- trans %>%
+  filter(account_id %in% df_no_loan_today$account_id) %>%
+  filter(date >= as.Date("1998-01-01")) %>%
+  group_by(account_id, date) %>%
+  summarise(
+    einnahmen = sum(amount[type == "credit"]),
+    ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
+    ) %>%
+  complete(date = seq.Date(min(date), max(date), by = "day"), account_id, fill = list(einnahmen = 0, ausgaben = 0)) %>%
+  group_by(account_id) %>%
+  arrange(date) %>%
+  mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
+  fill(saldo, .direction = "downup") %>%
+  ungroup() %>%
+  mutate(predictions = ifelse(account_id %in% ids_predicted_yes$account_id, 1, 0),
+         predictions = as.factor(predictions))
+
+glimpse(transactions_accounts_no_loan)
+```
+```{r}
+transactions_accounts_no_loan %>%
+  group_by(date, predictions) %>%
+  summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
+  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = predictions)) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = predictions)) +
+  ggtitle("Mittelwert des Saldos im letzten Jahr vor Kreditvergabe")
+
+transactions_accounts_no_loan %>%
+  group_by(date, predictions) %>%
+  summarize(gemitteltes_saldo = median(saldo), .groups = "drop") %>%
+  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = predictions)) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = predictions)) +
+  ggtitle("Mittelwert des Saldos im letzten Jahr vor Kreditvergabe")
+
+transactions_accounts_no_loan %>%
+  group_by(date, predictions) %>%
+  summarize(gemitteltes_saldo = mean(einnahmen), .groups = "drop") %>%
+  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = predictions)) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = predictions)) +
+  ggtitle("Mittelwert der Einnahmen im letzten Jahr vor Kreditvergabe")
+
+transactions_accounts_no_loan %>%
+  group_by(date, predictions) %>%
+  summarize(gemitteltes_saldo = mean(ausgaben), .groups = "drop") %>%
+  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = predictions)) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = predictions)) +
+  ggtitle("Mittelwert der Ausgaben im letzten Jahr vor Kreditvergabe")
+```
+
+## Versuch
+
+```{r}
+# Removing columns that start with "loan_"
+client_analytical_record_no_district <- client_analytical_record_no_district %>%
+  select(-starts_with("loan_"))
+
+
+glimpse(client_analytical_record_no_district)
+
+```
+
+```{r}
+transactions_accounts_no_loan_for_training <- trans %>%
+  filter(account_id %in% df_no_loan_today$account_id) %>%
+  filter(date >= as.Date("1997-01-01") & date <= as.Date("1998-01-01")) %>%
+  group_by(account_id, date) %>%
+  summarise(
+    einnahmen = sum(amount[type == "credit"]),
+    ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
+    ) %>%
+  complete(date = seq.Date(min(date), max(date), by = "day"), account_id, fill = list(einnahmen = 0, ausgaben = 0)) %>%
+  group_by(account_id) %>%
+  arrange(date) %>%
+  mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
+  fill(saldo, .direction = "downup") %>%
+  ungroup() %>%
+  mutate(predictions = ifelse(account_id %in% ids_predicted_yes$account_id, 1, 0),
+         predictions = as.factor(predictions))
+
+df_grouped_metrics_no_loan_for_training <- transactions_accounts_no_loan_for_training %>%
+  group_by(account_id) %>%
+  summarize(
+    mean_einnahmen = mean(einnahmen, na.rm = TRUE),
+    sd_einnahmen = sd(einnahmen, na.rm = TRUE),
+    mean_ausgaben = mean(ausgaben, na.rm = TRUE),
+    sd_ausgaben = sd(ausgaben, na.rm = TRUE),
+    avg_change = mean(diff(saldo)),
+    sd_change = sd(diff(saldo)),
+    mean_saldo = mean(saldo, na.rm = TRUE),
+    sd_saldo = sd(saldo, na.rm = TRUE),
+    start_saldo = first(saldo),
+    end_saldo = last(saldo),
+    growth = end_saldo - start_saldo,
+    max_drawdown = min(diff(saldo)),
+    .groups = "drop"
+  ) %>%
+  select(-start_saldo, -end_saldo) %>%
+  mutate(loan = 0)
+
+glimpse(df_grouped_metrics_no_loan)
+```
+
+```{r}
+df_grouped_metrics_with_loan <- transactions_accounts_with_loan %>%
+  group_by(account_id) %>%
+  summarize(
+    mean_einnahmen = mean(einnahmen, na.rm = TRUE),
+    sd_einnahmen = sd(einnahmen, na.rm = TRUE),
+    mean_ausgaben = mean(ausgaben, na.rm = TRUE),
+    sd_ausgaben = sd(ausgaben, na.rm = TRUE),
+    avg_change = mean(diff(saldo)),
+    sd_change = sd(diff(saldo)),
+    mean_saldo = mean(saldo, na.rm = TRUE),
+    sd_saldo = sd(saldo, na.rm = TRUE),
+    start_saldo = first(saldo),
+    end_saldo = last(saldo),
+    growth = end_saldo - start_saldo,
+    max_drawdown = min(diff(saldo)),
+    .groups = "drop"
+  ) %>%
+  select(-start_saldo, -end_saldo) %>%
+  mutate(loan = 1)
+
+glimpse(df_grouped_metrics_with_loan)
+```
+```{r}
+df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grouped_metrics_with_loan) %>%
+  mutate(loan = as.factor(loan))
+
+glimpse(df_grouped_metrics)
+```
+
+```{r}
+set.seed(123)
+splitIndex_13 <- createDataPartition(df_grouped_metrics$loan, p = .8, list = FALSE)
+train_set_13 <- df_grouped_metrics[splitIndex_13, ]
+test_set_13 <- df_grouped_metrics[-splitIndex_13, ]
+
+model_13 <- randomForest(loan ~ . - account_id, data = train_set_13, method = "rf")
+
+predictions_13 <- predict(model_13, test_set_13)
+
+confusionMatrix(predictions_13, test_set_13$loan, mode = "everything", positive = "1")
+```
+```{r}
+df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
+  group_by(account_id) %>%
+  summarize(
+    mean_einnahmen = mean(einnahmen, na.rm = TRUE),
+    sd_einnahmen = sd(einnahmen, na.rm = TRUE),
+    mean_ausgaben = mean(ausgaben, na.rm = TRUE),
+    sd_ausgaben = sd(ausgaben, na.rm = TRUE),
+    avg_change = mean(diff(saldo)),
+    sd_change = sd(diff(saldo)),
+    mean_saldo = mean(saldo, na.rm = TRUE),
+    sd_saldo = sd(saldo, na.rm = TRUE),
+    start_saldo = first(saldo),
+    end_saldo = last(saldo),
+    growth = end_saldo - start_saldo,
+    max_drawdown = min(diff(saldo)),
+    .groups = "drop"
+  ) %>%
+  select(-start_saldo, -end_saldo) %>%
+  mutate(loan = 0)
+
+# Predict using the Random Forest model on the new data
+predictions_no_loan_today <- predict(model_13, df_grouped_metrics_no_loan_today)
+
+# If you need to add these predictions as a new column to your df_grouped_metrics_no_loan_today dataframe:
+df_grouped_metrics_no_loan_today$predictions <- predictions_no_loan_today
+
+# View the first few rows of the dataframe to see the predictions
+head(df_grouped_metrics_no_loan_today)
+```
+```{r}
+varImpPlot(model_13)
+table(predictions_no_loan_today)
+```
+
+
+
+
+
+
+
 
