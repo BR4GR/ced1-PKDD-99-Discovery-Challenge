@@ -596,9 +596,6 @@ glimpse(transactions_accounts_with_loan)
 summary(transactions_accounts_with_loan)
 ```
 
-```{r}
-
-```
 
 ```{r}
 names(transactions_accounts_with_loan)
@@ -1047,12 +1044,11 @@ df_no_loan_13_month <- trans_per_month %>%
     names_from = months_before_loan,
     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
     names_sort = TRUE) %>%
-    
   mutate(get_loan = 0)
 
 ```
 
-Tabellen zusammenfügen
+Tabellen zusammenfügen und normalisieren
 ```{r}
 df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
 
@@ -1075,10 +1071,60 @@ splitIndex_13 <- createDataPartition(df_complete_loan_13_month$get_loan, p = .8,
 train_set_13 <- df_complete_loan_13_month[splitIndex_13, ]
 test_set_13 <- df_complete_loan_13_month[-splitIndex_13, ]
 
-model_13 <- randomForest(get_loan ~ ., data = train_set_13, method = "rf")
+model_13 <- randomForest(get_loan ~ . - account_id, data = train_set_13, method = "rf")
 
 predictions_13 <- predict(model_13, test_set_13)
 
 confusionMatrix(predictions_13, test_set_13$get_loan, mode = "everything", positive = "1")
+```
+
+## Predictions Kreditkandidaten
+
+Erstellen eines Dataframes für alle ohne Loan in den letzten 13 Monaten
+
+```{r}
+df_no_loan_today <- trans_per_month %>%
+  filter(!(account_id %in% loan$account_id)) %>%
+  mutate(loan_date = "1998-12") %>%
+  mutate(loan_date = ym(loan_date)) %>%
+  mutate(year_month = ym(year_month)) %>%
+  mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
+  mutate(months_before_loan = (year_month)-(loan_date)) %>%
+
+  mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
+  filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
+  
+  pivot_wider(
+    id_cols = account_id,
+    names_from = months_before_loan,
+    values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
+    names_sort = TRUE)
+
+# Selecting balance columns (excluding account_id)
+balance_cols_df_no_loan_today <- setdiff(names(df_no_loan_today), "account_id")
+
+# Applying Z-score normalization
+df_no_loan_today[balance_cols_df_no_loan_today] <- scale(df_no_loan_today[balance_cols_df_no_loan_today])
+```
+
+```{r}
+# Predict using the Random Forest model on the new data
+predictions_no_loan_today <- predict(model_13, df_no_loan_today)
+
+# If you need to add these predictions as a new column to your df_no_loan_today dataframe:
+df_no_loan_today$predictions <- predictions_no_loan_today
+
+# View the first few rows of the dataframe to see the predictions
+head(df_no_loan_today)
+
+```
+```{r}
+# Feature Importance Plot
+importance <- randomForest::importance(model_13)
+varImpPlot(model_13)
+```
+```{r}
+# count predictions
+table(predictions_no_loan_today)
 ```
 
