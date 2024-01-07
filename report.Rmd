@@ -21,13 +21,7 @@ output:
 
 ### Imports
 ```{r}
-# install.packages("tidyverse")
-# install.packages("ggmosaic")
-# install.packages("GGally")
-# install.packages("randomForest")
-# install.packages("caret")
-
-required_packages <- c("tidyverse", "ggmosaic", "GGally", "randomForest", "caret") # add more as needed
+required_packages <- c("tidyverse", "ggmosaic", "GGally", "randomForest", "caret", "ggridges") # add more as needed
 
 for (pkg in required_packages) {
     if (!require(pkg, character.only = TRUE)) {
@@ -35,13 +29,6 @@ for (pkg in required_packages) {
         library(pkg, character.only = TRUE)
     }
 }
-
-# library(tidyverse)
-# library(ggmosaic)
-# library(GGally)
-# library(lubridate)
-# library(randomForest)
-# library(caret)
 ```
 # Verfügbare Tabellen untersuchen
 
@@ -191,63 +178,8 @@ glimpse(client)
 summary(client)
 ```
 ```{r}
- install.packages("ggridges")
- library(ggridges)
-
-ggplot(client, aes(x = year, y = sex, fill = sex)) +
-  geom_density_ridges() +
-  theme_ridges() +  # This is a theme provided by ggridges
-  labs(title = "Ridge Line Plot of Year by Sex",
-       x = "Year",
-       y = "Sex")
-
-ggplot(client, aes(x = year, y = district_id_client)) +
-  geom_point() +  # Adds the data points
-  geom_smooth(method = "lm",   # lm for linear model
-              se = TRUE,       # se = TRUE to show confidence interval
-              color = "blue", 
-              fill = "lightblue") +
-  theme_minimal() +
-  labs(title = "Regression of District ID on Year with Confidence Interval",
-       x = "Year",
-       y = "District ID")
-
-ggplot(client, aes(x = year, y = district_id_client, color = sex)) + 
-  geom_point() +
-  theme_minimal() +
-  labs(title = "Scatter Plot by Year and District ID",
-       x = "Year",
-       y = "District ID",
-       color = "Sex") +
-  theme(legend.position = "bottom")
-
-ggplot(client, aes(x = district_id_client, y = year, color = sex, size = year)) + 
-  geom_point(alpha = 0.7) +
-  theme_minimal() +
-  labs(title = "Bubble Chart by Year and District ID",
-       x = "Year",
-       y = "District ID",
-       color = "Sex",
-       size = "Year") +
-  theme(legend.position = "bottom")
-
-ggplot(client, aes(x = sex, y = year, color = sex)) + 
-  geom_violin(trim = FALSE) + 
-  geom_jitter(width = 0.2, alpha = 0.5) +
-  theme_minimal() +
-  labs(title = "Violin and Scatter Plot by Year and Sex",
-       x = "Sex",
-       y = "Year")
-
-ggplot(client, aes(x = sex, y = year, color = sex)) +
-  geom_jitter(width = 0.2, height = 0, alpha = 0.5) +
-  theme_minimal() +
-  labs(title = "Categorical Strip Plot with Jitter",
-       x = "Sex",
-       y = "Year")
-
 ggplot(client, aes(x = year, fill = sex)) +
-  geom_density(alpha = 0.7) +
+  geom_density(alpha = 0.5) +
   theme_minimal() +
   labs(title = "Conditional Density Plot of Year by Sex",
        x = "Year",
@@ -330,19 +262,6 @@ district %>%
 
 district %>%
   filter(commited_crimes_96 == 99107)
-```
-```{r}
-ggplot(district, aes(x = inhabitants, y = commited_crimes_95)) +
-  geom_point(alpha = 0.5) +
-  labs(title = "Scatter Plot of Inhabitants vs Crimes in 95",
-       x = "Number of Inhabitants",
-       y = "Number of Crimes")
-
-ggplot(district, aes(x = inhabitants, y = commited_crimes_96)) +
-  geom_point(alpha = 0.5) +
-  labs(title = "Scatter Plot of Inhabitants vs Crimes in 96",
-       x = "Number of Inhabitants",
-       y = "Number of Crimes")
 ```
 
 ## loan Datensatz
@@ -504,11 +423,9 @@ Kontrolle der Änderungen
 glimpse(trans)
 summary(trans)
 ```
-# CAR
+# Client Analytical Records
 
-
-
-
+## ohne monatliche Saldos
 ```{r}
 client_analytical_record <- accounts %>%
   left_join(disp %>% filter(type == "OWNER") %>%
@@ -573,6 +490,7 @@ client_analytical_record <- client_analytical_record %>%
 
 glimpse(client_analytical_record)
 ```
+## mit monatlichen Saldos
 
 Neues Dataframe erstellen mit account ID zum Joinen und monatliche ausgaben und einnahmen einzelner accounts ende Monat erstellen.
 
@@ -640,6 +558,7 @@ trans_per_month_new <- trans_per_month %>%
   ) 
 ```
 
+
 Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
 ```{r}
 client_analytical_record <- client_analytical_record %>%
@@ -649,7 +568,7 @@ client_analytical_record_no_district <- client_analytical_record_no_district %>%
   left_join(trans_per_month_new, by = c("account_id" = "account_id"))
 ```
 
-
+## Transaktionen für Accounts mit Kredit für 6 Monate vor Kreditaufname
 ```{r}
 accounts_with_loan <- loan$account_id
 loan_dates <- loan$loan_date
@@ -695,47 +614,9 @@ mean_values_per_duration <- transactions_accounts_with_loan %>%
     mean_saldo = mean(saldo, na.rm = TRUE),
     .groups = "drop"
   )
-
-# Then perform your aggregations by 'weeks_before_loan'
-mean_values_per_week <- transactions_accounts_with_loan %>%
-  group_by(duration, weeks_before_loan) %>%
-  summarise(
-    mean_einnahmen = mean(einnahmen, na.rm = TRUE),
-    mean_ausgaben = mean(ausgaben, na.rm = TRUE),
-    mean_saldo = mean(saldo, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-# Create three separate plots for weekly data
-# Plot for einnahmen
-# ggplot(mean_values_per_week, aes(x = weeks_before_loan, y = mean_einnahmen, color = as.factor(duration))) +
-#   geom_line(size = 1.2) +
-#   scale_x_reverse(breaks = seq(0, max(weeks_before_loan), by = 4), limits = c(max(weeks_before_loan), 0)) +
-#   labs(x = "Weeks Before Loan", y = "Average Einnahmen", color = "Loan Duration", title = "Weekly Average Einnahmen Trend by Loan Duration") +
-#   theme_minimal()
-
-# # Plot for ausgaben
-# ggplot(mean_values_per_week, aes(x = week_before_loan, y = mean_ausgaben, color = as.factor(duration))) +
-#   geom_line(size = 1.2) +
-#   scale_x_reverse(breaks = seq(0, max(week_before_loan), by = 4), limits = c(max(week_before_loan), 0)) +
-#   labs(x = "Weeks Before Loan", y = "Average Ausgaben", color = "Loan Duration", title = "Weekly Average Ausgaben Trend by Loan Duration") +
-#   theme_minimal()
-# 
-# # Plot for saldo
-# ggplot(mean_values_per_week, aes(x = week_before_loan, y = mean_saldo, color = as.factor(duration))) +
-#   geom_line(size = 1.2) +
-#   scale_x_reverse(breaks = seq(0, max(week_before_loan), by = 4), limits = c(max(week_before_loan), 0)) +
-#   labs(x = "Weeks Before Loan", y = "Average Saldo", color = "Loan Duration", title = "Weekly Average Saldo Trend by Loan Duration") +
-#   theme_minimal()
-
 ```
 
-```{r}
-# ggplot(transactions_accounts_with_loan, aes(x = days_before_loan, y = saldo)) +
-#   geom_smooth(method = "loess", span = 0.2) +  # 'span' controls the smoothness
-#   labs(x = "Days Before Loan", y = "Saldo", title = "Smoothed Trend of Saldo Before Loan") +
-#   theme_minimal()
-```
+
 
 Kontrolle ob es ein muster in den Statusen gibt.
 ```{r}
@@ -764,6 +645,7 @@ transactions_accounts_with_loan %>%
   summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
   ggplot(aes(x = days_before_loan, y = gemitteltes_saldo, group = status, color = status)) +
   geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = status)) +
   scale_x_reverse() +
   ggtitle("Mittelwert des Saldos vor beginn des Kredits")
 
@@ -772,24 +654,25 @@ transactions_accounts_with_loan %>%
   summarize(median_saldo = median(saldo), .groups = "drop") %>%
   ggplot(aes(x = days_before_loan, y = median_saldo, group = status, color = status)) +
   geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = status)) +
   scale_x_reverse() +
   ggtitle("Median des Saldos vor beginn des Kredits")
 
-transactions_accounts_with_loan %>%
-  group_by(days_before_loan, status) %>%
-  summarize(min_saldo = min(saldo), .groups = "drop") %>%
-  ggplot(aes(x = days_before_loan, y = min_saldo, group = status, color = status)) +
-  geom_line() +
-  scale_x_reverse() +
-  ggtitle("Minimales Saldo vor beginn des Kredits")
-
-transactions_accounts_with_loan %>%
-  group_by(days_before_loan, status) %>%
-  summarize(max_saldo = max(saldo), .groups = "drop") %>%
-  ggplot(aes(x = days_before_loan, y = max_saldo, group = status, color = status)) +
-  geom_line() +
-  scale_x_reverse() +
-  ggtitle("Maximales Saldo vor beginn des Kredits")
+# transactions_accounts_with_loan %>%
+#   group_by(days_before_loan, status) %>%
+#   summarize(min_saldo = min(saldo), .groups = "drop") %>%
+#   ggplot(aes(x = days_before_loan, y = min_saldo, group = status, color = status)) +
+#   geom_line() +
+#   scale_x_reverse() +
+#   ggtitle("Minimales Saldo vor beginn des Kredits")
+# 
+# transactions_accounts_with_loan %>%
+#   group_by(days_before_loan, status) %>%
+#   summarize(max_saldo = max(saldo), .groups = "drop") %>%
+#   ggplot(aes(x = days_before_loan, y = max_saldo, group = status, color = status)) +
+#   geom_line() +
+#   scale_x_reverse() +
+#   ggtitle("Maximales Saldo vor beginn des Kredits")
 ```
 
 ```{r}
@@ -812,7 +695,7 @@ transactions_accounts_with_loan %>%
   ggplot(aes(x = total_difference, y = amount)) +
   geom_point(alpha = 0.5) +
   scale_y_continuous(labels = scales::number_format(scale = 1e+0)) +
-  labs(title = "Amount zu Differenzfür Status OK")
+  labs(title = "Amount zu Differenz für Status OK")
 
 transactions_accounts_with_loan %>%
   filter(status %in% c("running_client_in_dept", "finished_not_payed")) %>%
@@ -1117,7 +1000,12 @@ predictions_new_dist <- predict(new_model_dist, test_set_new_dist)
 confusionMatrix(predictions_new_dist, test_set_new_dist$get_loan, mode = "everything", positive = "1")
 
 ```
+# Random Forest
+
+## Trainings Dataframe erstellen
+
 Erstellen eines Dataframes für alle mit Loan 13 Monate vor Beginn des Loans
+
 ```{r}
 df_loan_13_month <- trans_per_month %>%
   filter(account_id %in% loan$account_id) %>%
@@ -1177,6 +1065,8 @@ df_complete_loan_13_month[balance_cols_13] <- scale(df_complete_loan_13_month[ba
 df_complete_loan_13_month$get_loan <- as.factor(df_complete_loan_13_month$get_loan)
 
 ```
+
+## Modell trainieren
 
 Random Forest erstellen
 ```{r}
