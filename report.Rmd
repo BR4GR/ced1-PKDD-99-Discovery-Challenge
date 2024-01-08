@@ -1301,14 +1301,38 @@ table(predictions_no_loan_today)
 ```
 ```{r}
 # for training
+# unfactorize loan 
+
 df_grouped_metrics_plus <- df_grouped_metrics %>%
-  left_join(client_analytical_record_no_district, by = "account_id")
+  left_join(client_analytical_record_no_district, by = "account_id") %>%
+  mutate(
+    has_user = ifelse(is.na(user_birthday), 0, 1),
+    owner_age = 1999 - year.x,
+    opening_year = year(opening_date),
+    # unfactorize loan 
+    loan = ifelse(loan == "1", 1, 0),
+    ) %>%
+  pivot_wider(names_from = owner_sex, values_from = owner_sex,
+              values_fill = list(owner_sex = 0),
+              values_fn = list(owner_sex = length)) %>%
+  pivot_wider(names_from = frequency_of_statements, values_from = frequency_of_statements,
+              values_fill = list(frequency_of_statements = 0),
+              values_fn = list(frequency_of_statements = length)) %>%
+  pivot_wider(names_from = card_type, values_from = card_type,
+              values_fill = list(card_type = 0),
+              values_fn = list(card_type = length)) %>%
+  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_birthday, -year.x, -year.y, -user_district_id, -user_sex, -card_issued, -opening_date)
 
 # for prediction
 df_grouped_metrics_no_loan_today_plus <- df_grouped_metrics_no_loan_today %>%
   left_join(client_analytical_record_no_district, by = "account_id")
 
 glimpse(df_grouped_metrics_plus)
+```
+```{r}
+#find nas
+nas <- sum(is.na(df_grouped_metrics_plus))
+nas
 ```
 
 ```{r}
