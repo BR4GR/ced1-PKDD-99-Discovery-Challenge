@@ -1300,9 +1300,11 @@ varImpPlot(model_13)
 table(predictions_no_loan_today)
 ```
 ```{r}
+# for training
 df_grouped_metrics_plus <- df_grouped_metrics %>%
   left_join(client_analytical_record_no_district, by = "account_id")
 
+# for prediction
 df_grouped_metrics_no_loan_today_plus <- df_grouped_metrics_no_loan_today %>%
   left_join(client_analytical_record_no_district, by = "account_id")
 
