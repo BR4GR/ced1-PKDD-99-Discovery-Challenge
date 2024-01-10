@@ -19,7 +19,36 @@ output:
     code_folding: show
 ---
 
-### Imports
+# Einführung
+
+## Aufgabenstellung
+
+Eine tschechische Bank möchte ihre Dienstleistungen für Privatkunden verbessern und "interessante Kundengruppen" identifizieren. Die Geschäftsleitung hat keine präzise Vorstellung, möchte aber zusätzliches Business generieren ohne unnötige Risiken einzugehen und Verluste einzufahren.
+
+Die Bank denkt, dass mit Hilfe von Data Science Informationen aus dem bestehenden Kundenstamm herausgeschält werden en können und liefert einen Datenextrakt aus der zentralen Datenbank. Dieser enthält Informationen zu Kunden, Produktbesitz und -nutzung (z.B. Kreditvolumen, Zahlungen, Daueraufträge und Kreditkarten), Filialnetz sowie soziodemographische Informationen.
+
+Der analytische Auftrag besteht darin:
+
+-   Qualität und Repräsentativität der Daten zu überprüfen
+
+-   Die Verteilung der einzelnen Datenattribute zu erheben
+
+-   Die Veränderung der Datenattribute über die Zeit zu analysieren
+
+-   Korrelationen zwischen verschiedenen Datenattributen zu quantifizieren und zu visualisieren
+
+-   Hypothesen hinsichtlich optimaler Produktverkauf / -nutzung zu erstellen
+
+## Datengrundlage
+
+Die Daten stammen laut der Aufgabenstellung von einer Tschechischen Bank und sind unter <https://sorry.vse.cz/~berka/challenge/PAST/index.html> downloadbar.
+
+Die Daten enthalten 8 unterschiedliche csv Dateien welche weiter unten im Bericht noch genauer erklärt werden.
+
+# Imports
+
+Um die Daten zu verarbeiten und zu visualisieren haben wir folgende Packages benötigt.
+
 ```{r}
 required_packages <- c("tidyverse", "ggmosaic", "GGally", "randomForest", "caret", "ggridges", "cluster", "factoextra") # add more as needed
 
@@ -30,9 +59,13 @@ for (pkg in required_packages) {
     }
 }
 ```
+
 # Verfügbare Tabellen untersuchen
 
 ## account Datensatz
+
+Der Account Datensatz besitz Informationen über die Account ID, aus welchem district der Account stammt, in welchem intervall die Transaktionen ablaufen und wann der Account gegründet wurde.
+
 ```{r}
 accounts <- read.csv("data/account.csv", sep=";")
 glimpse(accounts)
@@ -41,7 +74,8 @@ sum(is.na(accounts))
 length(unique(accounts$account_id)) == nrow(accounts)
 ```
 
-Im ersten schritt wollen wir die Daten der Tabelle accounts verständlicher machen. Dabei wollen wir die tschechischen Namen in der Kategorie "frequency" auf Deutsch übersetzen und con einem <chr> in einen <fct> umwandeln  und das Datum in das richtige Format bringen.
+Die Daten werden nun so angepasst, das sie auf Deutsch sind und die Types entsprechend geändert werden.
+
 ```{r}
 #Ändern der tschechischen Namen in der Spalte frequency
 accounts <- accounts %>%
@@ -68,35 +102,37 @@ accounts <- accounts %>%
 ```
 
 Die Werte sind nun bereinigt und man sieht bei frequency die drei Ausgabedaten, zudem ist das Datum nun auch als Datum erfasst.
+
 ```{r}
 glimpse(accounts)
 summary(accounts)
 ```
+
+Aus dem account Datensatz können wir nun sehen, woher unsere Accounts geographisch stammen dazu machen wir einen Barplot.
+
 ```{r}
 barplot(table(accounts$district_id), main = "Distribution of Accounts by District", xlab = "District ID", ylab = "Number of Accounts")
 ```
 
+Wir sehen das im deutlich mehr Accounts im District mit der ID 1 angesiedelt sind als ein allen anderen Districts. Dies ist auch nicht sonderlich überraschend, da es sich bei diesem District um Prag, der grössten Stadt im Land handelt.
+
+Aus dem Datensatz kann man zudem einsehen, wann welche Accounts eröffnet wurden.
+
 ```{r}
-ggplot(accounts, aes(x = frequency_of_statements, fill = frequency_of_statements)) +
-  geom_bar() +
-  geom_text(stat = 'count',
-            aes(label = ..count..), 
-            position = position_stack(vjust = 0.5)
-            ) +
-  labs(title = "Frequenz der Kontoauszüge",
-       x = "Frequenz",
-       y = "Anzahl Konten",
-       fill = "Ausgabe"
-       ) +
-  coord_flip()
-```
-```{r}
-ggplot(accounts, aes(x = opening_date)) +
+ggplot(accounts, aes(x = opening_date, fill = as.factor(year(opening_date)))) +
   geom_histogram(binwidth = 7) +
-  ggtitle("Accounteröffnungen pro Woche")
+  ggtitle("Accounteröffnungen pro Woche") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(fill = "Jahr")
+
 ```
 
+Es fällt auf, das gerade zu Beginn im ersten Jahr viele Accounts eröffnet wurden (rot eingefärbt), im Anschluss wurden zwei Jahre lang weniger Accounts eröffnet (blau und grün eingefärbt) und ab 1996 wurden es wieder mehr eröffnungen (violet und orange eingefärbt).
+
 ## card Datensatz
+
+Im card Datensatz befinden sich Informationen zu Kreditkarten. Wann diese ausgestellt wurden, welche Klasse sie haben und die ID vom Nutzer und der Karte.
+
 ```{r}
 card <- read.csv("data/card.csv", sep=";")
 glimpse(card)
@@ -105,7 +141,8 @@ sum(is.na(card))
 length(unique(card$card_id)) == nrow(card)
 ```
 
-Bei diesem Datensatz änern wir zuerst die "type" Spalte wie oben in einen Faktor.
+Zuerst werden wieder die Types angepasst und nschliessend wird die Spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
+
 ```{r}
 #Type in Faktor umwandeln
 card <- card %>%
@@ -113,26 +150,22 @@ card <- card %>%
 
 card <- card %>% 
   mutate(card_type = as.factor(card_type))
-```
 
-Anschliessend wird die spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
-```{r}
 # Datum umwandeln
 card$issued <- ymd(substr(card$issued, 1, 6))
 ```
 
 Der Card Datensatz sollte nun korrekt sein.
+
 ```{r}
 glimpse(card)
 summary(card)
 ```
-```{r}
-card %>%
-  group_by(card_type) %>%
-  summarise(count = n())
-```
 
 ## client Datensatz
+
+Der Datensatz client enthält Informationen über jeden Client, also eine ID, ein Geburtsdatum und den Standort. Wichtig ist auch zu wissen, dass der Client nicht gleich dem Account ist, es gibt accounts, welche von mehreren Personen genutzt werden.
+
 ```{r}
 client <- read.csv("data/client.csv", sep=";")
 glimpse(client)
@@ -141,7 +174,8 @@ sum(is.na(client))
 length(unique(client$client_id)) == nrow(client)
 ```
 
-Bei diesem Datensatz ist wichtig zu wissen, dass in der birth_number zudem das Geschlecht gespeichert ist. Bei Frauen wurde die angabe des Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen. Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen und die Geburtsdaten dann bereinigt in der birth number wiedergeben.
+Bei diesem Datensatz ist zudem wichtig, dass in der birth_number zudem das Geschlecht gespeichert ist. Bei Frauen wurde die angabe des Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen. Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen und die Geburtsdaten dann bereinigt in der birth number wiedergeben.
+
 ```{r}
 #Unterscheidung von Mann und Frau anhand vom Geburtsdatum
 client <- client %>%
@@ -155,6 +189,7 @@ client <- client %>%
 ```
 
 Da wir nun die Kategorie des Geschlechts haben wollen wir noch das Geburtsdatum anpassen und im richtigen Format ausgeben.
+
 ```{r}
 #Geburtsdatum bei den Frauen um 5000 subtrahieren. Damit wieder der normale Monat angezeigt wird.
 client$birth_number[client$sex == "female"] <- client$birth_number[client$sex == "female"]-5000
@@ -172,11 +207,15 @@ client <- client %>%
 client$year <- year(client$birthday)
 ```
 
-Der Client Datensatz sollte nun korrekt sein und die Spalte sex enthalten.
+Der Client Datensatz sollte nun korrekt sein und die Spalte "sex" enthalten.
+
 ```{r}
 glimpse(client)
 summary(client)
 ```
+
+Nun wissen wir auch welches Alter und Geschlecht unsere Kunden haben.
+
 ```{r}
 ggplot(client, aes(x = year, fill = sex)) +
   geom_density(alpha = 0.5) +
@@ -186,7 +225,12 @@ ggplot(client, aes(x = year, fill = sex)) +
        y = "Density")
 ```
 
+Wir sehen, dass die Verteilung der Männer und Frauen in allen Altersklassen sehr ähnlich ist. Und das die meisten unserer Kunden im Alter zwischen 20 und 60 sind.
+
 ## disp Datensatz
+
+Im disp Datensatz ist die verknüpfung der Kunden mit den Accounts und ihre jeweilige Funktion dargestellt.
+
 ```{r}
 disp <- read.csv("data/disp.csv", sep=";")
 glimpse(disp)
@@ -196,6 +240,7 @@ length(unique(disp$disp_id)) == nrow(disp)
 ```
 
 Hier wollen wir nur den type von <chr> in <fct> ändern und anschliessend kontrollieren.
+
 ```{r}
 #Type in Faktor umwandeln
 disp <- disp %>% 
@@ -207,6 +252,9 @@ summary(disp)
 ```
 
 ## district Datensatz
+
+Der district Datensatz enthält viele Informationen über jeden District.
+
 ```{r}
 district <- read.csv("data/district.csv", sep=";")
 glimpse(district)
@@ -216,12 +264,14 @@ length(unique(district$A1)) == nrow(district)
 ```
 
 Hier werden alle Spalten mit A angegeben, dies sollen aussagekräftigere Namen werden.
+
 ```{r}
 #Spaltennamen ändern
 colnames(district) <- c("district_id", "district_name", "region", "inhabitants", "municipalities<499", "municipalities500-1999", "municipalities2000-9999", "municipalities>10000", "cities", "urban_inhabitants", "average_salary", "unemploymant_rate_95", "unemploymant_rate_96", "enterpreneurs_per_1000", "commited_crimes_95", "commited_crimes_96")
 ```
 
 Nun sollen noch alle <chr> in andere Formate geändert werden. Die Warnung nach ausführung des Codes ist auf den District Jesenik bezogen. Dort ist in der Spalte unemploymant_rate_95 und commited_crimes_95 ein "?" eigetragen, dieser Wert wird mit NA ersetzt.
+
 ```{r}
 district <- district %>% 
   mutate(district_name = as.factor(district_name),
@@ -232,10 +282,14 @@ district <- district %>%
 ```
 
 Kontrolle der geänderten Tabelle.
+
 ```{r}
 glimpse(district)
 summary(district)
 ```
+
+Wir haben uns bei der analyse der Daten gefragt, ob es einen Zusammenhang zwischen der arbeitslosenquote und der Anzahl der begangenen Verbrechen gibt.
+
 ```{r}
 district <- district %>%
   mutate(crimes_per_1000_1995 = commited_crimes_95/inhabitants*1000)
@@ -246,6 +300,7 @@ ggplot(district, aes(x = unemploymant_rate_96, y = crimes_per_1000_1995)) +
        x = "Unemployment Rate in 1995",
        y = "Committed Crimes per 1000 in 1995")
 ```
+
 ```{r}
 district <- district %>%
   mutate(crimes_per_1000_1996 = (commited_crimes_96/inhabitants)*1000)
@@ -256,15 +311,22 @@ ggplot(district, aes(x = unemploymant_rate_96, y = crimes_per_1000_1996)) +
        x = "Unemployment Rate in 1996",
        y = "Committed Crimes per 1000 in 1996")
 ```
+
+Bei der Betrachtung der beiden Plots fällt auf, dass es keinen merklichen Anstieg gibt, so wie es unsere Hypothese war. Was aber auffällt, ist das der vorderste Punkt, welcher fast keine Arbeitslosigkeit aufzeigt, enorm hoch ist. Bei diesem Punkt handelt es sich wieder um Prag.
+
 ```{r}
 district %>%
   filter(commited_crimes_95 == 85677)
 
 district %>%
   filter(commited_crimes_96 == 99107)
+
 ```
 
 ## loan Datensatz
+
+Der loan Datensatz ist für uns einer der Interessantesten Datensätze. In ihm sind sämtliche vergebene Kredite abgelegt.
+
 ```{r}
 loan <- read.csv("data/loan.csv", sep=";")
 glimpse(loan)
@@ -274,7 +336,6 @@ length(unique(loan$loan_id)) == nrow(loan)
 length(unique(loan$account_id)) == nrow(loan)
 ```
 
-Ändern der Spalte status, A, B, C,D soll mit aussagekräftigeren Namen ersetzt werden, anschiessend soll sie noch zu <fct> geändert werden.
 ```{r}
 #Ändern der Namen in Status
 loan <- loan %>%
@@ -293,27 +354,41 @@ loan <- loan %>%
 ```
 
 Kontrolle der Änderungen.
+
 ```{r}
 glimpse(loan)
 summary(loan)
 ```
+
+Wir wollen nun anschauen welche höhe von Krediten von der Bank vergeben wurde.
+
 ```{r}
 ggplot(loan, aes(x = amount)) +
   geom_histogram(binwidth = 10000, color = "blue") +
   scale_x_continuous(breaks = seq(0, max(loan$amount), by = 50000)) +
   ggtitle("Vergebene loans in 10000 Schritten")
 ```
+
+Dabei fällt auf, dass es sich vorallem um kleinere Kredite handelt. Es gibt aber vereinzelt grössere Kredite.
+
 Gibt es Accounts, welche zwei mal einen Loan bekommen haben?
+
 ```{r}
 sum(duplicated(loan$account_id))
 ```
+
+Nein gibt es nicht, jeder Account hat über die Zeit der Datenerhebung maximal einen Kredit bezogen.
+
 ```{r}
 ggplot(loan, aes(x = duration, y = ..count.., fill = as.factor(duration))) +
   geom_bar() +
   labs(fill = "dauer") +
   theme(axis.text.x = element_blank(), axis.title.x = element_blank())
+
 ```
+
 Im Plot sehen wir 5 linien, diese ergeben sich aus der Duration. Im facet wrapet scatter plot sehen wir, dass vorallem die kleineren Beträge den Status finished_ok haben und die grösseren running_ok. Dieses bild zeigt sich auch be denen, welche nicht ok sind, die kleineren Beträge sind finished_not_payed und die grösseren running_in_dept
+
 ```{r}
 ggplot(loan, aes(x = amount, y = payments, color = status)) +
   geom_point(size = 2, alpha = 0.5) +
@@ -333,6 +408,9 @@ ggplot(loan, aes(x = amount, y = payments, color = duration)) +
 ```
 
 ## order Datensatz
+
+Der Order Datensatz hat Informationen über monatlich fixe Transaktionen.
+
 ```{r}
 order <- read.csv("data/order.csv", sep=";")
 glimpse(order)
@@ -342,6 +420,7 @@ length(unique(order$order_id)) == nrow(order)
 ```
 
 Hier sollen die beiden <chr> in <fct> geändert werden. Auch sollen die Werte in k_symbol verständlich werden.
+
 ```{r}
 #K_symbol Werte verständlich machen
 order <- order %>%
@@ -358,12 +437,16 @@ order <- order %>%
 ```
 
 Kontrolle der Daten.
+
 ```{r}
 glimpse(order)
 summary(order)
 ```
 
 ## trans Datensatz
+
+Der trans Datensatz ist der Grösste Datensatz, in ihm sind sämtliche Transaktionen enthalten.
+
 ```{r}
 trans <- read.csv("data/trans.csv", sep=";")
 glimpse(trans)
@@ -374,6 +457,7 @@ length(unique(trans$trans_id)) == nrow(trans)
 ```
 
 Ändern der Tschechischen Namen, date in Datum formatieren und umwandlungen in Faktoren. Bei der spalte type werden in der Datenbeschreibung nur "PRIJEM" und "VYDAJ" beschrieben zudem kommt aber auch noch "VYBER" vor, dieser wird aber ansonsten als "withdrawal in cash" beschrieben, deshalb übernehmen wir dies auch hier.
+
 ```{r}
 # Type Werte verständlich machen
 trans <- trans %>%
@@ -419,13 +503,26 @@ trans <- trans %>%
 ```
 
 Kontrolle der Änderungen
+
 ```{r}
 glimpse(trans)
 summary(trans)
 ```
+
+```{r}
+ggplot(trans, aes(x = date, fill = as.factor(year(date)))) +
+  geom_histogram(binwidth = 30) +
+  ggtitle("Anzahl Transaktionen pro Monat") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(fill = "Jahr")
+```
+
+In diesem Plot ist gut zu sehen, das die Anzahl der Transaktionen im verlauf der Jahre deutlich zugenommen hat.
+
 # Client Analytical Records
 
 ## ohne monatliche Saldos
+
 ```{r}
 client_analytical_record <- accounts %>%
   left_join(disp %>% filter(type == "OWNER") %>%
@@ -490,6 +587,7 @@ client_analytical_record <- client_analytical_record %>%
 
 glimpse(client_analytical_record)
 ```
+
 ## mit monatlichen Saldos
 
 Neues Dataframe erstellen mit account ID zum Joinen und monatliche ausgaben und einnahmen einzelner accounts ende Monat erstellen.
@@ -505,6 +603,7 @@ trans_per_month <- trans %>%
 ```
 
 Es soll nun noch eine Spalte erstellt werden, um zu schauen, wieviel die verschiedenen Accounts jeweils am ende des Monats haben. Da wir die Vermutung haben dass alle zu beginn mit 0 auf dem Konto gestartet haben überprüfen wir dies im ersten Schritt kurz.
+
 ```{r}
 #Dataframe erstellen um zu überprüfen, bei welchen accounts der amount und die balance nach der Transaktion gleich sind beim erst möglichen Datum.
 kontostand_erster_Zeitpunkt <- trans %>%
@@ -518,6 +617,7 @@ all(unique(trans$account_id) %in% unique(kontostand_erster_Zeitpunkt$account_id)
 ```
 
 Da wir nun Wissen, dass alle Accounts mit 0 begonnen haben, können wir in der trans_per_month liste die Balances min den Weren der vorherigen Monaten berechnen.
+
 ```{r}
 trans_per_month <- trans_per_month %>%
   group_by(account_id) %>%
@@ -526,6 +626,7 @@ trans_per_month <- trans_per_month %>%
 ```
 
 Es sollen nun alle Daten für jedes Konto erstellt werden, auch wenn zu diesem Zeitpunkt keine Transaktionen über dieses Konto gelaufen sind.
+
 ```{r}
 #Alle Transaktionen für alle zeiträume erstellen.
 trans_per_month <- trans_per_month %>%
@@ -546,8 +647,8 @@ trans_per_month <- trans_per_month %>%
   
 ```
 
-
 Trans_per_month ändern, dass jeder monat ein Attribut wird und der Accout nur eine Zeile hat.
+
 ```{r}
 trans_per_month_new <- trans_per_month %>%
   pivot_wider(
@@ -558,8 +659,8 @@ trans_per_month_new <- trans_per_month %>%
   ) 
 ```
 
-
 Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
+
 ```{r}
 client_analytical_record <- client_analytical_record %>%
   left_join(trans_per_month_new, by = c("account_id" = "account_id"))
@@ -569,6 +670,7 @@ client_analytical_record <- client_analytical_record %>%
 ```
 
 ## Transaktionen für Accounts mit Kredit für 6 Monate vor Kreditaufname
+
 ```{r}
 accounts_with_loan <- loan$account_id
 loan_dates <- loan$loan_date
@@ -596,11 +698,9 @@ glimpse(transactions_accounts_with_loan)
 summary(transactions_accounts_with_loan)
 ```
 
-
 ```{r}
 names(transactions_accounts_with_loan)
 ```
-
 
 ```{r}
 mean_values_per_duration <- transactions_accounts_with_loan %>%
@@ -613,9 +713,8 @@ mean_values_per_duration <- transactions_accounts_with_loan %>%
   )
 ```
 
-
-
 Kontrolle ob es ein muster in den Statusen gibt.
+
 ```{r}
 transactions_accounts_with_loan %>%
   group_by(account_id) %>%
@@ -634,7 +733,6 @@ transactions_accounts_with_loan %>%
   scale_x_continuous(labels = scales::number_format(scale = 1e+0)) +
   ggtitle("Saldo und Amount vergleichen, nach Status aufgeteilt")
 ```
-
 
 ```{r}
 transactions_accounts_with_loan %>%
@@ -802,7 +900,6 @@ one_hot_no_loan <- car_one_hot %>%
 
 ```
 
-
 ```{r}
 # Splitting the data into training and test sets
 set.seed(123) # for reproducibility
@@ -818,6 +915,7 @@ model <- randomForest(is_good_loan ~ ., data = train_set)
 predictions <- predict(model, test_set)
 confusionMatrix(predictions, test_set$is_good_loan)
 ```
+
 ```{r}
 # Extracting variable importance
 importance_scores <- importance(model)
@@ -872,7 +970,9 @@ sorted_importance <- sort(importance_scores[, "MeanDecreaseGini"], decreasing = 
 # Printing the sorted importance scores
 print(sorted_importance)
 ```
+
 ### train on 183 days bevore loan
+
 ```{r}
 wide_183_days_before_loan <- transactions_accounts_with_loan %>%
   pivot_wider(
@@ -981,6 +1081,7 @@ predictions_new_dist <- predict(new_model_dist, test_set_new_dist)
 confusionMatrix(predictions_new_dist, test_set_new_dist$get_loan, mode = "everything", positive = "1")
 
 ```
+
 # Random Forest
 
 ## Trainings Dataframe erstellen
@@ -1011,6 +1112,7 @@ df_loan_13_month <- trans_per_month %>%
 ```
 
 Erstellen eines Dataframes für alle ohne Loan im Jahr 1997
+
 ```{r}
 df_no_loan_13_month <- trans_per_month %>%
   filter(!(account_id %in% loan$account_id)) %>%
@@ -1033,6 +1135,7 @@ df_no_loan_13_month <- trans_per_month %>%
 ```
 
 Tabellen zusammenfügen und normalisieren
+
 ```{r}
 df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
 
@@ -1049,6 +1152,7 @@ df_complete_loan_13_month$get_loan <- as.factor(df_complete_loan_13_month$get_lo
 ## Modell trainieren
 
 Random Forest erstellen
+
 ```{r}
 set.seed(123)
 splitIndex_13 <- createDataPartition(df_complete_loan_13_month$get_loan, p = .8, list = FALSE)
@@ -1137,6 +1241,7 @@ transactions_accounts_no_loan <- trans %>%
 
 glimpse(transactions_accounts_no_loan)
 ```
+
 ```{r}
 transactions_accounts_no_loan %>%
   group_by(date, predictions) %>%
@@ -1221,7 +1326,7 @@ df_grouped_metrics_no_loan_for_training <- transactions_accounts_no_loan_for_tra
   select(-start_saldo, -end_saldo) %>%
   mutate(loan = 0)
 
-glimpse(df_grouped_metrics_no_loan)
+glimpse(df_grouped_metrics_no_loan_for_training)
 ```
 
 ```{r}
@@ -1247,6 +1352,7 @@ df_grouped_metrics_with_loan <- transactions_accounts_with_loan %>%
 
 glimpse(df_grouped_metrics_with_loan)
 ```
+
 ```{r}
 df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grouped_metrics_with_loan) %>%
   mutate(loan = as.factor(loan))
@@ -1266,6 +1372,7 @@ predictions_13 <- predict(model_13, test_set_13)
 
 confusionMatrix(predictions_13, test_set_13$loan, mode = "everything", positive = "1")
 ```
+
 ```{r}
 df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
   group_by(account_id) %>%
@@ -1295,10 +1402,12 @@ df_grouped_metrics_no_loan_today$predictions <- predictions_no_loan_today
 # View the first few rows of the dataframe to see the predictions
 head(df_grouped_metrics_no_loan_today)
 ```
+
 ```{r}
 varImpPlot(model_13)
 table(predictions_no_loan_today)
 ```
+
 ```{r}
 # for training
 df_grouped_metrics_plus <- df_grouped_metrics %>%
@@ -1353,6 +1462,7 @@ df_grouped_metrics_no_loan_today_plus <- df_grouped_metrics_no_loan_today %>%
 
 glimpse(df_grouped_metrics_plus)
 ```
+
 ```{r}
 set.seed(123)
 splitIndex_13 <- createDataPartition(df_grouped_metrics_plus$loan, p = .8, list = FALSE)
@@ -1389,11 +1499,3 @@ km_res <- kmeans(df_grouped_metrics_plus, centers = 3, nstart = 525)
 fviz_cluster(km_res, data = df_grouped_metrics_plus)
 
 ```
-
-
-
-
-
-
-
-
