@@ -521,7 +521,13 @@ In diesem Plot ist gut zu sehen, das die Anzahl der Transaktionen im verlauf der
 
 # Client Analytical Records
 
+Um einheitlich mit den gleichen Daten zu arbeiten wollen wir ein konsolidiertes Dataframe erstellen. Dazu haben wir zuerst die Schnittstellen der einzelnen Datensätze visualisiert.
+
+![](Key Value Datensätze.PNG)
+
 ## ohne monatliche Saldos
+
+Um das Konsolidierte Dataframe zu erhalten haben wir zuerst alle Datensätze, welche vorhanden sind un durch einfache joins verbindbar sind zuammengefügt.
 
 ```{r}
 client_analytical_record <- accounts %>%
@@ -590,7 +596,7 @@ glimpse(client_analytical_record)
 
 ## mit monatlichen Saldos
 
-Neues Dataframe erstellen mit account ID zum Joinen und monatliche ausgaben und einnahmen einzelner accounts ende Monat erstellen.
+Bei den Transaktionen wollen wir nicht jede transaktion einzeln an das konsolidierte Dataframe anhängen, sondern wollen nur die monatlichen aktivitäten dokumentieren.
 
 ```{r}
 trans_per_month <- trans %>%
@@ -616,7 +622,7 @@ kontostand_erster_Zeitpunkt <- trans %>%
 all(unique(trans$account_id) %in% unique(kontostand_erster_Zeitpunkt$account_id))
 ```
 
-Da wir nun Wissen, dass alle Accounts mit 0 begonnen haben, können wir in der trans_per_month liste die Balances min den Weren der vorherigen Monaten berechnen.
+Da wir nun Wissen, dass alle Accounts mit 0 begonnen haben, können wir in der trans_per_month liste die Balances min den Werten der vorherigen Monaten berechnen.
 
 ```{r}
 trans_per_month <- trans_per_month %>%
@@ -647,7 +653,7 @@ trans_per_month <- trans_per_month %>%
   
 ```
 
-Trans_per_month ändern, dass jeder monat ein Attribut wird und der Accout nur eine Zeile hat.
+Trans_per_month ändern, so dass jeder monat ein Attribut wird und der Accout nur eine Zeile hat.
 
 ```{r}
 trans_per_month_new <- trans_per_month %>%
