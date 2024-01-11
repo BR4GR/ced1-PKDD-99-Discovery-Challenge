@@ -683,7 +683,7 @@ transactions_accounts_with_loan <- trans %>%
   mutate(days_before_loan = as.numeric(loan_date - date),
          weeks_before_loan = ceiling(days_before_loan / 7)
          ) %>%
-  filter(days_before_loan >= 0 & days_before_loan <= 183)
+  filter(days_before_loan >= 0 & days_before_loan <= 395)
 
 glimpse(transactions_accounts_with_loan)
 summary(transactions_accounts_with_loan)
