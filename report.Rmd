@@ -79,9 +79,9 @@ Die Daten werden nun so angepasst, das sie auf Deutsch sind und die Types entspr
 ```{r}
 #Ändern der tschechischen Namen in der Spalte frequency
 accounts <- accounts %>%
-  mutate(frequency = case_when(frequency == "POPLATEK MESICNE" ~ "Monatliche Ausgabe",
-                               frequency == "POPLATEK TYDNE" ~ "Wöchentliche Ausgabe",
-                               frequency == "POPLATEK PO OBRATU" ~ "Ausgabe nach Transaktion"))
+  mutate(frequency = case_when(frequency == "POPLATEK MESICNE" ~ "Monatliche_Ausgabe",
+                               frequency == "POPLATEK TYDNE" ~ "Wöchentliche_Ausgabe",
+                               frequency == "POPLATEK PO OBRATU" ~ "Ausgabe_nach_Transaktion"))
 ```
 
 ```{r}
@@ -267,7 +267,7 @@ Hier werden alle Spalten mit A angegeben, dies sollen aussagekräftigere Namen w
 
 ```{r}
 #Spaltennamen ändern
-colnames(district) <- c("district_id", "district_name", "region", "inhabitants", "municipalities<499", "municipalities500-1999", "municipalities2000-9999", "municipalities>10000", "cities", "urban_inhabitants", "average_salary", "unemploymant_rate_95", "unemploymant_rate_96", "enterpreneurs_per_1000", "commited_crimes_95", "commited_crimes_96")
+colnames(district) <- c("district_id", "district_name", "region", "inhabitants", "municipalities_less_than_499", "municipalities_500_to_1999", "municipalities_2000_to_9999", "municipalities_10000_plus", "cities", "urban_inhabitants", "average_salary", "unemploymant_rate_95", "unemploymant_rate_96", "enterpreneurs_per_1000", "commited_crimes_95", "commited_crimes_96")
 ```
 
 Nun sollen noch alle <chr> in andere Formate geändert werden. Die Warnung nach ausführung des Codes ist auf den District Jesenik bezogen. Dort ist in der Spalte unemploymant_rate_95 und commited_crimes_95 ein "?" eigetragen, dieser Wert wird mit NA ersetzt.
@@ -492,6 +492,7 @@ trans <- trans %>%
   mutate(type = as.factor(type),
          operation = as.factor(operation),
          k_symbol = as.factor(k_symbol),
+         bank = na_if(bank, ""),
          bank = as.factor(bank))
 
 trans <- trans %>%
@@ -525,8 +526,6 @@ Um einheitlich mit den gleichen Daten zu arbeiten wollen wir ein konsolidiertes 
 
 ![](Key Value Datensätze.PNG)
 
-## ohne monatliche Saldos
-
 Um das Konsolidierte Dataframe zu erhalten haben wir zuerst alle Datensätze, welche vorhanden sind un durch einfache joins verbindbar sind zuammengefügt.
 
 ```{r}
@@ -538,11 +537,7 @@ client_analytical_record <- accounts %>%
 
 
 client_analytical_record <- client_analytical_record %>%
-  select(-owner_type, -user_type) %>%
-  replace_na(list(
-    user_disp_id = -1, 
-    user_client_id = -1
-  ))
+  select(-owner_type, -user_type)
 
 client_analytical_record <- client_analytical_record %>%
   left_join(client, by = c("owner_client_id" = "client_id"))
@@ -564,14 +559,6 @@ client_analytical_record <- client_analytical_record %>%
     user_sex = sex
   )
 
-client_analytical_record <- client_analytical_record %>%
-  left_join(loan, by = "account_id") %>%
-  rename(
-    loan_amount = amount,
-    loan_duration = duration,
-    loan_payments = payments,
-    loan_status = status
-  )
 
 client_analytical_record <- client_analytical_record %>%
   left_join(card, by = c("owner_disp_id" = "disp_id"))%>%
@@ -581,20 +568,25 @@ client_analytical_record <- client_analytical_record %>%
 
 client_analytical_record_no_district <- client_analytical_record
 
+
 client_analytical_record <- client_analytical_record %>%
   left_join(district, by = c("owner_district_id" = "district_id"))
 
 client_analytical_record <- client_analytical_record %>%
-  select(-year.x, -year.y)
+  left_join(loan, by = "account_id") %>%
+  rename(
+    loan_amount = amount,
+    loan_duration = duration,
+    loan_payments = payments,
+    loan_status = status
+  )
 
-# Replace NA in columns starting with 'user_'
+
 client_analytical_record <- client_analytical_record %>%
-  mutate(across(starts_with("user_"), ~replace(., is.na(.), -1)))
+  select(-year.x, -year.y)
 
 glimpse(client_analytical_record)
 ```
-
-## mit monatlichen Saldos
 
 Bei den Transaktionen wollen wir nicht jede transaktion einzeln an das konsolidierte Dataframe anhängen, sondern wollen nur die monatlichen aktivitäten dokumentieren.
 
@@ -641,16 +633,10 @@ trans_per_month <- trans_per_month %>%
   mutate(ausgaben = ifelse(is.na(ausgaben), 0, ausgaben)) %>%
   group_by(account_id) %>%
   fill(kontostand_ende_monat) %>%
-  ungroup()
-
-#Vor der ersten transktion soll das konto 0 betragen
-trans_per_month <- trans_per_month %>%
-  mutate(kontostand_ende_monat = ifelse(is.na(kontostand_ende_monat), 0, kontostand_ende_monat))
-
-#ändern der Monatsanzeige
-trans_per_month <- trans_per_month %>%
-  mutate(year_month = (format(year_month, "%Y-%m")))
-  
+  ungroup() %>%
+  mutate(kontostand_ende_monat = ifelse(is.na(kontostand_ende_monat), 0, kontostand_ende_monat),
+         year_month = (format(year_month, "%Y-%m"))
+         )
 ```
 
 Trans_per_month ändern, so dass jeder monat ein Attribut wird und der Accout nur eine Zeile hat.
@@ -665,13 +651,12 @@ trans_per_month_new <- trans_per_month %>%
   ) 
 ```
 
+
+
 Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
 
 ```{r}
-client_analytical_record <- client_analytical_record %>%
-  left_join(trans_per_month_new, by = c("account_id" = "account_id"))
-
-# client_analytical_record_no_district <- client_analytical_record_no_district %>%
+# client_analytical_record <- client_analytical_record %>%
 #   left_join(trans_per_month_new, by = c("account_id" = "account_id"))
 ```
 
@@ -706,17 +691,6 @@ summary(transactions_accounts_with_loan)
 
 ```{r}
 names(transactions_accounts_with_loan)
-```
-
-```{r}
-mean_values_per_duration <- transactions_accounts_with_loan %>%
-  group_by(duration, days_before_loan) %>%
-  summarise(
-    mean_einnahmen = mean(einnahmen, na.rm = TRUE),
-    mean_ausgaben = mean(ausgaben, na.rm = TRUE),
-    mean_saldo = mean(saldo, na.rm = TRUE),
-    .groups = "drop"
-  )
 ```
 
 Kontrolle ob es ein muster in den Statusen gibt.
@@ -760,6 +734,7 @@ transactions_accounts_with_loan %>%
   ggtitle("Median des Saldos vor beginn des Kredits")
 ```
 
+
 ```{r}
 transactions_accounts_with_loan %>%
   distinct(loan_id, .keep_all = TRUE) %>%
@@ -769,324 +744,13 @@ transactions_accounts_with_loan %>%
 
 ```
 
-```{r}
-transactions_accounts_with_loan %>%
-  filter(status %in% c("running_ok", "finished_ok")) %>%
-  group_by(account_id) %>%
-  summarize(total_income = sum(einnahmen),
-            total_expenses = sum(ausgaben),
-            total_difference = total_income - total_expenses,
-            amount = first(amount)) %>%
-  ggplot(aes(x = total_difference, y = amount)) +
-  geom_point(alpha = 0.5) +
-  scale_y_continuous(labels = scales::number_format(scale = 1e+0)) +
-  labs(title = "Amount zu Differenz für Status OK")
-
-transactions_accounts_with_loan %>%
-  filter(status %in% c("running_client_in_dept", "finished_not_payed")) %>%
-  group_by(account_id) %>%
-  summarize(total_income = sum(einnahmen),
-            total_expenses = sum(ausgaben),
-            total_difference = total_income - total_expenses,
-            amount = first(amount)) %>%
-  ggplot(aes(x = total_difference, y = amount)) +
-  geom_point(alpha = 0.5) +
-  scale_y_continuous(labels = scales::number_format(scale = 1e+0)) +
-  labs(title = "Amount zu Differenz für Status not_OK und in_dept")
-```
-
-```{r}
-# Plot für alle Accounts
-transactions_accounts_with_loan %>%
-  filter(status %in% c("running_ok", "finished_ok")) %>%
-  ggplot(aes(x = days_before_loan, y = saldo, group = account_id, color = account_id)) +
-  geom_line(alpha = 0.2, size = 0.7) +
-  scale_x_reverse() +
-  scale_color_viridis_c() +
-  labs(title = "Accounts", color = "Account")
-
-# Sequenzen von Accounts
-account_sequences <- list(c(0:999), c(1000:1999), c(2000:2999), c(3000:3999), c(4000:4999))
-
-for (seq in account_sequences) {
-  print(
-    transactions_accounts_with_loan %>%
-      filter(status %in% c("running_ok", "finished_ok")) %>%
-      filter(account_id %in% seq) %>%
-      ggplot(aes(x = days_before_loan, y = saldo, group = account_id, color = as.factor(account_id))) +
-      geom_line(alpha = 0.5, size = 0.7) +
-      scale_x_reverse() +  
-      scale_color_discrete() +
-      ggtitle(paste("Accounts", min(seq), "to", max(seq))) +
-      labs(color = "Account") +
-      theme(legend.title = element_text(size = 8),
-            legend.key.size = unit(0.5, "cm"))
-  )
-}
-```
-
-```{r}
-car_one_hot <- client_analytical_record_no_district %>%
-  mutate(has_user = ifelse(!is.na(user_sex), 1, 0),
-         has_card = ifelse(!is.na(card_id), 1, 0),
-         ) %>% 
-  select(-starts_with("user_")) %>%
-  select(-year.x, -year.y, -card_issued, -loan_id, -loan_date, -card_id, -owner_client_id, -owner_disp_id) %>%
-  pivot_wider(names_from = owner_sex, values_from = owner_sex,
-              values_fill = list(owner_sex = 0),
-              values_fn = list(owner_sex = length)) %>%
-  pivot_wider(names_from = loan_status, values_from = loan_status,
-              values_fill = list(loan_status = 0),
-              values_fn = list(loan_status = length)) %>%
-  select(-'NA')  %>%
-  pivot_wider(names_from = card_type, values_from = card_type,
-              values_fill = list(card_type = 0),
-              values_fn = list(card_type = length)) %>%
-    pivot_wider(names_from = frequency_of_statements, values_from = frequency_of_statements,
-              values_fill = list(frequency_of_statements = 0),
-              values_fn = list(frequency_of_statements = length)) %>%
-  select(-'NA') %>%
-  mutate(across(starts_with("loan_"), ~ replace_na(., 0))) %>%
-  rename(
-    loan_finished_ok = finished_ok,
-    loan_finished_not_payed = finished_not_payed,
-    loan_running_in_dept = running_client_in_dept,
-    loan_running_ok = running_ok,
-    gold_card = gold,
-    junior_card = junior,
-    classic_card = classic
-  )
-
-# Identify columns that start with 'kontostand_ende'
-columns_to_normalize <- grep("^(ausgaben_|einnahmen_|kontostand_ende)", names(car_one_hot), value = TRUE)
-
-# Apply Z-Score Normalization
-for(col in columns_to_normalize) {
-    car_one_hot[[col]] <- scale(car_one_hot[[col]])
-}
-
-# 
-car_one_hot$account_age <- as.numeric(difftime(Sys.Date(), car_one_hot$opening_date, units = "days"))
-car_one_hot$normalized_account_age <- scale(car_one_hot$account_age)
-
-car_one_hot$owner_age <- as.numeric(difftime(Sys.Date(), car_one_hot$owner_birthday, units = "days"))
-car_one_hot$normalized_owner_age <- scale(car_one_hot$owner_age)
-
-
-car_one_hot <- car_one_hot %>%
-  select(-account_age, -opening_date, -owner_birthday, -owner_age)
-
-names(car_one_hot) <- gsub("-", "_", names(car_one_hot))
-names(car_one_hot) <- gsub(" ", "_", names(car_one_hot))
-
-summarise(car_one_hot)
-```
-
-```{r}
-# create is_good_loan and make it a factor
-one_hot_loans <- car_one_hot %>%
-  filter(account_id %in% accounts_with_loan) %>%
-  mutate(is_good_loan = ifelse(loan_finished_ok == 1 | loan_running_ok == 1, 1, 0)) %>%
-  select(-loan_finished_ok, -loan_running_ok, -loan_finished_not_payed, -loan_running_in_dept) %>%
-  mutate(is_good_loan = as.factor(is_good_loan))
-
-accounts_is_good_loan <- one_hot_loans %>%
-  filter(is_good_loan == 1) %>%
-  select(account_id)
-
-one_hot_no_loan <- car_one_hot %>%
-  filter(!account_id %in% accounts_with_loan) %>%
-  select(-loan_finished_ok, -loan_running_ok, -loan_finished_not_payed, -loan_running_in_dept)
-
-```
-
-```{r}
-# names(train_set)
-
-
-```
-
-```{r}
-# Splitting the data into training and test sets
-set.seed(123) # for reproducibility
-split <- createDataPartition(one_hot_loans$is_good_loan, p = .8, list = FALSE)
-train_set <- one_hot_loans[split,]
-test_set <- one_hot_loans[-split,]
-
-
-# Training the model
-model <- randomForest(is_good_loan ~ ., data = train_set)
-
-# Evaluating the model on the test set
-predictions <- predict(model, test_set)
-confusionMatrix(predictions, test_set$is_good_loan)
-```
-
-```{r}
-# Extracting variable importance
-importance_scores <- importance(model)
-# Sorting the importance scores in descending order
-sorted_importance <- sort(importance_scores[, "MeanDecreaseGini"], decreasing = TRUE)
-# Printing the sorted importance scores
-head(sorted_importance, 10)
-```
-
-```{r}
-# Configure Cross-Validation
-# Setting up 10-fold cross-validation
-train_control <- trainControl(method = "cv", number = 10)
-
-# Train the model with cross-validation
-model_cv <- train(is_good_loan ~ ., data = train_set, method = "rf", trControl = train_control)
-
-# Print the results
-print(model_cv)
-
-# Detailed performance metrics
-confusionMatrix(model_cv)
-```
-
-```{r}
-# Getting column names that start with specified prefixes
-transaction_cols <- grep("^(einnahmen_|ausgaben_|kontostand_)", names(one_hot_loans), value = TRUE)
-loan_cols <- grep("^(loan_)", names(one_hot_loans), value = TRUE)
-
-# Selecting columns that don't start with the specified prefixes
-selected_cols <- setdiff(names(one_hot_loans), c(transaction_cols, loan_cols, "account_id"))
-
-# Creating a new dataframe with only the selected columns
-train_data_subset <- one_hot_loans[selected_cols]
-
-split <- createDataPartition(train_data_subset$is_good_loan, p = .8, list = FALSE)
-train_set <- train_data_subset[split,]
-test_set <- train_data_subset[-split,]
-
-
-# Training the model
-model <- randomForest(is_good_loan ~ ., data = train_set)
-
-# Evaluating the model on the test set
-predictions <- predict(model, test_set)
-confusionMatrix(predictions, test_set$is_good_loan)
-
-# Extracting variable importance
-importance_scores <- importance(model)
-# Sorting the importance scores in descending order
-sorted_importance <- sort(importance_scores[, "MeanDecreaseGini"], decreasing = TRUE)
-# Printing the sorted importance scores
-print(sorted_importance)
-```
-
-### train on 183 days bevore loan
-
-```{r}
-wide_183_days_before_loan <- transactions_accounts_with_loan %>%
-  pivot_wider(
-    id_cols = account_id,
-    names_from = days_before_loan,
-    values_from = c(einnahmen, ausgaben, saldo),
-    names_glue = "{.value}_{183 - days_before_loan}_dbf"
-  )
-
-#NAs durch 0 ersetzen. Bei den NAs handelt es sich um Werte vor beginn der Datenaufzeichnung es sind also keine Transaktionen möglich gewesen bei den NAs.
-wide_183_days_before_loan <- wide_183_days_before_loan %>%
-  mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
-# accounts_is_good_loan
-wide_183_days_before_loan <- wide_183_days_before_loan %>% 
-  mutate(good_for_loan = ifelse(account_id %in% accounts_is_good_loan$account_id, 1, 0),
-         good_for_loan = as.factor(good_for_loan))
-
-# Selecting balance columns (excluding account_id)
-balance_cols <- setdiff(names(wide_183_days_before_loan), c("account_id", "good_for_loan"))
-
-# Applying Z-score normalization
-wide_183_days_before_loan[balance_cols] <- scale(wide_183_days_before_loan[balance_cols])
-
-# Setting up the train-test split
-set.seed(123) # For reproducibility
-splitIndex <- createDataPartition(wide_183_days_before_loan$good_for_loan, p = .8, list = FALSE)
-train_set <- wide_183_days_before_loan[splitIndex, ]
-test_set <- wide_183_days_before_loan[-splitIndex, ]
-
-# Training a Random Forest model
-model <- randomForest(good_for_loan ~ ., data = train_set, method = "rf")
-
-# Predictions
-predictions <- predict(model, test_set)
-
-# Evaluation
-confusionMatrix(predictions, test_set$good_for_loan)
-
-```
 
 ```{r}
 colSums(is.na(transactions_accounts_with_loan)) %>%
   sort(decreasing = TRUE)
 ```
 
-```{r}
-#Dataframe für training random Forest erstellen bis ende 1997
 
-CAR_random_forest <- client_analytical_record_no_district %>%
-  filter(!loan_status %in% c("finished_not_payed", "running_client_in dept") | is.na(loan_status)) %>%
-  filter(loan_date < "1998-01-01" | is.na(loan_date)) %>%
-  select(-user_disp_id, -user_client_id, -user_district_id, -user_sex, 
-         -loan_id, -loan_date, -loan_amount, -loan_duration, -loan_payments, -loan_status, 
-         -card_id, -card_issued, 
-         -contains("1998"), -year.x, -year.y, -user_birthday) %>%
-  mutate(get_loan = as.factor(ifelse(account_id %in% loan$account_id | is.na(account_id), 1, 0))) %>%
-  mutate(card_type = as.factor(coalesce(card_type, "noCard")))
-
-# Ersetze <, >, =, - durch Unterstrich im gesamten Dataframe
-colnames(CAR_random_forest) <- gsub("[<>=-]", "_", colnames(CAR_random_forest))
-
-```
-
-```{r}
-set.seed(123)
-splitIndex_new <- createDataPartition(CAR_random_forest$get_loan, p = .8, list = FALSE)
-train_set_new <- CAR_random_forest[splitIndex_new, ]
-test_set_new <- CAR_random_forest[-splitIndex_new, ]
-
-new_model <- randomForest(get_loan ~ . - get_loan, data = train_set_new, method = "rf")
-
-predictions_new <- predict(new_model, test_set_new)
-
-confusionMatrix(predictions_new, test_set_new$get_loan, mode = "everything", positive = "1")
-
-```
-
-```{r}
-#Dataframe für training random Forest erstellen bis ende 1997
-
-CAR_random_forest_with_dist <- client_analytical_record %>%
-  filter(!loan_status %in% c("finished_not_payed", "running_client_in dept") | is.na(loan_status)) %>%
-  filter(loan_date < "1998-01-01" | is.na(loan_date)) %>%
-  select(-user_disp_id, -user_client_id, -user_district_id, -user_sex, 
-         -loan_id, -loan_date, -loan_amount, -loan_duration, -loan_payments, -loan_status, 
-         -card_id, -card_issued, -user_birthday, -district_name, -unemploymant_rate_95,
-         -commited_crimes_95, -crimes_per_1000_1995) %>%
-  select(-matches("1998"), -contains("1998"), everything()) %>%
-  mutate(get_loan = as.factor(ifelse(account_id %in% loan$account_id | is.na(account_id), 1, 0))) %>%
-  mutate(card_type = as.factor(coalesce(card_type, "noCard")))
-
-# Ersetze <, >, =, - durch Unterstrich im gesamten Dataframe
-colnames(CAR_random_forest_with_dist) <- gsub("[<>=-]", "_", colnames(CAR_random_forest_with_dist))
-```
-
-```{r}
-set.seed(123)
-splitIndex_new_dist <- createDataPartition(CAR_random_forest_with_dist$get_loan, p = .8, list = FALSE)
-train_set_new_dist <- CAR_random_forest_with_dist[splitIndex_new_dist, ]
-test_set_new_dist <- CAR_random_forest_with_dist[-splitIndex_new_dist, ]
-
-new_model_dist <- randomForest(get_loan ~ ., data = train_set_new_dist, method = "rf")
-
-predictions_new_dist <- predict(new_model_dist, test_set_new_dist)
-
-confusionMatrix(predictions_new_dist, test_set_new_dist$get_loan, mode = "everything", positive = "1")
-
-```
 
 # Random Forest
 
@@ -1193,94 +857,8 @@ df_no_loan_today <- trans_per_month %>%
     names_from = months_before_loan,
     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
     names_sort = TRUE)
-
-# Selecting balance columns (excluding account_id)
-# balance_cols_df_no_loan_today <- setdiff(names(df_no_loan_today), "account_id")
-
-# Applying Z-score normalization
-# df_no_loan_today[balance_cols_df_no_loan_today] <- scale(df_no_loan_today[balance_cols_df_no_loan_today])
 ```
 
-```{r}
-# Predict using the Random Forest model on the new data
-predictions_no_loan_today <- predict(model_13, df_no_loan_today)
-
-# If you need to add these predictions as a new column to your df_no_loan_today dataframe:
-df_no_loan_today$predictions <- predictions_no_loan_today
-
-# View the first few rows of the dataframe to see the predictions
-head(df_no_loan_today)
-
-```
-
-```{r}
-# count predictions
-table(predictions_no_loan_today)
-varImpPlot(model_13)
-```
-
-```{r}
-ids_predicted_yes <- df_no_loan_today %>%
-  filter(predictions == 1) %>%
-  select(account_id)
-
-ids_predicted_no <- df_no_loan_today %>%
-  filter(predictions == 0) %>%
-  select(account_id)
-
-transactions_accounts_no_loan <- trans %>%
-  filter(account_id %in% df_no_loan_today$account_id) %>%
-  filter(date >= as.Date("1998-01-01")) %>%
-  group_by(account_id, date) %>%
-  summarise(
-    einnahmen = sum(amount[type == "credit"]),
-    ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
-    ) %>%
-  complete(date = seq.Date(min(date), max(date), by = "day"), account_id, fill = list(einnahmen = 0, ausgaben = 0)) %>%
-  group_by(account_id) %>%
-  arrange(date) %>%
-  mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
-  fill(saldo, .direction = "downup") %>%
-  ungroup() %>%
-  mutate(predictions = ifelse(account_id %in% ids_predicted_yes$account_id, 1, 0),
-         predictions = as.factor(predictions))
-
-glimpse(transactions_accounts_no_loan)
-```
-
-```{r}
-transactions_accounts_no_loan %>%
-  group_by(date, predictions) %>%
-  summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
-  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = predictions)) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = predictions)) +
-  ggtitle("Mittelwert des Saldos im letzten Jahr vor Kreditvergabe")
-
-transactions_accounts_no_loan %>%
-  group_by(date, predictions) %>%
-  summarize(gemitteltes_saldo = median(saldo), .groups = "drop") %>%
-  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = predictions)) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = predictions)) +
-  ggtitle("Mittelwert des Saldos im letzten Jahr vor Kreditvergabe")
-
-transactions_accounts_no_loan %>%
-  group_by(date, predictions) %>%
-  summarize(gemitteltes_saldo = mean(einnahmen), .groups = "drop") %>%
-  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = predictions)) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = predictions)) +
-  ggtitle("Mittelwert der Einnahmen im letzten Jahr vor Kreditvergabe")
-
-transactions_accounts_no_loan %>%
-  group_by(date, predictions) %>%
-  summarize(gemitteltes_saldo = mean(ausgaben), .groups = "drop") %>%
-  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = predictions)) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = predictions)) +
-  ggtitle("Mittelwert der Ausgaben im letzten Jahr vor Kreditvergabe")
-```
 
 ## Versuch
 
@@ -1296,8 +874,8 @@ glimpse(client_analytical_record_no_district)
 
 ```{r}
 transactions_accounts_no_loan_for_training <- trans %>%
-  filter(account_id %in% df_no_loan_today$account_id) %>%
-  filter(date >= as.Date("1997-01-01") & date <= as.Date("1998-01-01")) %>%
+  filter(!(account_id %in% loan$account_id)) %>%
+  filter(date >= as.Date("1996-12-01") & date <= as.Date("1998-01-01")) %>%
   group_by(account_id, date) %>%
   summarise(
     einnahmen = sum(amount[type == "credit"]),
@@ -1360,11 +938,33 @@ glimpse(df_grouped_metrics_with_loan)
 ```
 
 ```{r}
-df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grouped_metrics_with_loan) %>%
-  mutate(loan = as.factor(loan))
+df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grouped_metrics_with_loan)%>%
+  mutate(loan = as.factor(loan)) %>%
+  left_join(client_analytical_record, by = "account_id") %>%
+  select(-contains("loan_"), -unemploymant_rate_95, -crimes_per_1000_1995, -commited_crimes_95, -district_name) %>%
+  mutate(
+    has_user = ifelse(is.na(user_birthday), 0, 1),
+    owner_age = 1999 - year(owner_birthday),
+    opening_year = year(opening_date),
+    card_type = addNA(card_type),  # Add NA as a level if it's not already
+    card_type = fct_expand(card_type, "NoCard"),  # Add "NoCard" as a level
+    card_type = fct_recode(card_type, "NoCard" = NA_character_)
+    ) %>%
+  pivot_wider(names_from = owner_sex, values_from = owner_sex,
+              values_fill = list(owner_sex = 0),
+              values_fn = list(owner_sex = length)) %>%
+  pivot_wider(names_from = frequency_of_statements, values_from = frequency_of_statements,
+              values_fill = list(frequency_of_statements = 0),
+              values_fn = list(frequency_of_statements = length)) %>%
+  
+  pivot_wider(names_from = card_type, values_from = card_type,
+              values_fill = list(card_type = 0),
+              values_fn = list(card_type = length)) %>%
+  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -user_district_id, -user_sex, -card_issued, -opening_date)
 
 glimpse(df_grouped_metrics)
 ```
+
 
 ```{r}
 set.seed(123)
@@ -1376,8 +976,26 @@ model_13 <- randomForest(loan ~ . - account_id, data = train_set_13, method = "r
 
 predictions_13 <- predict(model_13, test_set_13)
 
-confusionMatrix(predictions_13, test_set_13$loan, mode = "everything", positive = "1")
+conf_matrix <- confusionMatrix(predictions_13, test_set_13$loan, positive = "1")
+
+printSelectedMetrics <- function(conf_matrix) {
+  accuracy <- conf_matrix$overall["Accuracy"]
+  kappa <- conf_matrix$overall["Kappa"]
+  f1_score <- conf_matrix$byClass["F1"]
+  cat("Accuracy:", accuracy, "\n")
+  cat("Kappa:", kappa, "\n")
+  cat("F1 Score:", f1_score, "\n")
+}
+
 ```
+Wir haben uns bei der Auswertung der Konfusionsmatrix auf der Kennzahlen beschränkt.
+Der Accuracy, welche die True Positive sowie negative zusammenzählt und dann durch die anzahl der Beobachtungen teil,
+Der F1-Score welcher besser geeignet um auch bei unverteilten Daten eine präzise Angabe zu treffen,
+Und dem Kappa, dieser Wert gibt an, wie gross der unterschied vom Model im vergleich zu einer zufälligen Auswertung aussieht.
+```{r}
+printSelectedMetrics(conf_matrix)
+```
+
 
 ```{r}
 df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
@@ -1397,7 +1015,29 @@ df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
     max_drawdown = min(diff(saldo)),
     .groups = "drop"
   ) %>%
-  select(-start_saldo, -end_saldo) 
+  select(-start_saldo, -end_saldo)  %>%
+  left_join(client_analytical_record, by = "account_id") %>%
+  select(-contains("loan_"), -unemploymant_rate_95, -crimes_per_1000_1995, -commited_crimes_95, -district_name) %>%
+  mutate(
+    has_user = ifelse(is.na(user_birthday), 0, 1),
+    owner_age = 1999 - year(owner_birthday),
+    opening_year = year(opening_date),
+    card_type = addNA(card_type),  # Add NA as a level if it's not already
+    card_type = fct_expand(card_type, "NoCard"),  # Add "NoCard" as a level
+    card_type = fct_recode(card_type, "NoCard" = NA_character_)
+    ) %>%
+  pivot_wider(names_from = owner_sex, values_from = owner_sex,
+              values_fill = list(owner_sex = 0),
+              values_fn = list(owner_sex = length)) %>%
+  pivot_wider(names_from = frequency_of_statements, values_from = frequency_of_statements,
+              values_fill = list(frequency_of_statements = 0),
+              values_fn = list(frequency_of_statements = length)) %>%
+  
+  pivot_wider(names_from = card_type, values_from = card_type,
+              values_fill = list(card_type = 0),
+              values_fn = list(card_type = length)) %>%
+  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -user_district_id, -user_sex, -card_issued, -opening_date)
+
 
 # Predict using the Random Forest model on the new data
 predictions_no_loan_today <- predict(model_13, df_grouped_metrics_no_loan_today)
@@ -1406,102 +1046,124 @@ predictions_no_loan_today <- predict(model_13, df_grouped_metrics_no_loan_today)
 df_grouped_metrics_no_loan_today$predictions <- predictions_no_loan_today
 
 # View the first few rows of the dataframe to see the predictions
-head(df_grouped_metrics_no_loan_today)
+head(df_grouped_metrics_no_loan_today %>% filter(predictions == 1))
 ```
 
 ```{r}
-varImpPlot(model_13)
-table(predictions_no_loan_today)
+getTopNVarImportance <- function(model, n) {
+  # Extract variable importance
+  var_importance <- importance(model)
+
+  # Convert to data frame and sort by MeanDecreaseGini
+  top_vars <- as.data.frame(var_importance) %>%
+    rownames_to_column(var = "variable") %>%
+    arrange(desc(MeanDecreaseGini)) %>%
+    head(n)
+
+  # Print the top n variables
+  print(top_vars)
+}
+
+getTopNVarImportance(model_13, 11)
 ```
 
+
 ```{r}
-# for training
-df_grouped_metrics_plus <- df_grouped_metrics %>%
-  left_join(client_analytical_record_no_district, by = "account_id") %>%
-  mutate(
-    has_user = ifelse(is.na(user_birthday), 0, 1),
-    owner_age = 1999 - year.x,
-    opening_year = year(opening_date),
-    card_type = addNA(card_type),  # Add NA as a level if it's not already
-    card_type = fct_expand(card_type, "NoCard"),  # Add "NoCard" as a level
-    card_type = fct_recode(card_type, "NoCard" = NA_character_)
-    # unfactorize loan 
-    # loan = ifelse(loan == "1", 1, 0),
+ids_predicted_yes <- df_grouped_metrics_no_loan_today %>%
+  filter(predictions == 1) %>%
+  select(account_id)
+
+ids_predicted_no <- df_grouped_metrics_no_loan_today %>%
+  filter(predictions == 0) %>%
+  select(account_id)
+
+
+transactions_accounts_no_loan <- trans %>%
+  filter(account_id %in% df_grouped_metrics_no_loan_today$account_id) %>%
+  filter(date >= as.Date("1998-01-01")) %>%
+  group_by(account_id, date) %>%
+  summarise(
+    einnahmen = sum(amount[type == "credit"]),
+    ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
     ) %>%
-  pivot_wider(names_from = owner_sex, values_from = owner_sex,
-              values_fill = list(owner_sex = 0),
-              values_fn = list(owner_sex = length)) %>%
-  # pivot_wider(names_from = frequency_of_statements, values_from = frequency_of_statements,
-  #             values_fill = list(frequency_of_statements = 0),
-  #             values_fn = list(frequency_of_statements = length)) %>%
-  
-  pivot_wider(names_from = card_type, values_from = card_type,
-              values_fill = list(card_type = 0),
-              values_fn = list(card_type = length)) %>%
-  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -year.x, -year.y, -user_district_id, -user_sex, -card_issued, -opening_date)
+  complete(date = seq.Date(min(date), max(date), by = "day"), account_id, fill = list(einnahmen = 0, ausgaben = 0)) %>%
+  group_by(account_id) %>%
+  arrange(date) %>%
+  mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
+  fill(saldo, .direction = "downup") %>%
+  ungroup() %>%
+  mutate(predictions = ifelse(account_id %in% ids_predicted_yes$account_id, 1, 0),
+         predictions = as.factor(predictions))
 
-# for prediction
-df_grouped_metrics_no_loan_today_plus <- df_grouped_metrics_no_loan_today %>%
-  left_join(client_analytical_record_no_district, by = "account_id") %>%
-  mutate(
-    has_user = ifelse(is.na(user_birthday), 0, 1),
-    owner_age = 1999 - year.x,
-    opening_year = year(opening_date),
-    card_type = addNA(card_type),  # Add NA as a level if it's not already
-    card_type = fct_expand(card_type, "NoCard"),  # Add "NoCard" as a level
-    card_type = fct_recode(card_type, "NoCard" = NA_character_)
-    # unfactorize loan 
-    # loan = ifelse(loan == "1", 1, 0),
-    ) %>%
-  pivot_wider(names_from = owner_sex, values_from = owner_sex,
-              values_fill = list(owner_sex = 0),
-              values_fn = list(owner_sex = length)) %>%
-  # pivot_wider(names_from = frequency_of_statements, values_from = frequency_of_statements,
-  #             values_fill = list(frequency_of_statements = 0),
-  #             values_fn = list(frequency_of_statements = length)) %>%
-  
-  pivot_wider(names_from = card_type, values_from = card_type,
-              values_fill = list(card_type = 0),
-              values_fn = list(card_type = length)) %>%
-  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -year.x, -year.y, -user_district_id, -user_sex, -card_issued, -opening_date)
-
-
-glimpse(df_grouped_metrics_plus)
+glimpse(transactions_accounts_no_loan)
 ```
 
 ```{r}
-set.seed(123)
-splitIndex_13 <- createDataPartition(df_grouped_metrics_plus$loan, p = .8, list = FALSE)
-train_set_13 <- df_grouped_metrics_plus[splitIndex_13, ]
-test_set_13 <- df_grouped_metrics_plus[-splitIndex_13, ]
+transactions_accounts_no_loan %>%
+  group_by(date, predictions) %>%
+  summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
+  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
+  scale_color_manual(values = c("orangered", "deepskyblue"), 
+                     labels = c("Nein", "Ja"),
+                     name = "Kreditkandidaten") +
+  scale_fill_manual(values = c("orangered", "deepskyblue"), 
+                    labels = c("Nein", "Ja"),
+                    name = "Kreditkandidaten") +
+  labs(title = "Durchschnittlicher Kontostand im letzten Jahr",
+       x = "Datum",
+       y = "Kontostand") +
+  theme_minimal()
 
-model_13 <- randomForest(loan ~ . - account_id, data = train_set_13, method = "rf")
+transactions_accounts_no_loan %>%
+  group_by(date, predictions) %>%
+  summarize(gemitteltes_saldo = median(saldo), .groups = "drop") %>%
+  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
+  scale_color_manual(values = c("orangered", "deepskyblue"), 
+                     labels = c("Nein", "Ja"),
+                     name = "Kreditkandidaten") +
+  scale_fill_manual(values = c("orangered", "deepskyblue"), 
+                    labels = c("Nein", "Ja"),
+                    name = "Kreditkandidaten") +
+  labs(title = "Median des Kontostandes im letzten Jahr",
+       x = "Datum",
+       y = "Kontostand") +
+  theme_minimal()
 
-predictions_13 <- predict(model_13, test_set_13)
+transactions_accounts_no_loan %>%
+  group_by(date, predictions) %>%
+  summarize(gemitteltes_saldo = mean(einnahmen), .groups = "drop") %>%
+  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
+  scale_color_manual(values = c("orangered", "deepskyblue"), 
+                     labels = c("Nein", "Ja"),
+                     name = "Kreditkandidaten") +
+  scale_fill_manual(values = c("orangered", "deepskyblue"), 
+                    labels = c("Nein", "Ja"),
+                    name = "Kreditkandidaten") +
+  labs(title = "Durchschnitliche Einnahmen im letzten Jahr",
+       x = "Datum",
+       y = "Kontostand") +
+  theme_minimal()
 
-confusionMatrix(predictions_13, test_set_13$loan, mode = "everything", positive = "1")
-
-# Predict using the Random Forest model on the new data
-predictions_no_loan_today <- predict(model_13, df_grouped_metrics_no_loan_today_plus)
-
-# If you need to add these predictions as a new column to your df_grouped_metrics_no_loan_today_plus dataframe:
-df_grouped_metrics_no_loan_today_plus$predictions <- predictions_no_loan_today
-
-# View the first few rows of the dataframe to see the predictions
-head(df_grouped_metrics_no_loan_today_plus)
-varImpPlot(model_13)
-```
-
-```{r}
-
-# You might want to scale/normalize your data before clustering
-# df_grouped_metrics_plus <- scale(df_grouped_metrics_plus)
-
-# Perform k-means clustering
-set.seed(123) # Setting a seed for reproducibility
-km_res <- kmeans(df_grouped_metrics_plus, centers = 3, nstart = 525)
-
-# Visualize the clusters
-fviz_cluster(km_res, data = df_grouped_metrics_plus)
-
+transactions_accounts_no_loan %>%
+  group_by(date, predictions) %>%
+  summarize(gemitteltes_saldo = mean(ausgaben), .groups = "drop") %>%
+  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
+  scale_color_manual(values = c("orangered", "deepskyblue"), 
+                     labels = c("Nein", "Ja"),
+                     name = "Kreditkandidaten") +
+  scale_fill_manual(values = c("orangered", "deepskyblue"), 
+                    labels = c("Nein", "Ja"),
+                    name = "Kreditkandidaten") +
+  labs(title = "Durchschnitliche Ausgaben im letzten Jahr",
+       x = "Datum",
+       y = "Kontostand") +
+  theme_minimal()
 ```
