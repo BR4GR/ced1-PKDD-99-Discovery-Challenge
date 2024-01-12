@@ -683,7 +683,7 @@ transactions_accounts_with_loan <- trans %>%
   mutate(days_before_loan = as.numeric(loan_date - date),
          weeks_before_loan = ceiling(days_before_loan / 7)
          ) %>%
-  filter(days_before_loan >= 0 & days_before_loan <= 395)
+  filter(days_before_loan >= 0 & days_before_loan <= 182)
 
 glimpse(transactions_accounts_with_loan)
 summary(transactions_accounts_with_loan)
@@ -875,7 +875,7 @@ glimpse(client_analytical_record_no_district)
 ```{r}
 transactions_accounts_no_loan_for_training <- trans %>%
   filter(!(account_id %in% loan$account_id)) %>%
-  filter(date >= as.Date("1996-12-01") & date <= as.Date("1998-01-01")) %>%
+  filter(date >= as.Date("1998-01-01") & date < as.Date("1998-07-01")) %>%
   group_by(account_id, date) %>%
   summarise(
     einnahmen = sum(amount[type == "credit"]),
@@ -887,8 +887,6 @@ transactions_accounts_no_loan_for_training <- trans %>%
   mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
   fill(saldo, .direction = "downup") %>%
   ungroup()
-  # mutate(predictions = ifelse(account_id %in% ids_predicted_yes$account_id, 1, 0),
-  #        predictions = as.factor(predictions))
 
 df_grouped_metrics_no_loan_for_training <- transactions_accounts_no_loan_for_training %>%
   group_by(account_id) %>%
@@ -995,12 +993,28 @@ Und dem Kappa, dieser Wert gibt an, wie gross der unterschied vom Model im vergl
 ```{r}
 printSelectedMetrics(conf_matrix)
 ```
+```{r}
+getTopNVarImportance <- function(model, n) {
+  # Extract variable importance
+  var_importance <- importance(model)
 
+  # Convert to data frame and sort by MeanDecreaseGini
+  top_vars <- as.data.frame(var_importance) %>%
+    rownames_to_column(var = "variable") %>%
+    arrange(desc(MeanDecreaseGini)) %>%
+    head(n)
+
+  # Print the top n variables
+  print(top_vars)
+}
+
+getTopNVarImportance(model_13, 11)
+```
 
 ```{r}
 transactions_accounts_no_loan <- trans %>%
   filter(account_id %in% df_grouped_metrics_no_loan_today$account_id) %>%
-  filter(date >= as.Date("1998-01-01")) %>%
+  filter(date >= as.Date("1998-07-01")) %>%
   group_by(account_id, date) %>%
   summarise(
     einnahmen = sum(amount[type == "credit"]),
@@ -1056,32 +1070,31 @@ df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
 
 
 # Predict using the Random Forest model on the new data
-predictions_no_loan_today <- predict(model_13, df_grouped_metrics_no_loan_today)
+predictions_no_loan_today <- predict(model_13, df_grouped_metrics_no_loan_today, type = "prob")
 
 # If you need to add these predictions as a new column to your df_grouped_metrics_no_loan_today dataframe:
-df_grouped_metrics_no_loan_today$predictions <- predictions_no_loan_today
+df_grouped_metrics_no_loan_today$predictions <- ifelse(predicted_probabilities[, "1"] > 0.5, 1, 0)
+# Add the predicted probabilities as new columns to your dataframe
+df_grouped_metrics_no_loan_today$prob_0 <- predicted_probabilities[, "0"]
+df_grouped_metrics_no_loan_today$prob_1 <- predicted_probabilities[, "1"]
 
 # View the first few rows of the dataframe to see the predictions
 head(df_grouped_metrics_no_loan_today %>% filter(predictions == 1))
 ```
 
 ```{r}
-getTopNVarImportance <- function(model, n) {
-  # Extract variable importance
-  var_importance <- importance(model)
+# Sort the dataframe by the predicted probabilities for class 1 in descending order
+df_sorted_by_prob <- df_grouped_metrics_no_loan_today %>%
+  arrange(desc(prob_1)) %>%
+  select(account_id, prob_1)
 
-  # Convert to data frame and sort by MeanDecreaseGini
-  top_vars <- as.data.frame(var_importance) %>%
-    rownames_to_column(var = "variable") %>%
-    arrange(desc(MeanDecreaseGini)) %>%
-    head(n)
+# Select the top n results
+top_n_results <- head(df_sorted_by_prob, 10)
 
-  # Print the top n variables
-  print(top_vars)
-}
-
-getTopNVarImportance(model_13, 11)
+# View the top n results
+print(top_n_results)
 ```
+
 
 
 ```{r}
@@ -1096,7 +1109,7 @@ ids_predicted_no <- df_grouped_metrics_no_loan_today %>%
 
 transactions_accounts_no_loan <- trans %>%
   filter(account_id %in% df_grouped_metrics_no_loan_today$account_id) %>%
-  filter(date >= as.Date("1997-12-01")) %>%
+  filter(date >= as.Date("1998-07-01")) %>%
   group_by(account_id, date) %>%
   summarise(
     einnahmen = sum(amount[type == "credit"]),
