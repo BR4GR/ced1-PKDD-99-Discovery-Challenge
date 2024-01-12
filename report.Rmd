@@ -43,7 +43,7 @@ Der analytische Auftrag besteht darin:
 
 Die Daten stammen laut der Aufgabenstellung von einer Tschechischen Bank und sind unter <https://sorry.vse.cz/~berka/challenge/PAST/index.html> downloadbar.
 
-Die Daten enthalten 8 unterschiedliche csv Dateien welche weiter unten im Bericht noch genauer erklärt werden.
+Die Daten enthalten 8 unterschiedliche csv Dateien, welche weiter unten im Bericht noch genauer erklärt werden.
 
 # Imports
 
@@ -89,7 +89,7 @@ accounts <- accounts %>%
          district_id_account = district_id)
 ```
 
-Die Daten wurden so angepasst, das sie auf Deutsch sind und die Types entsprechend geändert werden.
+Die Daten wurden so angepasst, dass sie auf Deutsch sind und die Types entsprechend geändert werden.
 
 Man sieht bei frequency die drei Ausgabedaten, zudem ist das Datum nun auch als Datum erfasst.
 
@@ -100,13 +100,13 @@ sum(is.na(accounts))
 length(unique(accounts$account_id)) == nrow(accounts)
 ```
 
-Aus dem account Datensatz können wir nun sehen, woher unsere Accounts geographisch stammen dazu machen wir einen Barplot.
+Aus dem account Datensatz können wir nun sehen, woher unsere Accounts geographisch stammen dazu machen wir einen Bar Plot.
 
 ```{r}
 barplot(table(accounts$district_id), main = "Distribution of Accounts by District", xlab = "District ID", ylab = "Number of Accounts")
 ```
 
-Wir sehen das im deutlich mehr Accounts im District mit der ID 1 angesiedelt sind als ein allen anderen Districts. Dies ist auch nicht sonderlich überraschend, da es sich bei diesem District um Prag, der grössten Stadt im Land handelt.
+Wir sehen das im deutlich mehr Accounts im Distrikt mit der ID 1 angesiedelt sind als ein allen anderen Distrikts. Dies ist auch nicht sonderlich überraschend, da es sich bei diesem Distrikt um Prag, der grössten Stadt im Land handelt.
 
 Aus dem Datensatz kann man zudem einsehen, wann welche Accounts eröffnet wurden.
 
@@ -119,7 +119,7 @@ ggplot(accounts, aes(x = opening_date, fill = as.factor(year(opening_date)))) +
 
 ```
 
-Es fällt auf, das gerade zu Beginn im ersten Jahr viele Accounts eröffnet wurden (rot eingefärbt), im Anschluss wurden zwei Jahre lang weniger Accounts eröffnet (blau und grün eingefärbt) und ab 1996 wurden es wieder mehr eröffnungen (violet und orange eingefärbt).
+Es fällt auf, das gerade zu Beginn im ersten Jahr viele Accounts eröffnet wurden (rot eingefärbt), im Anschluss wurden zwei Jahre lang weniger Accounts eröffnet (blau und grün eingefärbt) und ab 1996 wurden es wieder mehr Eröffnungen (violett und orange eingefärbt).
 
 ## card Datensatz
 
@@ -129,7 +129,7 @@ Im card Datensatz befinden sich Informationen zu Kreditkarten. Wann diese ausges
 card <- read.csv("data/card.csv", sep=";")
 ```
 
-Wir werden die Types angepasst und nschliessend wird die Spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
+Wir werden die Types angepasst und anschliessend wird die Spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
 
 ```{r}
 #Type in Faktor umwandeln
@@ -150,9 +150,9 @@ length(unique(card$card_id)) == nrow(card)
 
 ## client Datensatz
 
-Der Datensatz client enthält Informationen über jeden Client, also eine ID, ein Geburtsdatum und den Standort. Wichtig ist auch zu wissen, dass der Client nicht gleich dem Account ist, es gibt accounts, welche von mehreren Personen genutzt werden.
+Der Datensatz client enthält Informationen über jeden Client, also eine ID, ein Geburtsdatum und den Standort. Wichtig ist auch zu wissen, dass der Client nicht gleich dem Account ist, es gibt Accounts, welche von mehreren Personen genutzt werden.
 
-Bei diesem Datensatz ist zudem wichtig, dass in der birth_number zudem das Geschlecht gespeichert ist. Bei Frauen wurde die angabe des Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen. Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen und die Geburtsdaten dann bereinigt in der birth number wiedergeben.
+Bei diesem Datensatz ist zudem wichtig, dass in der birth_number zudem das Geschlecht gespeichert ist. Bei Frauen wurde die Angabe des Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen. Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen und die Geburtsdaten dann bereinigt in der birth number wiedergeben.
 
 ```{r}
 client <- read.csv("data/client.csv", sep=";")
@@ -211,7 +211,7 @@ Wir sehen, dass die Verteilung der Männer und Frauen in allen Altersklassen seh
 ## disp Datensatz
 
 Im disp Datensatz ist die Verknüpfung der Kunden mit den Accounts und ihre jeweilige Funktion dargestellt.
-Hier müssen wir nur den type von <chr> in <fct> ändern und anschliessend kontrollieren.
+Hier müssen wir nur den type von character in factor ändern und anschliessend kontrollieren.
 
 ```{r}
 disp <- read.csv("data/disp.csv", sep=";")
@@ -229,11 +229,11 @@ length(unique(disp$disp_id)) == nrow(disp)
 
 ## district Datensatz
 
-Der district Datensatz enthält viele Informationen über jeden District.
+Der district Datensatz enthält viele Informationen über jeden Distrikt.
 
 Hier werden alle Spalten mit A angegeben, dies sollen aussagekräftigere Namen ersetzt werden.
 
-Danach sollen noch alle <chr> in andere Formate geändert werden. Die Warnung nach ausführung des Codes ist auf den District Jesenik bezogen. Dort ist in der Spalte unemploymant_rate_95 und commited_crimes_95 ein "?" eigetragen, dieser Wert wird mit NA ersetzt.
+Danach sollen noch alle character in andere Formate geändert werden. Die Warnung nach Ausführung des Codes ist auf den Distrikt Jesenik bezogen. Dort ist in der Spalte unemploymant_rate_95 und commited_crimes_95 ein "?" eigetragen, dieser Wert wird mit NA ersetzt.
 
 ```{r warning=FALSE}
 district <- read.csv("data/district.csv", sep=";")
@@ -258,7 +258,7 @@ sum(is.na(district))
 length(unique(district$A1)) == nrow(district)
 ```
 
-Wir haben uns bei der analyse der Daten gefragt, ob es einen Zusammenhang zwischen der arbeitslosenquote und der Anzahl der begangenen Verbrechen gibt.
+Wir haben uns bei der Analyse der Daten gefragt, ob es einen Zusammenhang zwischen der Arbeitslosenquote und der Anzahl der begangenen Verbrechen gibt.
 
 ```{r warning=FALSE}
 district <- district %>%
@@ -289,7 +289,7 @@ Bei der Betrachtung der beiden Plots fällt auf, dass es keinen merklichen Ansti
 ## loan Datensatz
 
 Der loan Datensatz ist für uns einer der Interessantesten Datensätze. In ihm sind sämtliche vergebenen Kredite abgelegt.
-Hier muss nur dem status einen besseren namen gegeben werden und in einen Faktor umgewandelt werden.
+Hier muss nur dem Status einen besseren Namen gegeben werden und in einen Faktor umgewandelt werden.
 
 ```{r}
 loan <- read.csv("data/loan.csv", sep=";")
@@ -319,7 +319,7 @@ sum(is.na(loan))
 length(unique(loan$loan_id)) == nrow(loan)
 ```
 
-Wir wollen nun anschauen welche höhe von Krediten von der Bank vergeben wurde.
+Wir wollen nun anschauen welche Höhe von Krediten von der Bank vergeben wurde.
 
 ```{r}
 ggplot(loan, aes(x = amount)) +
@@ -328,9 +328,9 @@ ggplot(loan, aes(x = amount)) +
   ggtitle("Betrag der vergebenen Kredite")
 ```
 
-Dabei fällt auf, dass es sich vorallem um kleinere Kredite handelt. Es gibt aber vereinzelt grössere Kredite.
+Dabei fällt auf, dass es sich vor allem um kleinere Kredite handelt. Es gibt aber vereinzelt grössere Kredite.
 
-Gibt es Accounts, welche zwei mal einen Loan bekommen haben?
+Gibt es Accounts, welche zwei Mal einen Kredit bekommen haben?
 
 ```{r}
 n = sum(duplicated(loan$account_id))
@@ -354,7 +354,7 @@ ggplot(loan, aes(x = duration, y = after_stat(count), fill = as.factor(duration)
 
 Der Order Datensatz hat Informationen über monatlich fixe Transaktionen.
 
-Hier sollen die beiden <chr> in <fct> geändert werden. Auch sollen die Werte in k_symbol verständlich werden.
+Hier sollen die beiden character in factor geändert werden. Auch sollen die Werte in k_symbol verständlich werden.
 
 ```{r}
 order <- read.csv("data/order.csv", sep=";")
@@ -386,7 +386,7 @@ length(unique(order$order_id)) == nrow(order)
 
 Der trans Datensatz ist der Grösste Datensatz, in ihm sind sämtliche Transaktionen enthalten.
 
-Hier ändern wir die Namen, formatieren date in ein Datum und machen umwandlungen in Faktoren. Bei der spalte type werden in der Datenbeschreibung nur "PRIJEM" und "VYDAJ" beschrieben zudem kommt aber auch noch "VYBER" vor, dieser wird aber ansonsten als "withdrawal in cash" beschrieben, deshalb übernehmen wir dies auch hier.
+Hier ändern wir die Namen, formatieren date in ein Datum und machen Umwandlungen in Faktoren. Bei der spalte type werden in der Datenbeschreibung nur "PRIJEM" und "VYDAJ" beschrieben zudem kommt aber auch noch "VYBER" vor, dieser wird aber ansonsten als "withdrawal in cash" beschrieben, deshalb übernehmen wir dies auch hier.
 ```{r}
 trans <- read.csv("data/trans.csv", sep=";")
 
@@ -454,7 +454,7 @@ ggplot(trans, aes(x = date, fill = as.factor(year(date)))) +
        y = "Anzahl der Transaktionen")
 ```
 
-In diesem Plot ist gut zu sehen, das die Anzahl der Transaktionen pro Monat im Verlauf der Jahre deutlich zugenommen hat.
+In diesem Plot ist gut zu sehen, dass die Anzahl der Transaktionen pro Monat im Verlauf der Jahre deutlich zugenommen hat.
 
 # Client Analytical Records
 
@@ -462,7 +462,7 @@ Um einheitlich mit den gleichen Daten zu arbeiten wollen wir ein konsolidiertes 
 
 ![](Key%20Value%20Datensätze.PNG)
 
-Um das Konsolidierte Dataframe zu erhalten haben wir zuerst alle Datensätze, welche vorhanden sind un durch einfache joins verbindbar sind zuammengefügt.
+Um das Konsolidierte Dataframe zu erhalten haben wir zuerst alle Datensätze, welche vorhanden sind und durch einfache joins verbindbar sind zusammengefügt.
 
 ```{r}
 client_analytical_record <- accounts %>%
@@ -523,7 +523,7 @@ client_analytical_record <- client_analytical_record %>%
 # glimpse(client_analytical_record)
 ```
 
-Bei den Transaktionen wollen wir nicht jede Transaktion einzeln an das konsolidierte Dataframe anhängen, sondern wollen nur die monatlichen Aktivitäten dokumentieren. Dazu erstellen wir ein Dataframe das die Einnahmen und Ausgaben pro Monat und Account zusammenfasst.
+Bei den Transaktionen wollen wir nicht jede Transaktion einzeln an das konsolidierte Dataframe anhängen, sondern wollen nur die monatlichen Aktivitäten dokumentieren. Dazu erstellen wir ein Dataframe, dass die Einnahmen und Ausgaben pro Monat und Account zusammenfasst.
 
 ```{r}
 trans_per_month <- trans %>%
@@ -535,7 +535,7 @@ trans_per_month <- trans %>%
     )
 ```
 
-Es soll nun noch eine Spalte erstellt werden, um zu schauen, wieviel die verschiedenen Accounts jeweils am ende des Monats haben. Da wir die Vermutung haben dass alle zu beginn mit 0 auf dem Konto gestartet haben überprüfen wir dies im ersten Schritt kurz.
+Es soll nun noch eine Spalte erstellt werden, um zu schauen, wieviel die verschiedenen Accounts jeweils am Ende des Monats haben. Da wir die Vermutung haben, dass alle zu Beginn mit 0 auf dem Konto gestartet haben überprüfen wir dies im ersten Schritt kurz.
 
 ```{r}
 #Dataframe erstellen um zu überprüfen, bei welchen accounts der amount und die balance nach der Transaktion gleich sind beim erst möglichen Datum.
@@ -574,7 +574,7 @@ trans_per_month <- trans_per_month %>%
          )
 ```
 
-Trans_per_month ändern, so dass jeder monat ein Attribut wird und der Accout nur eine Zeile hat.
+Trans_per_month ändern, so dass jeder Monat ein Attribut wird und der Account nur eine Zeile hat.
 
 ```{r}
 trans_per_month_new <- trans_per_month %>%
@@ -595,8 +595,8 @@ Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
 
 ## Transaktionen für Accounts mit Kredit für 6 Monate vor Kreditaufname
 
-Als nächstes ersellen wir ein Dataframe, welches die Transaktionen für alle Accounts mit Kredit für die 6 Monate vor Kreditaufnahme enthält.
-Mit diesem Können wir dan das Verhalten der Kunden vor der Kreditaufnahme analysieren.
+Als nächstes erstellen wir ein Dataframe, welches die Transaktionen für alle Accounts mit Kredit für die 6 Monate vor Kreditaufnahme enthält.
+Mit diesem Können wir dann das Verhalten der Kunden vor der Kreditaufnahme analysieren.
 
 ```{r}
 accounts_with_loan <- loan$account_id
@@ -686,7 +686,7 @@ transactions_accounts_with_loan %>%
 
 ## Trainings Dataframe erstellen
 
-Für das Training des Random Forests erstellen wir ein Dataframe, welches die Kennwerte wie Durchschnittlicher Kontostand, Einnahmen Ausgaben, Die Standartabweichungen der Einnahmen, Ausgabenund Kontostand, das Wachstum des Kontostandes der letzten 6 monate vor Kreditbegin für kunden mir Kredit und für die ersten 6 Monate des letzten Jahres für Kunden ohne Kredit enthält.
+Für das Training des Random Forests erstellen wir ein Dataframe, welches die Kennwerte wie Durchschnittlicher Kontostand, Einnahmen Ausgaben, Die Standartabweichungen der Einnahmen, Ausgaben und Kontostand, das Wachstum des Kontostandes der letzten 6 Monate vor Kreditbeginn für Kunden mir Kredit und für die ersten 6 Monate des letzten Jahres für Kunden ohne Kredit enthält.
 Zusätzlich fügen wir noch die Daten des erstellten Client analytical Record an.
 
 ```{r}
@@ -781,7 +781,7 @@ glimpse(df_grouped_metrics)
 ```
 ## Training und Auswertung des Models
 
-Mit dem erstellten Dataframe tranieren wir ein Random forest Model. Dafür splitten wir die daten und verwenden 80% für das Training und 20% für das Testen. Die Metriken Accuracy, Kappa und F1 werden ausgegeben.
+Mit dem erstellten Dataframe trainieren wir ein Random forest Model. Dafür splitten wir die daten und verwenden 80% für das Training und 20% für das Testen. Die Metriken Accuracy, Kappa und F1 werden ausgegeben.
 
 ```{r}
 set.seed(123)
@@ -806,13 +806,13 @@ printSelectedMetrics <- function(conf_matrix) {
 
 ```
 
-Wir haben uns bei der Auswertung der Konfusionsmatrix auf der Kennzahlen beschränkt. Der Accuracy, welche die True Positive sowie negative zusammenzählt und dann durch die anzahl der Beobachtungen teil, Der F1-Score welcher besser geeignet um auch bei unverteilten Daten eine präzise Angabe zu treffen, Und dem Kappa, dieser Wert gibt an, wie gross der unterschied vom Model im vergleich zu einer zufälligen Auswertung aussieht.
+Wir haben uns bei der Auswertung der Konfusionsmatrix auf folgende Kennzahlen beschränkt. Der Accuracy, welche die True Positive sowie negative zusammenzählt und dann durch die anzahl der Beobachtungen teil, Der F1-Score welcher besser geeignet, um auch bei unverteilten Daten eine präzise Angabe zu treffen, Und dem Kappa, dieser Wert gibt an, wie gross der unterschied vom Model im Vergleich zu einer zufälligen Auswertung aussieht.
 
 ```{r}
 printSelectedMetrics(conf_matrix)
 ```
-Anschliesend haben wir die wichtigsten Variablen des Models ausgegeben. Diese sind nach der MeanDecreaseGini sortiert. Dieser Wert gibt an, wie stark die Varibale die Gini Impurity reduziert. Je höher der Wert desto wichtiger ist die Variable für das Model.
-Wir sehen das die Wichtigsten Variablen mit den erstellten Kennwerten des Verhaltens zu tun haben, die Variablen der Kreditkaren districte und der Geschlechter sind nicht so wichtig.
+Anschliessend haben wir die wichtigsten Variablen des Models ausgegeben. Diese sind nach der MeanDecreaseGini sortiert. Dieser Wert gibt an, wie stark die Variable die Gini Impurity reduziert. Je höher der Wert desto wichtiger ist die Variable für das Model.
+Wir sehen das die Wichtigsten Variablen mit den erstellten Kennwerten des Verhaltens zu tun haben, die Variablen der Kreditkarten Distrikte und der Geschlechter sind nicht so wichtig.
 ```{r}
 getTopNVarImportance <- function(model, n) {
   # Extract variable importance
@@ -832,7 +832,7 @@ getTopNVarImportance(model_13, 11)
 ```
 ## Erstellen des Dataframs für die Predictions
 
-Nach dem gleichen Schema wie bei dem Dataframe für das Training erstellen wir eines für die Predictions, mit dem Unterschied das wir für die daten nur Acounts ohne Kredit und das verhalten der letzten 6 Monate verwenden. Somit können wir das aktuelle Verhalten der Kunden vergleichen.
+Nach dem gleichen Schema wie bei dem Dataframe für das Training erstellen wir eines für die Predictions, mit dem Unterschied das wir für die daten nur Accounts ohne Kredit und das Verhalten der letzten 6 Monate verwenden. Somit können wir das aktuelle Verhalten der Kunden vergleichen.
 
 
 ```{r}
@@ -897,7 +897,7 @@ df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
 
 ## Rechnen der Predictions
 
-Nun können wir die Predictions für die Kunden ohne Kredit erstellen. zusätzlich sortieren wir sie auch nach der Warscheinlichkeit das der Kunde einen Kredit aufnimmt. Somit können wir auch eine bestimmte Anzahl Kunden mit der höchsten Warscheinlichkeit für ein Angebot auswählen.
+Nun können wir die Predictions für die Kunden ohne Kredit erstellen. zusätzlich sortieren wir sie auch nach der Wahrscheinlichkeit das der Kunde einen Kredit aufnimmt. Somit können wir auch eine bestimmte Anzahl Kunden mit der höchsten Wahrscheinlichkeit für ein Angebot auswählen.
 
 ```{r}
 # Predict using the Random Forest model on the new data
@@ -923,8 +923,8 @@ print(top_n_results)
 ```
 ## Visuelle Darstellung der Predictions
 
-Um das Visuel darzustellen haben wir uns entschieden das Verhalten Der Kunden über die letzten 6 Monate zu vergleichen.
-Wir vergleichen dazu die Kunden die bereits einen Kredit hatten mit denen die gute oder schlechte Kandidaten sind.
+Um das Visuell darzustellen haben wir uns entschieden das Verhalten Der Kunden über die letzten 6 Monate zu vergleichen.
+Wir vergleichen dazu die Kunden, die bereits einen Kredit hatten mit denen die gute oder schlechte Kandidaten sind.
 in diesen Plots ist zu sehen das die Kunden die gute Kandidaten sind sich gegen Ende sehr ähnlich verhalten wie die Kunden die bereits einen Kredit haben und auch ihre Raten zahlen. 
 
 ```{r}
