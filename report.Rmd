@@ -775,7 +775,7 @@ df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grou
   pivot_wider(names_from = card_type, values_from = card_type,
               values_fill = list(card_type = 0),
               values_fn = list(card_type = length)) %>%
-  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -user_district_id, -user_sex, -card_issued, -opening_date)
+  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -user_district_id, -user_sex, -card_issued, -opening_date, -owner_disp_id)
 
 glimpse(df_grouped_metrics)
 ```
@@ -812,7 +812,7 @@ Wir haben uns bei der Auswertung der Konfusionsmatrix auf der Kennzahlen beschr�
 printSelectedMetrics(conf_matrix)
 ```
 Anschliesend haben wir die wichtigsten Variablen des Models ausgegeben. Diese sind nach der MeanDecreaseGini sortiert. Dieser Wert gibt an, wie stark die Varibale die Gini Impurity reduziert. Je höher der Wert desto wichtiger ist die Variable für das Model.
-Wir sehen das die Wichtigsten Variablen mit den erstellten Kennwerten des Verhaltens zu tun haben, und auch der District eine wichtige Rolle spielt.
+Wir sehen das die Wichtigsten Variablen mit den erstellten Kennwerten des Verhaltens zu tun haben, die Variablen der Kreditkaren districte und der Geschlechter sind nicht so wichtig.
 ```{r}
 getTopNVarImportance <- function(model, n) {
   # Extract variable importance
@@ -832,7 +832,7 @@ getTopNVarImportance(model_13, 11)
 ```
 ## Erstellen des Dataframs für die Predictions
 
-Nach dem gleichen Schema wie bei dem Dataframe für das Training erstellen wir eines für die Predictions, mit dem Unterschied das wir für die daten nur accounts ohne Kredit und ds verhalten der letzten 6 Monate verwenden. Somit können wir das aktuelle Verhalten der Kunden vergleichen.
+Nach dem gleichen Schema wie bei dem Dataframe für das Training erstellen wir eines für die Predictions, mit dem Unterschied das wir für die daten nur Acounts ohne Kredit und das verhalten der letzten 6 Monate verwenden. Somit können wir das aktuelle Verhalten der Kunden vergleichen.
 
 
 ```{r}
@@ -890,7 +890,7 @@ df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
   pivot_wider(names_from = card_type, values_from = card_type,
               values_fill = list(card_type = 0),
               values_fn = list(card_type = length)) %>%
-  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -user_district_id, -user_sex, -card_issued, -opening_date)
+  select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -user_district_id, -user_sex, -card_issued, -opening_date, -owner_disp_id)
 
 
 ```
@@ -923,10 +923,9 @@ print(top_n_results)
 ```
 ## Visuelle Darstellung der Predictions
 
-### Verhalten der Kunden über zeit
 Um das Visuel darzustellen haben wir uns entschieden das Verhalten Der Kunden über die letzten 6 Monate zu vergleichen.
-Wir vergleichen dazu die Kunden die bereits einen kredit hatten mit denen die gute oder schlechte Kandidaten sind.
-in diesen plots ist zu sehen das die Kunden die gute Kandidaten sind sich gegen Ende sehr ähnlich verhalten wie die Kunden die bereits einen Kredit haben und auch ihre Raten zahlen. 
+Wir vergleichen dazu die Kunden die bereits einen Kredit hatten mit denen die gute oder schlechte Kandidaten sind.
+in diesen Plots ist zu sehen das die Kunden die gute Kandidaten sind sich gegen Ende sehr ähnlich verhalten wie die Kunden die bereits einen Kredit haben und auch ihre Raten zahlen. 
 
 ```{r}
 ids_predicted_yes <- df_grouped_metrics_no_loan_today %>%
@@ -1038,73 +1037,12 @@ plot_df %>%
   scale_x_reverse() +
   theme_minimal()
 ```
-### Kredite pro District
-
-```{r}
-#  dataframe with loan running ok and finished ok from client_analytical_record
-
-loan_and_districts <- loan %>% 
-  left_join(accounts, by = "account_id") %>%
-  left_join(district, by = c("district_id_account" = "district_id")) %>%
-  mutate(loan_ok = ifelse(status %in% c('finished_ok', 'running_ok'), 1, 0)) %>%
-  group_by(district_id_account) %>%
-  summarize(
-    total_loans = sum(loan_ok),
-    avg_inhabitants = mean(inhabitants),
-    
-    .groups = "drop"
-  ) %>%
-  mutate(loans_per_1000_inhabitants = (total_loans / avg_inhabitants) * 1000) %>%
-  select(district_id_account, loans_per_1000_inhabitants, total_loans)
-
-loans_predicted_yes_per_district <- df_grouped_metrics_no_loan_today %>%
-  group_by(district_id_account) %>%
-  summarize(
-    total_loans_predicted_yes = sum(predictions == 1, na.rm = TRUE),
-    avg_inhabitants = mean(inhabitants),
-    .groups = "drop"
-  ) %>%
-    left_join(district, by = c("district_id_account" = "district_id")) %>%
-  mutate(
-    loans_per_1000_inhabitants_predicted = (total_loans_predicted_yes / inhabitants) * 1000
-  ) %>%
-  select(district_id_account, loans_per_1000_inhabitants_predicted, total_loans_predicted_yes)
-
-# Merging the two dataframes
-combined_loans_df <- loan_and_districts %>%
-  rename(loans_per_1000_inhabitants_actual = loans_per_1000_inhabitants) %>%
-  inner_join(loans_predicted_yes_per_district, by = "district_id_account", suffix = c("_actual", "_predicted")) 
-
-# Creating the plot
-ggplot(combined_loans_df, aes(x = district_id_account)) +
-  geom_bar(aes(y = loans_per_1000_inhabitants_actual, fill = "Actual"), stat = "identity", position = "dodge") +
-  geom_bar(aes(y = loans_per_1000_inhabitants_predicted, fill = "Predicted"), stat = "identity", position = "dodge") +
-  labs(title = "Loans per 1000 Inhabitants: Actual vs Predicted",
-       x = "District ID",
-       y = "Loans per 1000 Inhabitants") +
-  scale_fill_manual(values = c("Actual" = "blue", "Predicted" = "red"),
-                    name = "Type",
-                    labels = c("Actual", "Predicted")) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-
-ggplot(combined_loans_df, aes(x = district_id_account)) +
-  geom_bar(aes(y = total_loans), stat = "identity", fill = "blue") +
-  geom_bar(aes(y = total_loans_predicted_yes), stat = "identity", fill = "red") +
-  labs(title = "Actual vs Predicted Total Loans per District",
-       x = "District ID",
-       y = "Total Loans") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
-
 
 
 # Fazid
 
 ## Ergebnis 
-Wir haben gesehen, dass unser Model sehr zuverlässig Kandidaten für einen Kredit auswählen kann, dabei ist vor allem der Saldo für das Model äusserst wichtig, zudem spielt auch die Region einen wesentlichen Faktor. Was auch auffallend ist, ist dass die Einnahmen, Ausgaben und der Saldo deutlich höher sind für die Kunden welche einen Kredit bekommen, im Vergleich zu denen welche keinen bekommen. Die Anzahl der Ausgabe, wer für einen Kredit interessant wäre ist nicht sonderlich hoch, dafür sollten durch die hohe Genauigkeit des Models auch nur ein Kunde, welcher an einem Kredit interessiert ist. Wir haben uns beim Model auf eine Zeitdauer von sechs Monaten beschränkt. Wir haben das Model zuerst mit 13 Monaten laufen lassen, das Problem dabei war, dass die Kunden, welche bereits einen Kredit genommen haben zum Teil erst seit kurzem überhaupt ein Konto besitzen und Geld auf dieses einzahlen, so war der Median 13 Monate im Voraus zum Teil kurz vor Null. Nach der Anpassung auf sechs Monate hat sich auch die Genauigkeit unseres Models noch einmal gesteigert.
+Wir haben gesehen, dass unser Model sehr zuverlässig Kandidaten für einen Kredit auswählen kann, dabei ist vor allem der Saldo für das Model äusserst wichtig. Was auch auffallend ist, ist dass die Einnahmen, Ausgaben und der Saldo deutlich höher sind für die Kunden welche einen Kredit bekommen, im Vergleich zu denen welche keinen bekommen. Die Anzahl der Ausgabe, wer für einen Kredit interessant wäre ist nicht sonderlich hoch, dafür sollten durch die hohe Genauigkeit des Models auch nur ein Kunde, welcher an einem Kredit interessiert ist. Wir haben uns beim Model auf eine Zeitdauer von sechs Monaten beschränkt. Wir haben das Model zuerst mit 13 Monaten laufen lassen, das Problem dabei war, dass die Kunden, welche bereits einen Kredit genommen haben zum Teil erst seit kurzem überhaupt ein Konto besitzen und Geld auf dieses einzahlen, so war der Median 13 Monate im Voraus zum Teil kurz vor Null. Nach der Anpassung auf sechs Monate hat sich auch die Genauigkeit unseres Models noch einmal gesteigert.
 
 ## Reflexion 
 Wir haben viel gelernt während dieser Challenge, angefangen bei vielen kleinen Aufgaben eine richtige Syntax in R zu erstellen, dabei haben wir auch die Hilfe von ChatGPT benötigt, dabei war es gerade bei kleinen Problemen, wie beim Optimieren von Plots oft hilfreich. Grössere Probleme wie das Generieren von ganzen Codeblocks war wiederum oft mühsamer, unpräzise und es brauchte viel Zeit zum Überarbeiten im Nachhinein. Zudem haben wir gelernt, dass es für eine zukünftige Aufgabe auch sinnvoll ist, auch während dem Projekt das Notebook etwas aufzuräumen denn gerade beim Abschluss unserer Arbeit haben wir noch einmal viel Zeit für das Aufräumen und Korrigieren des Notebooks aufgewendet. Abschliessend können wir sagen, dass wir in diesem Projekt trotzdem wir manchmal sehr genervt waren, wenn etwas nicht funktioniert hat, wofür man einige Zeit aufgewendet hat, viel Neues, Nützliches und Interessantes gelernt haben.
