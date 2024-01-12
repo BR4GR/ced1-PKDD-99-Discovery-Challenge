@@ -343,7 +343,7 @@ ggplot(loan, aes(x = duration, y = after_stat(count), fill = as.factor(duration)
   labs(
     title = "Verteilung der Kreditlaufzeiten",
     subtitle = "nach Anzahl und Dauer der Kredite",
-    x = "Laufzeit (in Monaten/Jahren)",
+    x = "Laufzeit in Monaten",
     y = "Anzahl der Kredite",
     fill = "Dauer"
   )
@@ -354,13 +354,11 @@ ggplot(loan, aes(x = duration, y = after_stat(count), fill = as.factor(duration)
 
 Der Order Datensatz hat Informationen über monatlich fixe Transaktionen.
 
-```{r}
-order <- read.csv("data/order.csv", sep=";")
-```
-
 Hier sollen die beiden <chr> in <fct> geändert werden. Auch sollen die Werte in k_symbol verständlich werden.
 
 ```{r}
+order <- read.csv("data/order.csv", sep=";")
+
 #K_symbol Werte verständlich machen
 order <- order %>%
   mutate(k_symbol = case_when(k_symbol == "POJISTNE" ~ "insurrance payment",
@@ -388,13 +386,10 @@ length(unique(order$order_id)) == nrow(order)
 
 Der trans Datensatz ist der Grösste Datensatz, in ihm sind sämtliche Transaktionen enthalten.
 
+Hier ändern wir die Namen, formatieren date in ein Datum und machen umwandlungen in Faktoren. Bei der spalte type werden in der Datenbeschreibung nur "PRIJEM" und "VYDAJ" beschrieben zudem kommt aber auch noch "VYBER" vor, dieser wird aber ansonsten als "withdrawal in cash" beschrieben, deshalb übernehmen wir dies auch hier.
 ```{r}
 trans <- read.csv("data/trans.csv", sep=";")
-```
 
-Ändern der Tschechischen Namen, date in Datum formatieren und umwandlungen in Faktoren. Bei der spalte type werden in der Datenbeschreibung nur "PRIJEM" und "VYDAJ" beschrieben zudem kommt aber auch noch "VYBER" vor, dieser wird aber ansonsten als "withdrawal in cash" beschrieben, deshalb übernehmen wir dies auch hier.
-
-```{r}
 # Type Werte verständlich machen
 trans <- trans %>%
   mutate(type = case_when(type == "PRIJEM" ~ "credit",
@@ -454,10 +449,12 @@ ggplot(trans, aes(x = date, fill = as.factor(year(date)))) +
   geom_histogram(binwidth = 30) +
   ggtitle("Anzahl Transaktionen pro Monat") +
   scale_fill_brewer(palette = "Set1") +
-  labs(fill = "Jahr")
+  labs(fill = "Jahr",
+       x = "Zeit",
+       y = "Anzahl der Transaktionen")
 ```
 
-In diesem Plot ist gut zu sehen, das die Anzahl der Transaktionen im verlauf der Jahre deutlich zugenommen hat.
+In diesem Plot ist gut zu sehen, das die Anzahl der Transaktionen pro Monat im Verlauf der Jahre deutlich zugenommen hat.
 
 # Client Analytical Records
 
@@ -520,14 +517,13 @@ client_analytical_record <- client_analytical_record %>%
     loan_status = status
   )
 
-
 client_analytical_record <- client_analytical_record %>%
   select(-year.x, -year.y)
 
-glimpse(client_analytical_record)
+# glimpse(client_analytical_record)
 ```
 
-Bei den Transaktionen wollen wir nicht jede Transaktion einzeln an das konsolidierte Dataframe anhängen, sondern wollen nur die monatlichen Aktivitäten dokumentieren.
+Bei den Transaktionen wollen wir nicht jede Transaktion einzeln an das konsolidierte Dataframe anhängen, sondern wollen nur die monatlichen Aktivitäten dokumentieren. Dazu erstellen wir ein Dataframe das die Einnahmen und Ausgaben pro Monat und Account zusammenfasst.
 
 ```{r}
 trans_per_month <- trans %>%
@@ -599,6 +595,9 @@ Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
 
 ## Transaktionen für Accounts mit Kredit für 6 Monate vor Kreditaufname
 
+Als nächstes ersellen wir ein Dataframe, welches die Transaktionen für alle Accounts mit Kredit für die 6 Monate vor Kreditaufnahme enthält.
+Mit diesem Können wir dan das Verhalten der Kunden vor der Kreditaufnahme analysieren.
+
 ```{r}
 accounts_with_loan <- loan$account_id
 loan_dates <- loan$loan_date
@@ -622,24 +621,12 @@ transactions_accounts_with_loan <- trans %>%
          ) %>%
   filter(days_before_loan >= 0 & days_before_loan <= 182)
 
-glimpse(transactions_accounts_with_loan)
-summary(transactions_accounts_with_loan)
+# glimpse(transactions_accounts_with_loan)
+# summary(transactions_accounts_with_loan)
 ```
 
-```{r}
-names(transactions_accounts_with_loan)
-```
 
 ```{r}
-transactions_accounts_with_loan %>%
-  group_by(days_before_loan, status) %>%
-  summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
-  ggplot(aes(x = days_before_loan, y = gemitteltes_saldo, group = status, color = status)) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = status)) +
-  scale_x_reverse() +
-  ggtitle("Mittelwert des Saldos vor beginn des Kredits")
-
 transactions_accounts_with_loan %>%
   group_by(days_before_loan, status) %>%
   summarize(median_saldo = median(saldo), .groups = "drop") %>%
@@ -647,22 +634,53 @@ transactions_accounts_with_loan %>%
   geom_line() +
   geom_smooth(method = "loess", se = TRUE, aes(fill = status)) +
   scale_x_reverse() +
-  ggtitle("Median des Saldos vor beginn des Kredits")
+  scale_color_brewer(
+    palette = "Pastel1",
+    labels = c("Abgeschlossen mit Schulden", "Abbezahlt", "Laufend mit Schulden", "Laufend und OK"),
+    name = "Status"
+  ) +
+  scale_fill_brewer(
+    palette = "Pastel1",
+    labels = c("Abgeschlossen mit Schulden", "Abbezahlt", "Laufend mit Schulden", "Laufend und OK"),
+    name = "Status"
+  ) +
+  labs(
+    title = "Verlauf des Kontostandes 6 Monate vor Kreditbeginn",
+    subtitle = "Grupiert nach Kreditstatus",
+    x = "Tage vor Kreditbeginn",
+    y = "Median des Saldos",
+    color = "Kreditstatus",
+    fill = "Kreditstatus"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")  # Adjust legend position if needed
+
+
 ```
+Wir sehen einen deutlichen Unterschied zwischen den Kunden, die den Kredit abbezahlt haben und denen, die den Kredit nicht abbezahlt haben. Die Kunden, die den Kredit abbezahlt haben oder einen laufenden Kredit ohne Schulden, haben einen deutlich höheren Saldo als die Kunden, die den Kredit nicht abbezahlt haben. Dies könnte darauf hindeuten, dass die Kunden, die den Kredit nicht abbezahlt haben, bereits vor der Kreditaufnahme finanzielle Probleme hatten.
 
 ```{r}
 transactions_accounts_with_loan %>%
   distinct(loan_id, .keep_all = TRUE) %>%
   ggplot(aes(x = as.factor(duration), fill = factor(status, levels = c("running_client_in_dept", "finished_not_payed", "running_ok", "finished_ok")))) +
   geom_bar() +
-  labs(title = "Dauer des Loans zu Status", fill = "Status", x ="Dauer in Monaten")
+  scale_fill_brewer(
+    palette = "Pastel1",
+    labels = c("Laufend mit Schulden", "Nicht bezahlt", "Laufend OK", "Abbezahlt"),
+    name = "Kreditstatus"
+  ) +
+  labs(
+    title = "Verteilung der Kreditlaufzeiten nach Status",
+    subtitle = "Anzahl der Kredite gruppiert nach Laufzeit und aktuellem Status",
+    x = "Laufzeit in Monaten",
+    y = "Anzahl der Kredite",
+    fill = "Kreditstatus"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(hjust = 1)) # X-Achsenbeschriftungen bei Bedarf drehen
 
 ```
 
-```{r}
-colSums(is.na(transactions_accounts_with_loan)) %>%
-  sort(decreasing = TRUE)
-```
 
 # Random Forest
 
@@ -670,89 +688,83 @@ colSums(is.na(transactions_accounts_with_loan)) %>%
 
 Erstellen eines Dataframes für alle mit Loan 6 Monate vor Beginn des Loans. Wir haben uns bei unserer Challenge für den Kredit entschieden, da wir uns zwischen den Kreditkarten und den Krediten entscheiden mussten und in unseren Augen eine Kreditvergabe lukrativer ist, als eine Kreditkarte. Dabei muss man aber beachten das unser Model eine hohe Genauigkeit aufweisen muss, nicht das wir ein unnötiges Risiko für die Bank erschaffen.
 
-```{r}
-df_loan_13_month <- trans_per_month %>%
-  filter(account_id %in% loan$account_id) %>%
-  left_join(loan, by = "account_id") %>%
-  mutate(loan_date = floor_date(loan_date, unit = "month")) %>%
-  mutate(year_month = ym(year_month)) %>%
-  mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
-  mutate(months_before_loan = (year_month)-(loan_date)) %>%
-  filter(status %in% c("finished_ok", "running_ok")) %>%
-  
-  mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
-  filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
-  
-  pivot_wider(
-    id_cols = account_id,
-    names_from = months_before_loan,
-    values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
-    names_sort = TRUE) %>%
-  mutate(get_loan = 1) %>%
-  #NAs sind für Zeiten vor der Aufzeichnung der Daten und daher 0
-  mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
-```
+# ```{r}
+# df_loan_13_month <- trans_per_month %>%
+#   filter(account_id %in% loan$account_id) %>%
+#   left_join(loan, by = "account_id") %>%
+#   mutate(loan_date = floor_date(loan_date, unit = "month")) %>%
+#   mutate(year_month = ym(year_month)) %>%
+#   mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
+#   mutate(months_before_loan = (year_month)-(loan_date)) %>%
+#   filter(status %in% c("finished_ok", "running_ok")) %>%
+#   
+#   mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
+#   filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
+#   
+#   pivot_wider(
+#     id_cols = account_id,
+#     names_from = months_before_loan,
+#     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
+#     names_sort = TRUE) %>%
+#   mutate(get_loan = 1) %>%
+#   #NAs sind für Zeiten vor der Aufzeichnung der Daten und daher 0
+#   mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
+# ```
 
 Erstellen eines Dataframes für alle ohne Loan im Jahr 1997
 
-```{r}
-df_no_loan_13_month <- trans_per_month %>%
-  filter(!(account_id %in% loan$account_id)) %>%
-  mutate(loan_date = "1997-11") %>%
-  mutate(loan_date = ym(loan_date)) %>%
-  mutate(year_month = ym(year_month)) %>%
-  mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
-  mutate(months_before_loan = (year_month)-(loan_date)) %>%
+# ```{r}
+# df_no_loan_13_month <- trans_per_month %>%
+#   filter(!(account_id %in% loan$account_id)) %>%
+#   mutate(loan_date = "1997-11") %>%
+#   mutate(loan_date = ym(loan_date)) %>%
+#   mutate(year_month = ym(year_month)) %>%
+#   mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
+#   mutate(months_before_loan = (year_month)-(loan_date)) %>%
+# 
+#   mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
+#   filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
+#   
+#   pivot_wider(
+#     id_cols = account_id,
+#     names_from = months_before_loan,
+#     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
+#     names_sort = TRUE) %>%
+#   mutate(get_loan = 0)
+# 
+# ```
 
-  mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
-  filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
-  
-  pivot_wider(
-    id_cols = account_id,
-    names_from = months_before_loan,
-    values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
-    names_sort = TRUE) %>%
-  mutate(get_loan = 0)
+Tabellen zusammenfügen
 
-```
-
-Tabellen zusammenfügen und normalisieren
-
-```{r}
-df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
-
-# Selecting balance columns (excluding account_id)
-# balance_cols_13 <- setdiff(names(df_complete_loan_13_month), c("account_id", "get_loan"))
-
-# Applying Z-score normalization
-# df_complete_loan_13_month[balance_cols_13] <- scale(df_complete_loan_13_month[balance_cols_13])
-
-df_complete_loan_13_month$get_loan <- as.factor(df_complete_loan_13_month$get_loan)
-
-```
+# ```{r}
+# df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
+# 
+# df_complete_loan_13_month$get_loan <- as.factor(df_complete_loan_13_month$get_loan)
+# 
+# ```
 
 ## Predictions Kreditkandidaten
 
 Erstellen eines Dataframes für alle ohne Loan in den letzten 6 Monaten
 
-```{r}
-df_no_loan_today <- trans_per_month %>%
-  filter(!(account_id %in% loan$account_id)) %>%
-  mutate(loan_date = "1998-12") %>%
-  mutate(loan_date = ym(loan_date)) %>%
-  mutate(year_month = ym(year_month)) %>%
-  mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
-  mutate(months_before_loan = (year_month)-(loan_date)) %>%
-
-  mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
-  filter(months_before_loan >= 0 & months_before_loan <= 6) %>%
-  
-  pivot_wider(
-    id_cols = account_id,
-    names_from = months_before_loan,
-    values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
-    names_sort = TRUE)
-```
+# ```{r}
+# df_no_loan_today <- trans_per_month %>%
+#   filter(!(account_id %in% loan$account_id)) %>%
+#   mutate(loan_date = "1998-12") %>%
+#   mutate(loan_date = ym(loan_date)) %>%
+#   mutate(year_month = ym(year_month)) %>%
+#   mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
+#   mutate(months_before_loan = (year_month)-(loan_date)) %>%
+# 
+#   mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
+#   filter(months_before_loan >= 0 & months_before_loan <= 6) %>%
+#   
+#   pivot_wider(
+#     id_cols = account_id,
+#     names_from = months_before_loan,
+#     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
+#     names_sort = TRUE)
+# ```
 
 ```{r}
 # Removing columns that start with "loan_"
@@ -760,11 +772,7 @@ client_analytical_record_no_district <- client_analytical_record_no_district %>%
   select(-starts_with("loan_"))
 
 
-glimpse(client_analytical_record_no_district)
-
-```
-
-```{r}
+# Ersrellen des df der counts ohne Kredit
 transactions_accounts_no_loan_for_training <- trans %>%
   filter(!(account_id %in% loan$account_id)) %>%
   filter(date >= as.Date("1998-01-01") & date < as.Date("1998-07-01")) %>%
@@ -800,10 +808,8 @@ df_grouped_metrics_no_loan_for_training <- transactions_accounts_no_loan_for_tra
   select(-start_saldo, -end_saldo) %>%
   mutate(loan = 0)
 
-glimpse(df_grouped_metrics_no_loan_for_training)
-```
 
-```{r}
+# Ersrellen des df der counts mit Kredit
 df_grouped_metrics_with_loan <- transactions_accounts_with_loan %>%
   group_by(account_id) %>%
   summarize(
@@ -824,10 +830,7 @@ df_grouped_metrics_with_loan <- transactions_accounts_with_loan %>%
   select(-start_saldo, -end_saldo) %>%
   mutate(loan = 1)
 
-glimpse(df_grouped_metrics_with_loan)
-```
-
-```{r}
+# zusammenfügen der beiden df
 df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grouped_metrics_with_loan)%>%
   mutate(loan = as.factor(loan)) %>%
   left_join(client_analytical_record, by = "account_id") %>%
@@ -1187,19 +1190,6 @@ loan_and_districts <- loan %>%
   mutate(loans_per_1000_inhabitants = (total_loans / avg_inhabitants) * 1000) %>%
   select(district_id_account, loans_per_1000_inhabitants, total_loans)
 
-
-head(loan_and_districts)
-```
-```{r}
-ggplot(loan_and_districts, aes(x = district_id_account, y = loan_ok_per_1000)) +
-  geom_bar(stat = "identity") +
-  theme_minimal() +
-  labs(title = "kredite per 1000 Einwohner pro District",
-       x = "District ID",
-       y = "Kredite") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-```
-```{r}
 loans_predicted_yes_per_district <- df_grouped_metrics_no_loan_today %>%
   group_by(district_id_account) %>%
   summarize(
@@ -1212,15 +1202,6 @@ loans_predicted_yes_per_district <- df_grouped_metrics_no_loan_today %>%
     loans_per_1000_inhabitants_predicted = (total_loans_predicted_yes / inhabitants) * 1000
   ) %>%
   select(district_id_account, loans_per_1000_inhabitants_predicted, total_loans_predicted_yes)
-  
-
-# View the resulting dataframe
-head(loans_predicted_yes_per_district)
-
-```
-```{r}
-library(dplyr)
-library(ggplot2)
 
 # Merging the two dataframes
 combined_loans_df <- loan_and_districts %>%
