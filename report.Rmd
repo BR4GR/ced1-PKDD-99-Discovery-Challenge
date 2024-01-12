@@ -886,9 +886,9 @@ transactions_accounts_no_loan_for_training <- trans %>%
   arrange(date) %>%
   mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
   fill(saldo, .direction = "downup") %>%
-  ungroup() %>%
-  mutate(predictions = ifelse(account_id %in% ids_predicted_yes$account_id, 1, 0),
-         predictions = as.factor(predictions))
+  ungroup()
+  # mutate(predictions = ifelse(account_id %in% ids_predicted_yes$account_id, 1, 0),
+  #        predictions = as.factor(predictions))
 
 df_grouped_metrics_no_loan_for_training <- transactions_accounts_no_loan_for_training %>%
   group_by(account_id) %>%
@@ -998,6 +998,22 @@ printSelectedMetrics(conf_matrix)
 
 
 ```{r}
+transactions_accounts_no_loan <- trans %>%
+  filter(account_id %in% df_grouped_metrics_no_loan_today$account_id) %>%
+  filter(date >= as.Date("1998-01-01")) %>%
+  group_by(account_id, date) %>%
+  summarise(
+    einnahmen = sum(amount[type == "credit"]),
+    ausgaben = sum(amount[type == "withdrawal in cash" | type == "withdrawal"]), .groups = "drop"
+    ) %>%
+  complete(date = seq.Date(min(date), max(date), by = "day"), account_id, fill = list(einnahmen = 0, ausgaben = 0)) %>%
+  group_by(account_id) %>%
+  arrange(date) %>%
+  mutate(saldo = cumsum(einnahmen - ausgaben)) %>%
+  fill(saldo, .direction = "downup") %>%
+  ungroup()
+
+
 df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
   group_by(account_id) %>%
   summarize(
@@ -1080,7 +1096,7 @@ ids_predicted_no <- df_grouped_metrics_no_loan_today %>%
 
 transactions_accounts_no_loan <- trans %>%
   filter(account_id %in% df_grouped_metrics_no_loan_today$account_id) %>%
-  filter(date >= as.Date("1998-01-01")) %>%
+  filter(date >= as.Date("1997-12-01")) %>%
   group_by(account_id, date) %>%
   summarise(
     einnahmen = sum(amount[type == "credit"]),
@@ -1167,3 +1183,91 @@ transactions_accounts_no_loan %>%
        y = "Kontostand") +
   theme_minimal()
 ```
+
+
+
+
+```{r}
+test1 <- transactions_accounts_with_loan %>%
+  mutate(predictions = as.factor(-1)) %>%
+  select(account_id, einnahmen, ausgaben, saldo, days_before_loan, predictions)
+ 
+test2 <- transactions_accounts_no_loan %>%
+  mutate(days_before_loan = as.numeric(as.Date("1999-01-01") - date)) %>%
+  select(!date)
+ 
+plot_df <- bind_rows(test1, test2)
+ 
+plot_df %>%
+  group_by(days_before_loan, predictions) %>%
+  summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
+  ggplot(aes(x = days_before_loan, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
+  scale_color_manual(values = c("green","orangered","deepskyblue"), 
+                     labels = c("Bereits", "Nein", "Ja"),
+                     name = "Kreditkandidaten") +
+  scale_fill_manual(values = c("green","orangered","deepskyblue"), 
+                    labels = c("Bereits", "Nein", "Ja"),
+                    name = "Kreditkandidaten") +
+  labs(title = "Durchschnittlicher Kontostand im letzten Jahr",
+       x = "Tage vor dem Kredit",
+       y = "Kontostand") +
+  scale_x_reverse() +
+  theme_minimal()
+ 
+plot_df %>%
+  group_by(days_before_loan, predictions) %>%
+  summarize(median_saldo = median(saldo), .groups = "drop") %>%
+  ggplot(aes(x = days_before_loan, y = median_saldo, group = predictions, color = as.factor(predictions))) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
+  scale_color_manual(values = c("green","orangered","deepskyblue"), 
+                     labels = c("Bereits", "Nein", "Ja"),
+                     name = "Kreditkandidaten") +
+  scale_fill_manual(values = c("green","orangered","deepskyblue"), 
+                    labels = c("Bereits", "Nein", "Ja"),
+                    name = "Kreditkandidaten") +
+  labs(title = "Median des Kontostandes im letzten Jahr",
+       x = "Tage vor dem Kredit",
+       y = "Kontostand") +
+  scale_x_reverse() +
+  theme_minimal()
+ 
+plot_df %>%
+  group_by(days_before_loan, predictions) %>%
+  summarize(gemittelte_einnahmen = mean(einnahmen), .groups = "drop") %>%
+  ggplot(aes(x = days_before_loan, y = gemittelte_einnahmen, group = predictions, color = as.factor(predictions))) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
+  scale_color_manual(values = c("green","orangered","deepskyblue"), 
+                     labels = c("Bereits", "Nein", "Ja"),
+                     name = "Kreditkandidaten") +
+  scale_fill_manual(values = c("green","orangered","deepskyblue"), 
+                    labels = c("Bereits", "Nein", "Ja"),
+                    name = "Kreditkandidaten") +
+  labs(title = "Durchschnitliche Einnahmen im letzten Jahr",
+       x = "Tage vor dem Kredit",
+       y = "Einnahmen") +
+  scale_x_reverse() +
+  theme_minimal()
+ 
+plot_df %>%
+  group_by(days_before_loan, predictions) %>%
+  summarize(gemittelte_ausgaben = mean(ausgaben), .groups = "drop") %>%
+  ggplot(aes(x = days_before_loan, y = gemittelte_ausgaben, group = predictions, color = as.factor(predictions))) +
+  geom_line() +
+  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
+  scale_color_manual(values = c("green","orangered","deepskyblue"), 
+                     labels = c("Bereits", "Nein", "Ja"),
+                     name = "Kreditkandidaten") +
+  scale_fill_manual(values = c("green","orangered","deepskyblue"), 
+                    labels = c("Bereits", "Nein", "Ja"),
+                    name = "Kreditkandidaten") +
+  labs(title = "Durchschnitliche Ausgaben im letzten Jahr",
+       x = "Tage vor dem Kredit",
+       y = "Ausgaben") +
+  scale_x_reverse() +
+  theme_minimal()
+```
+
