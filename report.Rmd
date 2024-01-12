@@ -686,91 +686,13 @@ transactions_accounts_with_loan %>%
 
 ## Trainings Dataframe erstellen
 
-Erstellen eines Dataframes für alle mit Loan 6 Monate vor Beginn des Loans. Wir haben uns bei unserer Challenge für den Kredit entschieden, da wir uns zwischen den Kreditkarten und den Krediten entscheiden mussten und in unseren Augen eine Kreditvergabe lukrativer ist, als eine Kreditkarte. Dabei muss man aber beachten das unser Model eine hohe Genauigkeit aufweisen muss, nicht das wir ein unnötiges Risiko für die Bank erschaffen.
-
-# ```{r}
-# df_loan_13_month <- trans_per_month %>%
-#   filter(account_id %in% loan$account_id) %>%
-#   left_join(loan, by = "account_id") %>%
-#   mutate(loan_date = floor_date(loan_date, unit = "month")) %>%
-#   mutate(year_month = ym(year_month)) %>%
-#   mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
-#   mutate(months_before_loan = (year_month)-(loan_date)) %>%
-#   filter(status %in% c("finished_ok", "running_ok")) %>%
-#   
-#   mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
-#   filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
-#   
-#   pivot_wider(
-#     id_cols = account_id,
-#     names_from = months_before_loan,
-#     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
-#     names_sort = TRUE) %>%
-#   mutate(get_loan = 1) %>%
-#   #NAs sind für Zeiten vor der Aufzeichnung der Daten und daher 0
-#   mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
-# ```
-
-Erstellen eines Dataframes für alle ohne Loan im Jahr 1997
-
-# ```{r}
-# df_no_loan_13_month <- trans_per_month %>%
-#   filter(!(account_id %in% loan$account_id)) %>%
-#   mutate(loan_date = "1997-11") %>%
-#   mutate(loan_date = ym(loan_date)) %>%
-#   mutate(year_month = ym(year_month)) %>%
-#   mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
-#   mutate(months_before_loan = (year_month)-(loan_date)) %>%
-# 
-#   mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
-#   filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
-#   
-#   pivot_wider(
-#     id_cols = account_id,
-#     names_from = months_before_loan,
-#     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
-#     names_sort = TRUE) %>%
-#   mutate(get_loan = 0)
-# 
-# ```
-
-Tabellen zusammenfügen
-
-# ```{r}
-# df_complete_loan_13_month <- merge(df_loan_13_month, df_no_loan_13_month, all = TRUE)
-# 
-# df_complete_loan_13_month$get_loan <- as.factor(df_complete_loan_13_month$get_loan)
-# 
-# ```
-
-## Predictions Kreditkandidaten
-
-Erstellen eines Dataframes für alle ohne Loan in den letzten 6 Monaten
-
-# ```{r}
-# df_no_loan_today <- trans_per_month %>%
-#   filter(!(account_id %in% loan$account_id)) %>%
-#   mutate(loan_date = "1998-12") %>%
-#   mutate(loan_date = ym(loan_date)) %>%
-#   mutate(year_month = ym(year_month)) %>%
-#   mutate(loan_date = as.Date((loan_date), format = "%Y-%m")) %>%
-#   mutate(months_before_loan = (year_month)-(loan_date)) %>%
-# 
-#   mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
-#   filter(months_before_loan >= 0 & months_before_loan <= 6) %>%
-#   
-#   pivot_wider(
-#     id_cols = account_id,
-#     names_from = months_before_loan,
-#     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
-#     names_sort = TRUE)
-# ```
+Für das Training des Random Forests erstellen wir ein Dataframe, welches die Kennwerte wie Durchschnittlicher Kontostand, Einnahmen Ausgaben, Die Standartabweichungen der Einnahmen, Ausgabenund Kontostand, das Wachstum des Kontostandes der letzten 6 monate vor Kreditbegin für kunden mir Kredit und für die ersten 6 Monate des letzten Jahres für Kunden ohne Kredit enthält.
+Zusätzlich fügen wir noch die Daten des erstellten Client analytical Record an.
 
 ```{r}
 # Removing columns that start with "loan_"
 client_analytical_record_no_district <- client_analytical_record_no_district %>%
   select(-starts_with("loan_"))
-
 
 # Ersrellen des df der counts ohne Kredit
 transactions_accounts_no_loan_for_training <- trans %>%
@@ -839,7 +761,7 @@ df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grou
     has_user = ifelse(is.na(user_birthday), 0, 1),
     owner_age = 1999 - year(owner_birthday),
     opening_year = year(opening_date),
-    card_type = addNA(card_type),  # Add NA as a level if it's not already
+    card_type = addNA(card_type),  
     card_type = fct_expand(card_type, "NoCard"),  # Add "NoCard" as a level
     card_type = fct_recode(card_type, "NoCard" = NA_character_)
     ) %>%
@@ -857,6 +779,9 @@ df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grou
 
 glimpse(df_grouped_metrics)
 ```
+## Training und Auswertung des Models
+
+Mit dem erstellten Dataframe tranieren wir ein Random forest Model. Dafür splitten wir die daten und verwenden 80% für das Training und 20% für das Testen. Die Metriken Accuracy, Kappa und F1 werden ausgegeben.
 
 ```{r}
 set.seed(123)
@@ -886,7 +811,8 @@ Wir haben uns bei der Auswertung der Konfusionsmatrix auf der Kennzahlen beschr�
 ```{r}
 printSelectedMetrics(conf_matrix)
 ```
-
+Anschliesend haben wir die wichtigsten Variablen des Models ausgegeben. Diese sind nach der MeanDecreaseGini sortiert. Dieser Wert gibt an, wie stark die Varibale die Gini Impurity reduziert. Je höher der Wert desto wichtiger ist die Variable für das Model.
+Wir sehen das die Wichtigsten Variablen mit den erstellten Kennwerten des Verhaltens zu tun haben, und auch der District eine wichtige Rolle spielt.
 ```{r}
 getTopNVarImportance <- function(model, n) {
   # Extract variable importance
@@ -904,6 +830,10 @@ getTopNVarImportance <- function(model, n) {
 
 getTopNVarImportance(model_13, 11)
 ```
+## Erstellen des Dataframs für die Predictions
+
+Nach dem gleichen Schema wie bei dem Dataframe für das Training erstellen wir eines für die Predictions, mit dem Unterschied das wir für die daten nur accounts ohne Kredit und ds verhalten der letzten 6 Monate verwenden. Somit können wir das aktuelle Verhalten der Kunden vergleichen.
+
 
 ```{r}
 transactions_accounts_no_loan <- trans %>%
@@ -963,6 +893,13 @@ df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
   select(-user_birthday, -card_id, -user_disp_id, -user_client_id, -owner_client_id, -owner_birthday, -user_district_id, -user_sex, -card_issued, -opening_date)
 
 
+```
+
+## Rechnen der Predictions
+
+Nun können wir die Predictions für die Kunden ohne Kredit erstellen. zusätzlich sortieren wir sie auch nach der Warscheinlichkeit das der Kunde einen Kredit aufnimmt. Somit können wir auch eine bestimmte Anzahl Kunden mit der höchsten Warscheinlichkeit für ein Angebot auswählen.
+
+```{r}
 # Predict using the Random Forest model on the new data
 predicted_probabilities <- predict(model_13, df_grouped_metrics_no_loan_today, type = "prob")
 
@@ -972,11 +909,7 @@ df_grouped_metrics_no_loan_today$predictions <- ifelse(predicted_probabilities[,
 df_grouped_metrics_no_loan_today$prob_0 <- predicted_probabilities[, "0"]
 df_grouped_metrics_no_loan_today$prob_1 <- predicted_probabilities[, "1"]
 
-# View the first few rows of the dataframe to see the predictions
-head(df_grouped_metrics_no_loan_today %>% filter(predictions == 1))
-```
 
-```{r}
 # Sort the dataframe by the predicted probabilities for class 1 in descending order
 df_sorted_by_prob <- df_grouped_metrics_no_loan_today %>%
   arrange(desc(prob_1)) %>%
@@ -988,6 +921,12 @@ top_n_results <- head(df_sorted_by_prob, 10)
 # View the top n results
 print(top_n_results)
 ```
+## Visuelle Darstellung der Predictions
+
+### Verhalten der Kunden über zeit
+Um das Visuel darzustellen haben wir uns entschieden das Verhalten Der Kunden über die letzten 6 Monate zu vergleichen.
+Wir vergleichen dazu die Kunden die bereits einen kredit hatten mit denen die gute oder schlechte Kandidaten sind.
+in diesen plots ist zu sehen das die Kunden die gute Kandidaten sind sich gegen Ende sehr ähnlich verhalten wie die Kunden die bereits einen Kredit haben und auch ihre Raten zahlen. 
 
 ```{r}
 ids_predicted_yes <- df_grouped_metrics_no_loan_today %>%
@@ -1016,80 +955,7 @@ transactions_accounts_no_loan <- trans %>%
   mutate(predictions = ifelse(account_id %in% ids_predicted_yes$account_id, 1, 0),
          predictions = as.factor(predictions))
 
-glimpse(transactions_accounts_no_loan)
-```
 
-```{r}
-transactions_accounts_no_loan %>%
-  group_by(date, predictions) %>%
-  summarize(gemitteltes_saldo = mean(saldo), .groups = "drop") %>%
-  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
-  scale_color_manual(values = c("orangered", "deepskyblue"), 
-                     labels = c("Nein", "Ja"),
-                     name = "Kreditkandidaten") +
-  scale_fill_manual(values = c("orangered", "deepskyblue"), 
-                    labels = c("Nein", "Ja"),
-                    name = "Kreditkandidaten") +
-  labs(title = "Durchschnittlicher Kontostand im letzten Jahr",
-       x = "Datum",
-       y = "Kontostand") +
-  theme_minimal()
-
-transactions_accounts_no_loan %>%
-  group_by(date, predictions) %>%
-  summarize(gemitteltes_saldo = median(saldo), .groups = "drop") %>%
-  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
-  scale_color_manual(values = c("orangered", "deepskyblue"), 
-                     labels = c("Nein", "Ja"),
-                     name = "Kreditkandidaten") +
-  scale_fill_manual(values = c("orangered", "deepskyblue"), 
-                    labels = c("Nein", "Ja"),
-                    name = "Kreditkandidaten") +
-  labs(title = "Median des Kontostandes im letzten Jahr",
-       x = "Datum",
-       y = "Kontostand") +
-  theme_minimal()
-
-transactions_accounts_no_loan %>%
-  group_by(date, predictions) %>%
-  summarize(gemitteltes_saldo = mean(einnahmen), .groups = "drop") %>%
-  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
-  scale_color_manual(values = c("orangered", "deepskyblue"), 
-                     labels = c("Nein", "Ja"),
-                     name = "Kreditkandidaten") +
-  scale_fill_manual(values = c("orangered", "deepskyblue"), 
-                    labels = c("Nein", "Ja"),
-                    name = "Kreditkandidaten") +
-  labs(title = "Durchschnitliche Einnahmen im letzten Jahr",
-       x = "Datum",
-       y = "Kontostand") +
-  theme_minimal()
-
-transactions_accounts_no_loan %>%
-  group_by(date, predictions) %>%
-  summarize(gemitteltes_saldo = mean(ausgaben), .groups = "drop") %>%
-  ggplot(aes(x = date, y = gemitteltes_saldo, group = predictions, color = as.factor(predictions))) +
-  geom_line() +
-  geom_smooth(method = "loess", se = TRUE, aes(fill = as.factor(predictions))) +
-  scale_color_manual(values = c("orangered", "deepskyblue"), 
-                     labels = c("Nein", "Ja"),
-                     name = "Kreditkandidaten") +
-  scale_fill_manual(values = c("orangered", "deepskyblue"), 
-                    labels = c("Nein", "Ja"),
-                    name = "Kreditkandidaten") +
-  labs(title = "Durchschnitliche Ausgaben im letzten Jahr",
-       x = "Datum",
-       y = "Kontostand") +
-  theme_minimal()
-```
-
-```{r}
 test1 <- transactions_accounts_with_loan %>%
   mutate(predictions = as.factor(-1)) %>%
   select(account_id, einnahmen, ausgaben, saldo, days_before_loan, predictions)
@@ -1172,6 +1038,7 @@ plot_df %>%
   scale_x_reverse() +
   theme_minimal()
 ```
+### Kredite pro District
 
 ```{r}
 #  dataframe with loan running ok and finished ok from client_analytical_record
