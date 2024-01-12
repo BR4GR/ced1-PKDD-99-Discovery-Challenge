@@ -49,7 +49,7 @@ Die Daten enthalten 8 unterschiedliche csv Dateien welche weiter unten im Berich
 
 Um die Daten zu verarbeiten und zu visualisieren haben wir folgende Packages benötigt.
 
-```{r}
+```{r message=FALSE}
 required_packages <- c("tidyverse", "ggmosaic", "GGally", "randomForest", "caret", "ggridges", "cluster", "factoextra") # add more as needed
 
 for (pkg in required_packages) {
@@ -68,25 +68,17 @@ Der Account Datensatz besitz Informationen über die Account ID, aus welchem Dis
 
 ```{r}
 accounts <- read.csv("data/account.csv", sep=";")
-```
 
-Die Daten werden nun so angepasst, das sie auf Deutsch sind und die Types entsprechend geändert werden.
-
-```{r}
 #Ändern der tschechischen Namen in der Spalte frequency
 accounts <- accounts %>%
   mutate(frequency = case_when(frequency == "POPLATEK MESICNE" ~ "Monatliche_Ausgabe",
                                frequency == "POPLATEK TYDNE" ~ "Wöchentliche_Ausgabe",
                                frequency == "POPLATEK PO OBRATU" ~ "Ausgabe_nach_Transaktion"))
-```
 
-```{r}
 #Frequency in Faktor umwandeln
 accounts <- accounts %>% 
   mutate(frequency = as.factor(frequency))
-```
 
-```{r}
 # Datum umwandeln
 accounts$date <- ymd(accounts$date)
 
@@ -97,9 +89,11 @@ accounts <- accounts %>%
          district_id_account = district_id)
 ```
 
-Die Werte sind nun bereinigt und man sieht bei frequency die drei Ausgabedaten, zudem ist das Datum nun auch als Datum erfasst.
+Die Daten wurden so angepasst, das sie auf Deutsch sind und die Types entsprechend geändert werden.
 
-```{r}
+Man sieht bei frequency die drei Ausgabedaten, zudem ist das Datum nun auch als Datum erfasst.
+
+```{r message=FALSE}
 glimpse(accounts)
 summary(accounts)
 sum(is.na(accounts))
@@ -135,7 +129,7 @@ Im card Datensatz befinden sich Informationen zu Kreditkarten. Wann diese ausges
 card <- read.csv("data/card.csv", sep=";")
 ```
 
-Zuerst werden wieder die Types angepasst und nschliessend wird die Spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
+Wir werden die Types angepasst und nschliessend wird die Spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
 
 ```{r}
 #Type in Faktor umwandeln
@@ -147,11 +141,7 @@ card <- card %>%
 
 # Datum umwandeln
 card$issued <- ymd(substr(card$issued, 1, 6))
-```
 
-Der Card Datensatz sollte nun korrekt sein.
-
-```{r}
 glimpse(card)
 summary(card)
 sum(is.na(card))
@@ -162,13 +152,11 @@ length(unique(card$card_id)) == nrow(card)
 
 Der Datensatz client enthält Informationen über jeden Client, also eine ID, ein Geburtsdatum und den Standort. Wichtig ist auch zu wissen, dass der Client nicht gleich dem Account ist, es gibt accounts, welche von mehreren Personen genutzt werden.
 
-```{r}
-client <- read.csv("data/client.csv", sep=";")
-```
-
 Bei diesem Datensatz ist zudem wichtig, dass in der birth_number zudem das Geschlecht gespeichert ist. Bei Frauen wurde die angabe des Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen. Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen und die Geburtsdaten dann bereinigt in der birth number wiedergeben.
 
 ```{r}
+client <- read.csv("data/client.csv", sep=";")
+
 #Unterscheidung von Mann und Frau anhand vom Geburtsdatum
 client <- client %>%
   mutate(
@@ -178,11 +166,7 @@ client <- client %>%
 #Ändern des Datentyps der Reihe
 client <- client %>% 
   mutate(sex = as.factor(sex))
-```
 
-Da wir nun die Kategorie des Geschlechts haben wollen wir noch das Geburtsdatum anpassen und im richtigen Format ausgeben.
-
-```{r}
 #Geburtsdatum bei den Frauen um 5000 subtrahieren. Damit wieder der normale Monat angezeigt wird.
 client$birth_number[client$sex == "female"] <- client$birth_number[client$sex == "female"]-5000
 
@@ -208,30 +192,30 @@ sum(is.na(client))
 length(unique(client$client_id)) == nrow(client)
 ```
 
-Nun wissen wir auch welches Alter und Geschlecht unsere Kunden haben.
+Nun wissen wir auch welches Alter und Geschlecht unsere Kunden haben. 
+Dies können wir in einem Density Plot darstellen.
 
 ```{r}
 ggplot(client, aes(x = year, fill = sex)) +
   geom_density(alpha = 0.5) +
   theme_minimal() +
-  labs(title = "Conditional Density Plot of Year by Sex",
-       x = "Year",
-       y = "Density")
+  labs(title = "Verteilung der Kunden nach Jahr und Geschlecht",
+       x = "Jahr",
+       y = "Dichte",
+       fill = "Geschlecht")
+
 ```
 
 Wir sehen, dass die Verteilung der Männer und Frauen in allen Altersklassen sehr ähnlich ist. Und das die meisten unserer Kunden im Alter zwischen 20 und 60 sind.
 
 ## disp Datensatz
 
-Im disp Datensatz ist die verknüpfung der Kunden mit den Accounts und ihre jeweilige Funktion dargestellt.
+Im disp Datensatz ist die Verknüpfung der Kunden mit den Accounts und ihre jeweilige Funktion dargestellt.
+Hier müssen wir nur den type von <chr> in <fct> ändern und anschliessend kontrollieren.
 
 ```{r}
 disp <- read.csv("data/disp.csv", sep=";")
-```
 
-Hier wollen wir nur den type von <chr> in <fct> ändern und anschliessend kontrollieren.
-
-```{r}
 #Type in Faktor umwandeln
 disp <- disp %>% 
   mutate(type = as.factor(type))
@@ -247,20 +231,16 @@ length(unique(disp$disp_id)) == nrow(disp)
 
 Der district Datensatz enthält viele Informationen über jeden District.
 
-```{r}
+Hier werden alle Spalten mit A angegeben, dies sollen aussagekräftigere Namen ersetzt werden.
+
+Danach sollen noch alle <chr> in andere Formate geändert werden. Die Warnung nach ausführung des Codes ist auf den District Jesenik bezogen. Dort ist in der Spalte unemploymant_rate_95 und commited_crimes_95 ein "?" eigetragen, dieser Wert wird mit NA ersetzt.
+
+```{r warning=FALSE}
 district <- read.csv("data/district.csv", sep=";")
-```
 
-Hier werden alle Spalten mit A angegeben, dies sollen aussagekräftigere Namen werden.
-
-```{r}
 #Spaltennamen ändern
 colnames(district) <- c("district_id", "district_name", "region", "inhabitants", "municipalities_less_than_499", "municipalities_500_to_1999", "municipalities_2000_to_9999", "municipalities_10000_plus", "cities", "urban_inhabitants", "average_salary", "unemploymant_rate_95", "unemploymant_rate_96", "enterpreneurs_per_1000", "commited_crimes_95", "commited_crimes_96")
-```
 
-Nun sollen noch alle <chr> in andere Formate geändert werden. Die Warnung nach ausführung des Codes ist auf den District Jesenik bezogen. Dort ist in der Spalte unemploymant_rate_95 und commited_crimes_95 ein "?" eigetragen, dieser Wert wird mit NA ersetzt.
-
-```{r}
 district <- district %>% 
   mutate(district_name = as.factor(district_name),
         region = as.factor(region),
@@ -280,7 +260,7 @@ length(unique(district$A1)) == nrow(district)
 
 Wir haben uns bei der analyse der Daten gefragt, ob es einen Zusammenhang zwischen der arbeitslosenquote und der Anzahl der begangenen Verbrechen gibt.
 
-```{r}
+```{r warning=FALSE}
 district <- district %>%
   mutate(crimes_per_1000_1995 = commited_crimes_95/inhabitants*1000)
 
@@ -354,7 +334,7 @@ Wir wollen nun anschauen welche höhe von Krediten von der Bank vergeben wurde.
 ggplot(loan, aes(x = amount)) +
   geom_histogram(binwidth = 10000, color = "blue") +
   scale_x_continuous(breaks = seq(0, max(loan$amount), by = 50000)) +
-  ggtitle("Vergebene loans in 10000 Schritten")
+  ggtitle("Betrag der vergebenen Kredite")
 ```
 
 Dabei fällt auf, dass es sich vorallem um kleinere Kredite handelt. Es gibt aber vereinzelt grössere Kredite.
@@ -1195,8 +1175,93 @@ plot_df %>%
   theme_minimal()
 ```
 
-#Fazid
+```{r}
+#  dataframe with loan running ok and finished ok from client_analytical_record
 
-##Ergebnis Wir haben gesehen, dass unser Model sehr zuverlässig Kandidaten für einen Kredit auswählen kann, dabei ist vor allem der Saldo für das Model äusserst wichtig, zudem spielt auch die Region einen wesentlichen Faktor. Was auch auffallend ist, ist dass die Einnahmen, Ausgaben und der Saldo deutlich höher sind für die Kunden welche einen Kredit bekommen, im Vergleich zu denen welche keinen bekommen. Die Anzahl der Ausgabe, wer für einen Kredit interessant wäre ist nicht sonderlich hoch, dafür sollten durch die hohe Genauigkeit des Models auch nur ein Kunde, welcher an einem Kredit interessiert ist. Wir haben uns beim Model auf eine Zeitdauer von sechs Monaten beschränkt. Wir haben das Model zuerst mit 13 Monaten laufen lassen, das Problem dabei war, dass die Kunden, welche bereits einen Kredit genommen haben zum Teil erst seit kurzem überhaupt ein Konto besitzen und Geld auf dieses einzahlen, so war der Median 13 Monate im Voraus zum Teil kurz vor Null. Nach der Anpassung auf sechs Monate hat sich auch die Genauigkeit unseres Models noch einmal gesteigert.
+loan_and_districts <- loan %>% 
+  left_join(accounts, by = "account_id") %>%
+  left_join(district, by = c("district_id_account" = "district_id")) %>%
+  mutate(loan_ok = ifelse(status %in% c('finished_ok', 'running_ok'), 1, 0)) %>%
+  group_by(district_id_account) %>%
+  summarize(
+    total_loans = sum(loan_ok),
+    avg_inhabitants = mean(inhabitants),
+    
+    .groups = "drop"
+  ) %>%
+  mutate(loans_per_1000_inhabitants = (total_loans / avg_inhabitants) * 1000) %>%
+  select(district_id_account, loans_per_1000_inhabitants, total_loans)
 
-##Reflexion Wir haben viel gelernt während dieser Challenge, angefangen bei vielen kleinen Aufgaben eine richtige Syntax in R zu erstellen, dabei haben wir auch die Hilfe von ChatGPT benötigt, dabei war es gerade bei kleinen Problemen, wie beim Optimieren von Plots oft hilfreich. Grössere Probleme wie das Generieren von ganzen Codeblocks war wiederum oft mühsamer, unpräzise und es brauchte viel Zeit zum Überarbeiten im Nachhinein. Zudem haben wir gelernt, dass es für eine zukünftige Aufgabe auch sinnvoll ist, auch während dem Projekt das Notebook etwas aufzuräumen denn gerade beim Abschluss unserer Arbeit haben wir noch einmal viel Zeit für das Aufräumen und Korrigieren des Notebooks aufgewendet. Abschliessend können wir sagen, dass wir in diesem Projekt trotzdem wir manchmal sehr genervt waren, wenn etwas nicht funktioniert hat, wofür man einige Zeit aufgewendet hat, viel Neues, Nützliches und Interessantes gelernt haben.
+
+head(loan_and_districts)
+```
+```{r}
+ggplot(loan_and_districts, aes(x = district_id_account, y = loan_ok_per_1000)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "kredite per 1000 Einwohner pro District",
+       x = "District ID",
+       y = "Kredite") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+```{r}
+loans_predicted_yes_per_district <- df_grouped_metrics_no_loan_today %>%
+  group_by(district_id_account) %>%
+  summarize(
+    total_loans_predicted_yes = sum(predictions == 1, na.rm = TRUE),
+    avg_inhabitants = mean(inhabitants),
+    .groups = "drop"
+  ) %>%
+    left_join(district, by = c("district_id_account" = "district_id")) %>%
+  mutate(
+    loans_per_1000_inhabitants_predicted = (total_loans_predicted_yes / inhabitants) * 1000
+  ) %>%
+  select(district_id_account, loans_per_1000_inhabitants_predicted, total_loans_predicted_yes)
+  
+
+# View the resulting dataframe
+head(loans_predicted_yes_per_district)
+
+```
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Merging the two dataframes
+combined_loans_df <- loan_and_districts %>%
+  rename(loans_per_1000_inhabitants_actual = loans_per_1000_inhabitants) %>%
+  inner_join(loans_predicted_yes_per_district, by = "district_id_account", suffix = c("_actual", "_predicted")) 
+
+# Creating the plot
+ggplot(combined_loans_df, aes(x = district_id_account)) +
+  geom_bar(aes(y = loans_per_1000_inhabitants_actual, fill = "Actual"), stat = "identity", position = "dodge") +
+  geom_bar(aes(y = loans_per_1000_inhabitants_predicted, fill = "Predicted"), stat = "identity", position = "dodge") +
+  labs(title = "Loans per 1000 Inhabitants: Actual vs Predicted",
+       x = "District ID",
+       y = "Loans per 1000 Inhabitants") +
+  scale_fill_manual(values = c("Actual" = "blue", "Predicted" = "red"),
+                    name = "Type",
+                    labels = c("Actual", "Predicted")) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+ggplot(combined_loans_df, aes(x = district_id_account)) +
+  geom_bar(aes(y = total_loans), stat = "identity", fill = "blue") +
+  geom_bar(aes(y = total_loans_predicted_yes), stat = "identity", fill = "red") +
+  labs(title = "Actual vs Predicted Total Loans per District",
+       x = "District ID",
+       y = "Total Loans") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+
+# Fazid
+
+## Ergebnis 
+Wir haben gesehen, dass unser Model sehr zuverlässig Kandidaten für einen Kredit auswählen kann, dabei ist vor allem der Saldo für das Model äusserst wichtig, zudem spielt auch die Region einen wesentlichen Faktor. Was auch auffallend ist, ist dass die Einnahmen, Ausgaben und der Saldo deutlich höher sind für die Kunden welche einen Kredit bekommen, im Vergleich zu denen welche keinen bekommen. Die Anzahl der Ausgabe, wer für einen Kredit interessant wäre ist nicht sonderlich hoch, dafür sollten durch die hohe Genauigkeit des Models auch nur ein Kunde, welcher an einem Kredit interessiert ist. Wir haben uns beim Model auf eine Zeitdauer von sechs Monaten beschränkt. Wir haben das Model zuerst mit 13 Monaten laufen lassen, das Problem dabei war, dass die Kunden, welche bereits einen Kredit genommen haben zum Teil erst seit kurzem überhaupt ein Konto besitzen und Geld auf dieses einzahlen, so war der Median 13 Monate im Voraus zum Teil kurz vor Null. Nach der Anpassung auf sechs Monate hat sich auch die Genauigkeit unseres Models noch einmal gesteigert.
+
+## Reflexion 
+Wir haben viel gelernt während dieser Challenge, angefangen bei vielen kleinen Aufgaben eine richtige Syntax in R zu erstellen, dabei haben wir auch die Hilfe von ChatGPT benötigt, dabei war es gerade bei kleinen Problemen, wie beim Optimieren von Plots oft hilfreich. Grössere Probleme wie das Generieren von ganzen Codeblocks war wiederum oft mühsamer, unpräzise und es brauchte viel Zeit zum Überarbeiten im Nachhinein. Zudem haben wir gelernt, dass es für eine zukünftige Aufgabe auch sinnvoll ist, auch während dem Projekt das Notebook etwas aufzuräumen denn gerade beim Abschluss unserer Arbeit haben wir noch einmal viel Zeit für das Aufräumen und Korrigieren des Notebooks aufgewendet. Abschliessend können wir sagen, dass wir in diesem Projekt trotzdem wir manchmal sehr genervt waren, wenn etwas nicht funktioniert hat, wofür man einige Zeit aufgewendet hat, viel Neues, Nützliches und Interessantes gelernt haben.
