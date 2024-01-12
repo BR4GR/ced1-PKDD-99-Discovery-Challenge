@@ -284,24 +284,16 @@ ggplot(district, aes(x = unemploymant_rate_96, y = crimes_per_1000_1996)) +
 
 Bei der Betrachtung der beiden Plots fällt auf, dass es keinen merklichen Anstieg gibt, so wie es unsere Hypothese war. Was aber auffällt, ist das der vorderste Punkt, welcher fast keine Arbeitslosigkeit aufzeigt, enorm hoch ist. Bei diesem Punkt handelt es sich wieder um Prag.
 
-```{r}
-district %>%
-  filter(commited_crimes_95 == 85677)
 
-district %>%
-  filter(commited_crimes_96 == 99107)
-
-```
 
 ## loan Datensatz
 
-Der loan Datensatz ist für uns einer der Interessantesten Datensätze. In ihm sind sämtliche vergebene Kredite abgelegt.
+Der loan Datensatz ist für uns einer der Interessantesten Datensätze. In ihm sind sämtliche vergebenen Kredite abgelegt.
+Hier muss nur dem status einen besseren namen gegeben werden und in einen Faktor umgewandelt werden.
 
 ```{r}
 loan <- read.csv("data/loan.csv", sep=";")
-```
 
-```{r}
 #Ändern der Namen in Status
 loan <- loan %>%
   mutate(status = case_when(status == "A" ~ "finished_ok",
@@ -325,7 +317,6 @@ glimpse(loan)
 summary(loan)
 sum(is.na(loan))
 length(unique(loan$loan_id)) == nrow(loan)
-length(unique(loan$account_id)) == nrow(loan)
 ```
 
 Wir wollen nun anschauen welche höhe von Krediten von der Bank vergeben wurde.
@@ -342,16 +333,20 @@ Dabei fällt auf, dass es sich vorallem um kleinere Kredite handelt. Es gibt abe
 Gibt es Accounts, welche zwei mal einen Loan bekommen haben?
 
 ```{r}
-sum(duplicated(loan$account_id))
+n = sum(duplicated(loan$account_id))
+print(paste("Es gibt", n, "Accounts, welche zwei mal einen Kredit bezogen haben."))
 ```
 
-Nein gibt es nicht, jeder Account hat über die Zeit der Datenerhebung maximal einen Kredit bezogen.
-
 ```{r}
-ggplot(loan, aes(x = duration, y = ..count.., fill = as.factor(duration))) +
+ggplot(loan, aes(x = duration, y = after_stat(count), fill = as.factor(duration))) +
   geom_bar() +
-  labs(fill = "Dauer") +
-  theme(axis.text.x = element_blank(), axis.title.x = element_blank())
+  labs(
+    title = "Verteilung der Kreditlaufzeiten",
+    subtitle = "nach Anzahl und Dauer der Kredite",
+    x = "Laufzeit (in Monaten/Jahren)",
+    y = "Anzahl der Kredite",
+    fill = "Dauer"
+  )
 
 ```
 
