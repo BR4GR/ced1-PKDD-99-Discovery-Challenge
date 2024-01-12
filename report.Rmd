@@ -64,14 +64,10 @@ for (pkg in required_packages) {
 
 ## account Datensatz
 
-Der Account Datensatz besitz Informationen über die Account ID, aus welchem district der Account stammt, in welchem intervall die Transaktionen ablaufen und wann der Account gegründet wurde.
+Der Account Datensatz besitz Informationen über die Account ID, aus welchem District der Account stammt, in welchem Intervall die Transaktionen ablaufen und wann der Account gegründet wurde.
 
 ```{r}
 accounts <- read.csv("data/account.csv", sep=";")
-glimpse(accounts)
-summary(accounts)
-sum(is.na(accounts))
-length(unique(accounts$account_id)) == nrow(accounts)
 ```
 
 Die Daten werden nun so angepasst, das sie auf Deutsch sind und die Types entsprechend geändert werden.
@@ -106,6 +102,8 @@ Die Werte sind nun bereinigt und man sieht bei frequency die drei Ausgabedaten, 
 ```{r}
 glimpse(accounts)
 summary(accounts)
+sum(is.na(accounts))
+length(unique(accounts$account_id)) == nrow(accounts)
 ```
 
 Aus dem account Datensatz können wir nun sehen, woher unsere Accounts geographisch stammen dazu machen wir einen Barplot.
@@ -135,10 +133,6 @@ Im card Datensatz befinden sich Informationen zu Kreditkarten. Wann diese ausges
 
 ```{r}
 card <- read.csv("data/card.csv", sep=";")
-glimpse(card)
-summary(card)
-sum(is.na(card))
-length(unique(card$card_id)) == nrow(card)
 ```
 
 Zuerst werden wieder die Types angepasst und nschliessend wird die Spalte "issued" bearbeitet. Bei dieser sollen die ersten sechs Zeichen als Datum gewertet werden. Die 00:00:00 benötigen wir dabei nicht mehr, da diese bei allen Daten hintendran stehen.
@@ -160,6 +154,8 @@ Der Card Datensatz sollte nun korrekt sein.
 ```{r}
 glimpse(card)
 summary(card)
+sum(is.na(card))
+length(unique(card$card_id)) == nrow(card)
 ```
 
 ## client Datensatz
@@ -168,10 +164,6 @@ Der Datensatz client enthält Informationen über jeden Client, also eine ID, ei
 
 ```{r}
 client <- read.csv("data/client.csv", sep=";")
-glimpse(client)
-summary(client)
-sum(is.na(client))
-length(unique(client$client_id)) == nrow(client)
 ```
 
 Bei diesem Datensatz ist zudem wichtig, dass in der birth_number zudem das Geschlecht gespeichert ist. Bei Frauen wurde die angabe des Monats um 50 erhöht. D.h YYMMDD für Männer und YYMM+50DD für Frauen. Deshalb wollen wir eine zusätzliche Spalte für das Geschlecht erzeugen und die Geburtsdaten dann bereinigt in der birth number wiedergeben.
@@ -212,6 +204,8 @@ Der Client Datensatz sollte nun korrekt sein und die Spalte "sex" enthalten.
 ```{r}
 glimpse(client)
 summary(client)
+sum(is.na(client))
+length(unique(client$client_id)) == nrow(client)
 ```
 
 Nun wissen wir auch welches Alter und Geschlecht unsere Kunden haben.
@@ -233,10 +227,6 @@ Im disp Datensatz ist die verknüpfung der Kunden mit den Accounts und ihre jewe
 
 ```{r}
 disp <- read.csv("data/disp.csv", sep=";")
-glimpse(disp)
-summary(disp)
-sum(is.na(disp))
-length(unique(disp$disp_id)) == nrow(disp)
 ```
 
 Hier wollen wir nur den type von <chr> in <fct> ändern und anschliessend kontrollieren.
@@ -249,6 +239,8 @@ disp <- disp %>%
 #Ausgabe von disp zur Kontrolle
 glimpse(disp)
 summary(disp)
+sum(is.na(disp))
+length(unique(disp$disp_id)) == nrow(disp)
 ```
 
 ## district Datensatz
@@ -257,10 +249,6 @@ Der district Datensatz enthält viele Informationen über jeden District.
 
 ```{r}
 district <- read.csv("data/district.csv", sep=";")
-glimpse(district)
-summary(district)
-sum(is.na(district))
-length(unique(district$A1)) == nrow(district)
 ```
 
 Hier werden alle Spalten mit A angegeben, dies sollen aussagekräftigere Namen werden.
@@ -286,6 +274,8 @@ Kontrolle der geänderten Tabelle.
 ```{r}
 glimpse(district)
 summary(district)
+sum(is.na(district))
+length(unique(district$A1)) == nrow(district)
 ```
 
 Wir haben uns bei der analyse der Daten gefragt, ob es einen Zusammenhang zwischen der arbeitslosenquote und der Anzahl der begangenen Verbrechen gibt.
@@ -329,11 +319,6 @@ Der loan Datensatz ist für uns einer der Interessantesten Datensätze. In ihm s
 
 ```{r}
 loan <- read.csv("data/loan.csv", sep=";")
-glimpse(loan)
-summary(loan)
-sum(is.na(loan))
-length(unique(loan$loan_id)) == nrow(loan)
-length(unique(loan$account_id)) == nrow(loan)
 ```
 
 ```{r}
@@ -358,6 +343,9 @@ Kontrolle der Änderungen.
 ```{r}
 glimpse(loan)
 summary(loan)
+sum(is.na(loan))
+length(unique(loan$loan_id)) == nrow(loan)
+length(unique(loan$account_id)) == nrow(loan)
 ```
 
 Wir wollen nun anschauen welche höhe von Krediten von der Bank vergeben wurde.
@@ -382,29 +370,9 @@ Nein gibt es nicht, jeder Account hat über die Zeit der Datenerhebung maximal e
 ```{r}
 ggplot(loan, aes(x = duration, y = ..count.., fill = as.factor(duration))) +
   geom_bar() +
-  labs(fill = "dauer") +
+  labs(fill = "Dauer") +
   theme(axis.text.x = element_blank(), axis.title.x = element_blank())
 
-```
-
-Im Plot sehen wir 5 linien, diese ergeben sich aus der Duration. Im facet wrapet scatter plot sehen wir, dass vorallem die kleineren Beträge den Status finished_ok haben und die grösseren running_ok. Dieses bild zeigt sich auch be denen, welche nicht ok sind, die kleineren Beträge sind finished_not_payed und die grösseren running_in_dept
-
-```{r}
-ggplot(loan, aes(x = amount, y = payments, color = status)) +
-  geom_point(size = 2, alpha = 0.5) +
-  scale_x_continuous(labels = scales::comma_format(scale = 1e-3), breaks = seq(0, max(loan$amount), by = 100000)) +
-  labs(x = "Amount in thousend")
-
-ggplot(loan, aes(x = amount, y = payments, color = status)) +
-  geom_point(size = 2, alpha = 0.5) +
-  scale_x_continuous(labels = scales::comma_format(scale = 1e-3), breaks = seq(0, max(loan$amount), by = 100000)) +
-  facet_wrap(vars(status)) +
-  labs(x = "Amount in thousend")
-
-ggplot(loan, aes(x = amount, y = payments, color = duration)) +
-  geom_point(size = 2, alpha = 0.5) +
-  scale_x_continuous(labels = scales::comma_format(scale = 1e-3), breaks = seq(0, max(loan$amount), by = 100000)) +
-  labs(x = "Amount in thousend")
 ```
 
 ## order Datensatz
@@ -413,10 +381,6 @@ Der Order Datensatz hat Informationen über monatlich fixe Transaktionen.
 
 ```{r}
 order <- read.csv("data/order.csv", sep=";")
-glimpse(order)
-summary(order)
-sum(is.na(order))
-length(unique(order$order_id)) == nrow(order)
 ```
 
 Hier sollen die beiden <chr> in <fct> geändert werden. Auch sollen die Werte in k_symbol verständlich werden.
@@ -441,6 +405,8 @@ Kontrolle der Daten.
 ```{r}
 glimpse(order)
 summary(order)
+sum(is.na(order))
+length(unique(order$order_id)) == nrow(order)
 ```
 
 ## trans Datensatz
@@ -449,11 +415,6 @@ Der trans Datensatz ist der Grösste Datensatz, in ihm sind sämtliche Transakti
 
 ```{r}
 trans <- read.csv("data/trans.csv", sep=";")
-glimpse(trans)
-summary(trans)
-sum(is.na(trans))
-sum(is.na(trans$trans_id))
-length(unique(trans$trans_id)) == nrow(trans)
 ```
 
 Ändern der Tschechischen Namen, date in Datum formatieren und umwandlungen in Faktoren. Bei der spalte type werden in der Datenbeschreibung nur "PRIJEM" und "VYDAJ" beschrieben zudem kommt aber auch noch "VYBER" vor, dieser wird aber ansonsten als "withdrawal in cash" beschrieben, deshalb übernehmen wir dies auch hier.
@@ -508,6 +469,9 @@ Kontrolle der Änderungen
 ```{r}
 glimpse(trans)
 summary(trans)
+sum(is.na(trans))
+sum(is.na(trans$trans_id))
+length(unique(trans$trans_id)) == nrow(trans)
 ```
 
 ```{r}
@@ -524,7 +488,7 @@ In diesem Plot ist gut zu sehen, das die Anzahl der Transaktionen im verlauf der
 
 Um einheitlich mit den gleichen Daten zu arbeiten wollen wir ein konsolidiertes Dataframe erstellen. Dazu haben wir zuerst die Schnittstellen der einzelnen Datensätze visualisiert.
 
-![](Key Value Datensätze.PNG)
+![](Key%20Value%20Datensätze.PNG)
 
 Um das Konsolidierte Dataframe zu erhalten haben wir zuerst alle Datensätze, welche vorhanden sind un durch einfache joins verbindbar sind zuammengefügt.
 
@@ -588,7 +552,7 @@ client_analytical_record <- client_analytical_record %>%
 glimpse(client_analytical_record)
 ```
 
-Bei den Transaktionen wollen wir nicht jede transaktion einzeln an das konsolidierte Dataframe anhängen, sondern wollen nur die monatlichen aktivitäten dokumentieren.
+Bei den Transaktionen wollen wir nicht jede Transaktion einzeln an das konsolidierte Dataframe anhängen, sondern wollen nur die monatlichen Aktivitäten dokumentieren.
 
 ```{r}
 trans_per_month <- trans %>%
@@ -651,8 +615,6 @@ trans_per_month_new <- trans_per_month %>%
   ) 
 ```
 
-
-
 Die neue Trans_per_month_new Liste wird nun an das CAR angehängt.
 
 ```{r}
@@ -693,27 +655,6 @@ summary(transactions_accounts_with_loan)
 names(transactions_accounts_with_loan)
 ```
 
-Kontrolle ob es ein muster in den Statusen gibt.
-
-```{r}
-transactions_accounts_with_loan %>%
-  group_by(account_id) %>%
-  filter(days_before_loan == 0) %>%
-  ggplot(aes(x = amount, y = saldo, color = status)) +
-  geom_point(size = 1) +
-  scale_x_continuous(labels = scales::number_format(scale = 1e+0)) +
-  ggtitle("Saldo und Amount verglichen")
-
-transactions_accounts_with_loan %>%
-  group_by(account_id) %>%
-  filter(days_before_loan == 0) %>%
-  ggplot(aes(x = amount, y = saldo, color = status)) +
-  geom_point(size = 1) +
-  facet_wrap(~status) +
-  scale_x_continuous(labels = scales::number_format(scale = 1e+0)) +
-  ggtitle("Saldo und Amount vergleichen, nach Status aufgeteilt")
-```
-
 ```{r}
 transactions_accounts_with_loan %>%
   group_by(days_before_loan, status) %>%
@@ -734,7 +675,6 @@ transactions_accounts_with_loan %>%
   ggtitle("Median des Saldos vor beginn des Kredits")
 ```
 
-
 ```{r}
 transactions_accounts_with_loan %>%
   distinct(loan_id, .keep_all = TRUE) %>%
@@ -744,19 +684,16 @@ transactions_accounts_with_loan %>%
 
 ```
 
-
 ```{r}
 colSums(is.na(transactions_accounts_with_loan)) %>%
   sort(decreasing = TRUE)
 ```
 
-
-
 # Random Forest
 
 ## Trainings Dataframe erstellen
 
-Erstellen eines Dataframes für alle mit Loan 13 Monate vor Beginn des Loans
+Erstellen eines Dataframes für alle mit Loan 6 Monate vor Beginn des Loans. Wir haben uns bei unserer Challenge für den Kredit entschieden, da wir uns zwischen den Kreditkarten und den Krediten entscheiden mussten und in unseren Augen eine Kreditvergabe lukrativer ist, als eine Kreditkarte. Dabei muss man aber beachten das unser Model eine hohe Genauigkeit aufweisen muss, nicht das wir ein unnötiges Risiko für die Bank erschaffen.
 
 ```{r}
 df_loan_13_month <- trans_per_month %>%
@@ -819,26 +756,9 @@ df_complete_loan_13_month$get_loan <- as.factor(df_complete_loan_13_month$get_lo
 
 ```
 
-## Modell trainieren
-
-Random Forest erstellen
-
-```{r}
-set.seed(123)
-splitIndex_13 <- createDataPartition(df_complete_loan_13_month$get_loan, p = .8, list = FALSE)
-train_set_13 <- df_complete_loan_13_month[splitIndex_13, ]
-test_set_13 <- df_complete_loan_13_month[-splitIndex_13, ]
-
-model_13 <- randomForest(get_loan ~ . - account_id, data = train_set_13, method = "rf")
-
-predictions_13 <- predict(model_13, test_set_13)
-
-confusionMatrix(predictions_13, test_set_13$get_loan, mode = "everything", positive = "1")
-```
-
 ## Predictions Kreditkandidaten
 
-Erstellen eines Dataframes für alle ohne Loan in den letzten 13 Monaten
+Erstellen eines Dataframes für alle ohne Loan in den letzten 6 Monaten
 
 ```{r}
 df_no_loan_today <- trans_per_month %>%
@@ -850,7 +770,7 @@ df_no_loan_today <- trans_per_month %>%
   mutate(months_before_loan = (year_month)-(loan_date)) %>%
 
   mutate(months_before_loan = as.numeric(round(months_before_loan * (-1) / 30))) %>%
-  filter(months_before_loan >= 0 & months_before_loan <= 12) %>%
+  filter(months_before_loan >= 0 & months_before_loan <= 6) %>%
   
   pivot_wider(
     id_cols = account_id,
@@ -858,9 +778,6 @@ df_no_loan_today <- trans_per_month %>%
     values_from = c(einnahmen, ausgaben, kontostand_ende_monat),
     names_sort = TRUE)
 ```
-
-
-## Versuch
 
 ```{r}
 # Removing columns that start with "loan_"
@@ -963,7 +880,6 @@ df_grouped_metrics <- bind_rows(df_grouped_metrics_no_loan_for_training, df_grou
 glimpse(df_grouped_metrics)
 ```
 
-
 ```{r}
 set.seed(123)
 splitIndex_13 <- createDataPartition(df_grouped_metrics$loan, p = .8, list = FALSE)
@@ -986,13 +902,13 @@ printSelectedMetrics <- function(conf_matrix) {
 }
 
 ```
-Wir haben uns bei der Auswertung der Konfusionsmatrix auf der Kennzahlen beschränkt.
-Der Accuracy, welche die True Positive sowie negative zusammenzählt und dann durch die anzahl der Beobachtungen teil,
-Der F1-Score welcher besser geeignet um auch bei unverteilten Daten eine präzise Angabe zu treffen,
-Und dem Kappa, dieser Wert gibt an, wie gross der unterschied vom Model im vergleich zu einer zufälligen Auswertung aussieht.
+
+Wir haben uns bei der Auswertung der Konfusionsmatrix auf der Kennzahlen beschränkt. Der Accuracy, welche die True Positive sowie negative zusammenzählt und dann durch die anzahl der Beobachtungen teil, Der F1-Score welcher besser geeignet um auch bei unverteilten Daten eine präzise Angabe zu treffen, Und dem Kappa, dieser Wert gibt an, wie gross der unterschied vom Model im vergleich zu einer zufälligen Auswertung aussieht.
+
 ```{r}
 printSelectedMetrics(conf_matrix)
 ```
+
 ```{r}
 getTopNVarImportance <- function(model, n) {
   # Extract variable importance
@@ -1013,7 +929,7 @@ getTopNVarImportance(model_13, 11)
 
 ```{r}
 transactions_accounts_no_loan <- trans %>%
-  filter(account_id %in% df_grouped_metrics_no_loan_today$account_id) %>%
+  filter(!(account_id %in% loan$account_id)) %>%
   filter(date >= as.Date("1998-07-01")) %>%
   group_by(account_id, date) %>%
   summarise(
@@ -1070,7 +986,7 @@ df_grouped_metrics_no_loan_today <- transactions_accounts_no_loan %>%
 
 
 # Predict using the Random Forest model on the new data
-predictions_no_loan_today <- predict(model_13, df_grouped_metrics_no_loan_today, type = "prob")
+predicted_probabilities <- predict(model_13, df_grouped_metrics_no_loan_today, type = "prob")
 
 # If you need to add these predictions as a new column to your df_grouped_metrics_no_loan_today dataframe:
 df_grouped_metrics_no_loan_today$predictions <- ifelse(predicted_probabilities[, "1"] > 0.5, 1, 0)
@@ -1094,8 +1010,6 @@ top_n_results <- head(df_sorted_by_prob, 10)
 # View the top n results
 print(top_n_results)
 ```
-
-
 
 ```{r}
 ids_predicted_yes <- df_grouped_metrics_no_loan_today %>%
@@ -1197,9 +1111,6 @@ transactions_accounts_no_loan %>%
   theme_minimal()
 ```
 
-
-
-
 ```{r}
 test1 <- transactions_accounts_with_loan %>%
   mutate(predictions = as.factor(-1)) %>%
@@ -1284,3 +1195,8 @@ plot_df %>%
   theme_minimal()
 ```
 
+#Fazid
+
+##Ergebnis Wir haben gesehen, dass unser Model sehr zuverlässig Kandidaten für einen Kredit auswählen kann, dabei ist vor allem der Saldo für das Model äusserst wichtig, zudem spielt auch die Region einen wesentlichen Faktor. Was auch auffallend ist, ist dass die Einnahmen, Ausgaben und der Saldo deutlich höher sind für die Kunden welche einen Kredit bekommen, im Vergleich zu denen welche keinen bekommen. Die Anzahl der Ausgabe, wer für einen Kredit interessant wäre ist nicht sonderlich hoch, dafür sollten durch die hohe Genauigkeit des Models auch nur ein Kunde, welcher an einem Kredit interessiert ist. Wir haben uns beim Model auf eine Zeitdauer von sechs Monaten beschränkt. Wir haben das Model zuerst mit 13 Monaten laufen lassen, das Problem dabei war, dass die Kunden, welche bereits einen Kredit genommen haben zum Teil erst seit kurzem überhaupt ein Konto besitzen und Geld auf dieses einzahlen, so war der Median 13 Monate im Voraus zum Teil kurz vor Null. Nach der Anpassung auf sechs Monate hat sich auch die Genauigkeit unseres Models noch einmal gesteigert.
+
+##Reflexion Wir haben viel gelernt während dieser Challenge, angefangen bei vielen kleinen Aufgaben eine richtige Syntax in R zu erstellen, dabei haben wir auch die Hilfe von ChatGPT benötigt, dabei war es gerade bei kleinen Problemen, wie beim Optimieren von Plots oft hilfreich. Grössere Probleme wie das Generieren von ganzen Codeblocks war wiederum oft mühsamer, unpräzise und es brauchte viel Zeit zum Überarbeiten im Nachhinein. Zudem haben wir gelernt, dass es für eine zukünftige Aufgabe auch sinnvoll ist, auch während dem Projekt das Notebook etwas aufzuräumen denn gerade beim Abschluss unserer Arbeit haben wir noch einmal viel Zeit für das Aufräumen und Korrigieren des Notebooks aufgewendet. Abschliessend können wir sagen, dass wir in diesem Projekt trotzdem wir manchmal sehr genervt waren, wenn etwas nicht funktioniert hat, wofür man einige Zeit aufgewendet hat, viel Neues, Nützliches und Interessantes gelernt haben.
