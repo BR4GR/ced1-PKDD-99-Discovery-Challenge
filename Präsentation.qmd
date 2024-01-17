@@ -1,0 +1,120 @@
+---
+title: "Präsentation CED1"
+author: "Benjamin Würmli, Adrian Meier"
+format: revealjs
+editor: visual
+---
+
+# Aufgabenstellung
+
+Eine tschechische Bank möchte ihre Dienstleistungen für Privatkunden verbessern und "interessante Kundengruppen" identifizieren. Die Geschäftsleitung hat keine präzise Vorstellung, möchte aber zusätzliches Business generieren ohne unnötige Risiken einzugehen und Verluste einzufahren.
+
+# Daten und Aufbereitung
+
+## Die 8 Datensätze
+
+> -   Account
+>
+>     ![](pictures/Accounteröffnungen%20pro%20Woche.png)
+
+## 
+
+-   Client
+
+    ![](pictures/Verteilung%20der%20Kunden%20nach%20Jahr%20und%20Geschlecht.png)
+
+## 
+
+-   District
+
+    ![](pictures/Distribution%20of%20accounts%20by%20district.png)
+
+## 
+
+-   Loan
+
+    ::: columns
+    ::: {.column width="50%"}
+    ![](pictures/Betrag%20der%20Kredite.png)
+    :::
+
+    ::: {.column width="50%"}
+    ![](pictures/Verteilung%20der%20Kreditlaufzeit.png)
+    :::
+    :::
+
+## 
+
+-   Trans
+
+    ![](pictures/Anzahl%20Transaktionen.png)
+
+## 
+
+-   Card
+
+-   Disp
+
+-   Order
+
+## Veränderungen an den Datensätzen
+
+-   Ändern der Types
+
+-   Anschauen, ob NAs vorhanden und wenn ja warum
+
+-   Einfügen zusätzlicher Spalten
+
+# Erstellen eines konsolidierten Dataframes
+
+## Art des Zusammenfügens
+
+![](Key%20Value%20Datensätze.PNG)
+
+## Erstellen von monatlichen Transaktionen
+
+Die Transaktionen sollen pro Account monatlich zusammengefasst werden und an das Konasolidierte Dataframe angehangen werden.
+
+# Model erstellen
+
+## Was spricht für den Kredit
+
+-   Aufgrund der Datenlage haben wir Kreditkarten oder Kredite
+
+-   Gewinn in unseren Augen bei Krediten höher und langfristiger für die Bank
+
+-   Bei gutem Model ist das Risiko nicht sonderlich hoch
+
+## Erstellen eines angepassten Dataframes
+
+-   Erstellen von zwei Dataframes, eines für mit Kredit und eines Ohne
+
+-   Anpassung der Werte nach Mittelwerten usw.
+
+-   Limitierung auf 6 Monate
+
+## Random Forest
+
+![](pictures/Random_forest_explain.png){fig-alt="Quelle: Von TseKiChun - Eigenes Werk, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=112433454"}
+
+Quelle: Yehoshua, D. R. (2023, Juli 17). Random Forests. *Medium*. [https://medium.com/\@roiyeho/random-forests-98892261dc49](https://medium.com/@roiyeho/random-forests-98892261dc49)
+
+## Trainieren des Models
+
+-   80% zum trainieren
+
+-   20% zum testen
+
+## Bewertung unseres Models
+
+-   Accuracy: 0.9810479
+
+-   Kappa: 0.9265523
+
+-   F1 Score: 0.9377289
+
+# Ergebnis
+
+# Reflexion
+
+# 
