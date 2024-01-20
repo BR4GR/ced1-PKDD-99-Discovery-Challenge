@@ -97,7 +97,7 @@ Die Transaktionen sollen pro Account monatlich zusammengefasst werden und an das
 
 ![](pictures/Random_forest_explain.png){fig-alt="Quelle: Von TseKiChun - Eigenes Werk, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=112433454"}
 
-Quelle: Yehoshua, D. R. (2023, Juli 17). Random Forests. *Medium*. [https://medium.com/\@roiyeho/random-forests-98892261dc49](https://medium.com/@roiyeho/random-forests-98892261dc49)
+~Quelle:\ Yehoshua,\ D.\ R.\ (2023,\ Juli\ 17).\ Random\ Forests.\ *Medium*.\ [https://medium.com/\@roiyeho/random-forests-98892261dc49](https://medium.com/@roiyeho/random-forests-98892261dc49)~
 
 ## Trainieren des Models
 
@@ -113,8 +113,34 @@ Quelle: Yehoshua, D. R. (2023, Juli 17). Random Forests. *Medium*. [https://medi
 
 -   F1 Score: 0.9377289
 
+    ![](pictures/Wichtigkeit Model.PNG)
+
 # Ergebnis
 
+## Ausgabe
+
+![](pictures/Accounts für Kredit.PNG)
+
+## Grafische Darstellung
+
+::: columns
+::: {.column width="50%"}
+![Mittlerer Kontostand](pictures/Mittel Kontostand.png)
+:::
+
+::: {.column width="50%"}
+![Mittlere Einnahmen](pictures/Mittel Einnahmen.png)
+:::
+:::
+
 # Reflexion
+
+::: incremental
+-   Zu wenig gelöscht
+
+-   ChatGPT
+
+-   Viele neue Dinge gelernt
+:::
 
 # 
