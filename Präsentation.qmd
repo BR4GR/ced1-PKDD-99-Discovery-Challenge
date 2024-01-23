@@ -97,13 +97,17 @@ Die Transaktionen sollen pro Account monatlich zusammengefasst werden und an das
 
 ![](pictures/Random_forest_explain.png){fig-alt="Quelle: Von TseKiChun - Eigenes Werk, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=112433454"}
 
-~Quelle:\ Yehoshua,\ D.\ R.\ (2023,\ Juli\ 17).\ Random\ Forests.\ *Medium*.\ [https://medium.com/\@roiyeho/random-forests-98892261dc49](https://medium.com/@roiyeho/random-forests-98892261dc49)~
+Quelle: Yehoshua, D. R. (2023, Juli 17). Random Forests. *Medium*.
+
+[https://medium.com/\@roiyeho/random-forests-98892261dc49](https://medium.com/@roiyeho/random-forests-98892261dc49)
 
 ## Trainieren des Models
 
 -   80% zum trainieren
 
 -   20% zum testen
+
+-   Verschiedene Variablen im Trainingsdataframe getestet
 
 ## Bewertung unseres Models
 
@@ -113,23 +117,23 @@ Die Transaktionen sollen pro Account monatlich zusammengefasst werden und an das
 
 -   F1 Score: 0.9377289
 
-    ![](pictures/Wichtigkeit Model.PNG)
+    ![](pictures/Wichtigkeit%20Model.PNG){width="800"}
 
 # Ergebnis
 
 ## Ausgabe
 
-![](pictures/Accounts für Kredit.PNG)
+![](pictures/Accounts%20für%20Kredit.PNG)
 
 ## Grafische Darstellung
 
 ::: columns
 ::: {.column width="50%"}
-![Mittlerer Kontostand](pictures/Mittel Kontostand.png)
+![Mittlerer Kontostand](pictures/Mittel%20Kontostand.png){width="612"}
 :::
 
 ::: {.column width="50%"}
-![Mittlere Einnahmen](pictures/Mittel Einnahmen.png)
+![Mittlere Einnahmen](pictures/Mittel%20Einnahmen.png){width="1300"}
 :::
 :::
 
@@ -141,6 +145,10 @@ Die Transaktionen sollen pro Account monatlich zusammengefasst werden und an das
 -   ChatGPT
 
 -   Viele neue Dinge gelernt
+
+-   Zu wenig dokumentiert
+
+-   An gewissen Teilen hätte noch eine oder zwei Grafiken ergänzt werden können
 :::
 
 # 
